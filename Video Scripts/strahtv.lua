@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "Страх ТВ" https://strah.video (23/3/21)
+-- видеоскрипт для плейлиста "Страх ТВ" https://strah.video (4/5/21)
 -- Copyright © 2017-2021 Nexter | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: strahtv_pls.lua
@@ -65,6 +65,6 @@
 	local v5 = answer:match('StreamOther%s*=%s*"([^"]+)') or ''
 	retAdr = retAdr:gsub('{v1}', v1):gsub('{v2}', v2):gsub('{v3}', v3):gsub('{v4}', v4):gsub('{v5}', v5)
 	retAdr = retAdr:gsub('%[%d+%]', ''):gsub('amp;', '')
-	retAdr = retAdr .. '$OPT:http-referrer=' .. inAdr .. '$OPT:http-user-agent=' .. userAgent
+	retAdr = retAdr .. '$OPT:adaptive-hls-ignore-discontinuity$OPT:http-referrer=' .. inAdr .. '$OPT:http-user-agent=' .. userAgent
 	m_simpleTV.Control.CurrentAddress = retAdr
 -- debug_in_file(retAdr .. '\n')
