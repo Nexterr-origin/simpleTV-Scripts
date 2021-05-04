@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "wifire+" https://wifire.tv (7/3/21)
+-- скрапер TVS для загрузки плейлиста "wifire+" https://wifire.tv (4/5/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: wifire.lua
@@ -37,7 +37,7 @@ local filter= {
 			if not m3u_file then return end
 			if not TVSources_var.tmp.source[UpdateID] then return end
 		local Source = TVSources_var.tmp.source[UpdateID]
-		local outm3u, err = tvs_func.get_m3u(decode64('aHR0cHM6Ly9naXRodWIuY29tL05leHRlcnItb3JpZ2luL3NpbXBsZVRWLVBsYXlsaXN0cy9ibG9iL21haW4vd2lmaXJlJTJC'))
+		local outm3u, err = tvs_func.get_m3u(decode64('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL05leHRlcnItb3JpZ2luL3NpbXBsZVRWLVBsYXlsaXN0cy9tYWluL3dpZmlyZSUyQg'))
 		if err ~= '' then
 			tvs_core.tvs_ShowError(err)
 			m_simpleTV.Common.Sleep(1000)
