@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://yandex.ru (10/3/21)
+-- видеоскрипт для сайта https://yandex.ru (5/5/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://yandex.ru/portal/video?from=videohub&stream_id=4ec8f2d80cb564848e37d63ae22976d6
@@ -22,7 +22,11 @@
 		then
 		 return
 		end
-		if m_simpleTV.Control.CurrentAddress:match('PARAMS=yandex_vod') then return end
+		if m_simpleTV.Control.CurrentAddress:match('PARAMS=yandex_tv')
+			or m_simpleTV.Control.CurrentAddress:match('decryption_key')
+		then
+		 return
+		end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.OSD.ShowMessageT({text = '', showTime = 1000, id = 'channelName'})
 	local logo = 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/yandex-vod.png'
