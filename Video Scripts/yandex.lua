@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "Yandex" https://yandex.ru (21/10/20)
+-- видеоскрипт для плейлиста "Yandex" https://yandex.ru (5/5/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: yandex_pls.lua
@@ -9,7 +9,11 @@
 -- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('https?://strm%.yandex%.ru/k') then return end
-		if m_simpleTV.Control.CurrentAddress:match('PARAMS=yandex_tv') then return end
+		if m_simpleTV.Control.CurrentAddress:match('PARAMS=yandex_tv')
+			or m_simpleTV.Control.CurrentAddress:match('decryption_key')
+		then
+		 return
+		end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
