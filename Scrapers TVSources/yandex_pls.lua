@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "Yandex" https://tv.yandex.ru (23/10/20)
+-- скрапер TVS для загрузки плейлиста "Yandex" https://tv.yandex.ru (6/5/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: yandex.lua
@@ -171,6 +171,12 @@ local filter = {
 					or v.channel_type:match('^yatv')
 					or v.address:match('/non__fake/')
 					or v.address:match('/kal/weather_')
+					or v.address:match('/sony_channel/')
+					or v.address:match('/sony_turbo/')
+					or v.address:match('/sony_sci_fi/')
+					or v.address:match('/ngc_hd/')
+					or v.address:match('/ngc_wild_hd/')
+					or v.address:match('/viasat_sport/')
 					or v.address:match('/ya_chan_tv'))
 					and v.address:match('^https?:')
 				then
