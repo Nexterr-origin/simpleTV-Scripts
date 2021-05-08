@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста веб камер "SkylineWebcams" https://www.skylinewebcams.com (21/3/21)
+-- скрапер TVS для загрузки плейлиста веб камер "SkylineWebcams" https://www.skylinewebcams.com (8/5/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: skylinewebcams.lua
@@ -15,89 +15,14 @@
 		local t = {text = str, showTime = 1000 * 5, color = color, id = 'channelName'}
 		m_simpleTV.OSD.ShowMessageT(t)
 	end
-	local function translateName(str)
-		local t = {
-		{'anguilla', 'Ангилья'},
-		{'argentina', 'Аргентина'},
-		{'australia', 'Австралия'},
-		{'austria', 'Австрия'},
-		{'barbados', 'Барбадос'},
-		{'belarus', 'Беларуссия'},
-		{'belgium', 'Бельгия'},
-		{'bolivia', 'Боливия'},
-		{'brazil', 'Бразилия'},
-		{'caribbean netherlands', 'Карибские острова Нидерланды'},
-		{'chile', 'Чили'},
-		{'china', 'Китай'},
-		{'costa rica', 'Коста Рика'},
-		{'croatia', 'Хорватия'},
-		{'curaçao', 'Кюрасао'},
-		{'czech republic', 'Чехия'},
-		{'dominican republic', 'Доминиканская Респблика'},
-		{'ecuador', 'Эквадор'},
-		{'el salvador', 'Сальвадор'},
-		{'faroe islands', 'Фарерские острова'},
-		{'france', 'Франция'},
-		{'germany', 'Германия'},
-		{'greece', 'Греция'},
-		{'grenada', 'Гренада'},
-		{'honduras', 'Гондурас'},
-		{'hungary', 'Венгрия'},
-		{'iceland', 'Исландия'},
-		{'ireland', 'Ирландия'},
-		{'israel', 'Израиль'},
-		{'italy', 'Италия'},
-		{'jordan', 'Иордания'},
-		{'kenya', 'Кения'},
-		{'madagascar', 'Мадакаскар'},
-		{'maldives', 'Мальдивы'},
-		{'malta', 'Мальта'},
-		{'mexico', 'Мексика'},
-		{'morocco', 'Марокко'},
-		{'netherlands', 'Нидерланды'},
-		{'nicaragua', 'Никарагуа'},
-		{'norway', 'Норвегия'},
-		{'panama', 'Панама'},
-		{'peru', 'Перу'},
-		{'philippines', 'Филиппины'},
-		{'poland', 'Польша'},
-		{'portugal', 'Португалия'},
-		{'republic of san marino', 'Республика Сан-Марино'},
-		{'republic of singapore', 'Сингапур'},
-		{'serbia', 'Сербия'},
-		{'seychelles', 'Сейшельские острова'},
-		{'slovenia', 'Словения'},
-		{'south africa', 'Южная Африка'},
-		{'spain', 'Испания'},
-		{'switzerland', 'Швейцария'},
-		{'thailand', 'Таиланд'},
-		{'turkey', 'Турция'},
-		{'united arab emirates', 'Объединенные Арабские Эмираты'},
-		{'united kingdom', 'Соединенное Королевство'},
-		{'united states', 'Соединенные Штаты'},
-		{'us virgin islands', 'Американские Виргинские острова'},
-		{'venezuela', 'Венесуэла'},
-		{'zambia', 'Замбия'},
-		{'zanzibar', 'Занзибар'},
-		}
-		if m_simpleTV.Interface.GetLanguage() == 'ru' then
-			for i = 1, #t do
-				if t[i][1] == string.lower(str) then
-					str = t[i][2]
-				 break
-				end
-			end
-		end
-	 return str
-	end
 	local function flags(str)
 		local t = {
 		{'zanzibar', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f9-1f1ff.png'},
-		{'caribbean netherlands', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e7-1f1f6.png?v8'},
+		{'caribbean netherlands', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e7-1f1f6.png'},
 		{'us virgin islands', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1fb-1f1ee.png'},
 		{'czech republic', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e8-1f1ff.png'},
 		{'republic of san marino', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f8-1f1f2.png'},
-		{'republic of singapore', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f8-1f1ec.png?v8'},
+		{'republic of singapore', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f8-1f1ec.png'},
 		{'afghanistan', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e6-1f1eb.png'},
 		{'albania', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e6-1f1f1.png'},
 		{'algeria', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e9-1f1ff.png'},
@@ -117,7 +42,7 @@
 		{'bangladesh', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e7-1f1e9.png'},
 		{'barbados', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e7-1f1e7.png'},
 		{'belarus', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e7-1f1fe.png'},
-		{'belgium', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e7-1f1ea.png'},
+		{'belgique', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e7-1f1ea.png'},
 		{'belize', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e7-1f1ff.png'},
 		{'benin', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e7-1f1ef.png'},
 		{'bermuda', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e7-1f1f2.png'},
@@ -125,7 +50,7 @@
 		{'bolivia', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e7-1f1f4.png'},
 		{'bosnia', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e7-1f1e6.png'},
 		{'botswana', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e7-1f1fc.png'},
-		{'brazil', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e7-1f1f7.png'},
+		{'brasil', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e7-1f1f7.png'},
 		{'british virgin islands', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1fb-1f1ec.png'},
 		{'brunei', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e7-1f1f3.png'},
 		{'bulgaria', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e7-1f1ec.png'},
@@ -146,9 +71,9 @@
 		{'congo - kinshasa', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e8-1f1e9.png'},
 		{'cook islands', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e8-1f1f0.png'},
 		{'costa rica', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e8-1f1f7.png'},
-		{'croatia', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ed-1f1f7.png'},
+		{'hrvatska', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ed-1f1f7.png'},
 		{'cuba', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e8-1f1fa.png'},
-		{'curaçao', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e8-1f1fc.png'},
+		{'curacao', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e8-1f1fc.png'},
 		{'cyprus', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e8-1f1fe.png'},
 		{'czechia', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e8-1f1ff.png'},
 		{'côte d’ivoire', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e8-1f1ee.png'},
@@ -174,9 +99,9 @@
 		{'gabon', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ec-1f1e6.png'},
 		{'gambia', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ec-1f1f2.png'},
 		{'georgia', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ec-1f1ea.png'},
-		{'germany', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e9-1f1ea.png'},
+		{'deutschland', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e9-1f1ea.png'},
 		{'ghana', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ec-1f1ed.png'},
-		{'greece', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ec-1f1f7.png'},
+		{'ellada', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ec-1f1f7.png'},
 		{'greenland', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ec-1f1f1.png'},
 		{'grenada', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ec-1f1e9.png'},
 		{'guadeloupe', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ec-1f1f5.png'},
@@ -196,7 +121,7 @@
 		{'iraq', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ee-1f1f6.png'},
 		{'ireland', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ee-1f1ea.png'},
 		{'israel', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ee-1f1f1.png'},
-		{'italy', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ee-1f1f9.png'},
+		{'italia', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ee-1f1f9.png'},
 		{'jamaica', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ef-1f1f2.png'},
 		{'japan', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ef-1f1f5.png'},
 		{'jordan', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ef-1f1f4.png'},
@@ -251,7 +176,7 @@
 		{'north korea', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f0-1f1f5.png'},
 		{'north macedonia', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f2-1f1f0.png'},
 		{'northern mariana islands', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f2-1f1f5.png'},
-		{'norway', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f3-1f1f4.png'},
+		{'norge', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f3-1f1f4.png'},
 		{'oman', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f4-1f1f2.png'},
 		{'pakistan', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f5-1f1f0.png'},
 		{'palau', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f5-1f1fc.png'},
@@ -271,7 +196,7 @@
 		{'rwanda', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f7-1f1fc.png'},
 		{'réunion', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f7-1f1ea.png'},
 		{'samoa', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1fc-1f1f8.png'},
-		{'san marino', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f8-1f1f2.png'},
+		{'repubblica-di-san-marino', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f8-1f1f2.png'},
 		{'saudi arabia', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f8-1f1e6.png'},
 		{'senegal', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f8-1f1f3.png'},
 		{'serbia', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f7-1f1f8.png'},
@@ -280,13 +205,13 @@
 		{'singapore', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f8-1f1ec.png'},
 		{'sint maarten', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f8-1f1fd.png'},
 		{'slovakia', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f8-1f1f0.png'},
-		{'slovenia', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f8-1f1ee.png'},
+		{'slovenija', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f8-1f1ee.png'},
 		{'solomon islands', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f8-1f1e7.png'},
 		{'somalia', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f8-1f1f4.png'},
 		{'south africa', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ff-1f1e6.png'},
 		{'south korea', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f0-1f1f7.png'},
 		{'south sudan', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f8-1f1f8.png'},
-		{'spain', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ea-1f1f8.png'},
+		{'espana', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ea-1f1f8.png'},
 		{'sri lanka', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f1-1f1f0.png'},
 		{'st. barthélemy', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e7-1f1f1.png'},
 		{'st. helena', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f8-1f1ed.png'},
@@ -297,7 +222,7 @@
 		{'st. vincent & grenadines', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1fb-1f1e8.png'},
 		{'sudan', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f8-1f1e9.png'},
 		{'sweden', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f8-1f1ea.png'},
-		{'switzerland', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e8-1f1ed.png'},
+		{'schweiz', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e8-1f1ed.png'},
 		{'syria', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f8-1f1fe.png'},
 		{'são tomé & príncipe', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f8-1f1f9.png'},
 		{'taiwan', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1f9-1f1fc.png'},
@@ -333,24 +258,31 @@
 		{'zimbabwe', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1ff-1f1fc.png'},
 		{'åland islands', 'https://github.githubassets.com/images/icons/emoji/unicode/1f1e6-1f1fd.png'},
 		}
+		str = str:match('/webcam/([^.]+)')
+			if not str then return end
 			for i = 1, #t do
-				if t[i][1] == string.lower(str) then
+				local name = t[i][1]:gsub(' ', '-')
+				if name == str then
 					return t[i][2]
 				end
 			end
 	 return
 	end
 	local function LoadFromSite()
-		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:86.0) Gecko/20100101 Firefox/86.0')
+		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:89.0) Gecko/20100101 Firefox/89.0')
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 16000)
 		local url = 'https://www.skylinewebcams.com'
-		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
+		local lngUrl = ''
+		if m_simpleTV.Interface.GetLanguage() == 'ru' then
+			lngUrl = '/ru.html'
+		end
+		local rc, answer = m_simpleTV.Http.Request(session, {url = url .. lngUrl})
 			if rc ~= 200 then
 				m_simpleTV.Http.Close(session)
 			 return
 			end
-		answer = answer:match('data%-toggle="dropdown">Live Cams <span class="caret"></span>(.-)<a href="#"')
+		answer = answer:match('data%-toggle="dropdown">[^<]+<span class="caret"></span>(.-)<a href="#"')
 			if not answer then
 				m_simpleTV.Http.Close(session)
 			 return
@@ -361,8 +293,8 @@
 				local title = w:match('>([^<]+)')
 				if adr and title then
 					t0[#t0 + 1] = {}
-					t0[#t0].name = translateName(title)
-					t0[#t0].grouplogo = flags(title)
+					t0[#t0].name = title
+					t0[#t0].grouplogo = flags(adr)
 					t0[#t0].address = url .. adr
 				end
 			end
