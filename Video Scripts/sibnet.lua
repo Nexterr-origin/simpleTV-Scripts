@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://www.tvplusonline.ru (17/5/21)
+-- видеоскрипт для сайта https://video.sibnet.ru (17/5/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://video.sibnet.ru/video4316963-Kogda_reshil_posmotret_8K_video_na_starom_kompyutere
