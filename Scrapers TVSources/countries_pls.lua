@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "Countries" (12/4/21)
+-- скрапер TVS для загрузки плейлиста "Countries" (19/5/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## Переименовать каналы ##
 local filter = {
@@ -288,8 +288,8 @@ local filter = {
 			for i = 1, #t_pls do
 				t_pls[i].group_logo = flags(t_pls[i].group)
 				t_pls[i].group = t_pls[i].group:upper()
-				t_pls[i].group_is_unique = 0
-				t_pls[i].group_logo_force = 1
+				-- t_pls[i].group_is_unique = 0
+				-- t_pls[i].group_logo_force = 1
 			end
 		t_pls = ProcessFilterTableLocal(t_pls)
 		local m3ustr = tvs_core.ProcessFilterTable(UpdateID, Source, t_pls)
