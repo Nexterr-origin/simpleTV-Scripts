@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "Iptv-org" https://github.com/iptv-org/iptv (21/3/21)
+-- скрапер TVS для загрузки плейлиста "Iptv-org" https://github.com/iptv-org/iptv (19/5/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## Переименовать каналы ##
 local filter = {
@@ -48,8 +48,8 @@ local filter = {
 							t[#t].logo = w:match('tvg%-logo="([^"]+)')
 							t[#t].group = group
 							t[#t].group_logo = group_logo
-							t[#t].group_is_unique = 0
-							t[#t].group_logo_force = 1
+							-- t[#t].group_is_unique = 0
+							-- t[#t].group_logo_force = 1
 							if group:match('GERMANY')
 								and url:match('%.akamai')
 							then
