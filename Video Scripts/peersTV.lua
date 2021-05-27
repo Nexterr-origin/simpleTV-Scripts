@@ -1,5 +1,5 @@
--- видеоскрипт для плейлиста "PeersTV" http://peers.tv (12/12/20)
--- Copyright © 2017-2020 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для плейлиста "PeersTV" http://peers.tv (27/05/21)
+-- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: peersTV_pls.lua
 -- расширение дополнения httptimeshift: peerstv-timeshift_ext.lua
@@ -59,7 +59,8 @@
 	if inAdr:match('id=%d') then
 		url_archive()
 	end
-	if inAdr:match('%?offset=1') then
+	if inAdr:match('?offset=1') then
+		inAdr = inAdr:gsub('offset=1' , 'offset=10')
 		local url = inAdr:gsub('offset=.+', 'token=' .. m_simpleTV.User.peerstv.token .. extopt)
 		m_simpleTV.User.peerstv.url_archive = url .. extopt
 	end
