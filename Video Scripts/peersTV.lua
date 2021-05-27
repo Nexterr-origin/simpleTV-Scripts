@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "PeersTV" http://peers.tv (27/05/21)
+-- видеоскрипт для плейлиста "PeersTV" http://peers.tv (28/05/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: peersTV_pls.lua
@@ -15,12 +15,11 @@
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local userAgent = 'Dalvik/2.1.0 (Linux; U; Android 8.0.1;)'
-	local ref = 'https://peers.tv/'
-	local extopt = '$OPT:adaptive-logic=highest$OPT:demux=adaptive,any$OPT:adaptive-use-access'
-				.. '$OPT:http-user-agent=' .. userAgent
-				.. '$OPT:http-referrer=' .. ref
+	local userAgent = 'Mozilla/5.0 (SMART-TV; Linux; Tizen 4.0.0.2) AppleWebkit/605.1.15 (KHTML, like Gecko) SamsungBrowser/9.2 TV Safari/605.1.15'
+	local extOpt = '$OPT:adaptive-logic=highest'
+				.. '$OPT:adaptive-hls-ignore-discontinuity'
 				.. '$OPT:no-ts-cc-check'
+				.. '$OPT:http-user-agent=' .. userAgent
 				.. '$OPT:INT-SCRIPT-PARAMS=peers_tv'
 	if not m_simpleTV.User then
 		m_simpleTV.User = {}
@@ -49,7 +48,7 @@
 		local url = answer:match('"uri":"([^"]+)')
 			if not url then return end
 		url = url:gsub('\\/', '/'):gsub('offset=%d+&', '')
-		m_simpleTV.User.peerstv.url_archive = url .. extopt
+		m_simpleTV.User.peerstv.url_archive = url .. extOpt
 	end
 	if not m_simpleTV.User.peerstv.token then
 		local token = getToken()
@@ -61,14 +60,14 @@
 	end
 	if inAdr:match('?offset=1') then
 		inAdr = inAdr:gsub('offset=1' , 'offset=10')
-		local url = inAdr:gsub('offset=.+', 'token=' .. m_simpleTV.User.peerstv.token .. extopt)
-		m_simpleTV.User.peerstv.url_archive = url .. extopt
+		local url = inAdr:gsub('offset=.+', 'token=' .. m_simpleTV.User.peerstv.token .. extOpt)
+		m_simpleTV.User.peerstv.url_archive = url .. extOpt
 	end
 	inAdr = inAdr:gsub('/experimental/', '/streaming/'):gsub('$.-$', '')
 	local retAdr = inAdr .. '?token=' .. m_simpleTV.User.peerstv.token
 	retAdr = retAdr:gsub('^(.-)([%?&]offset=%d+)(.-)$' , '%1%3%2')
 	retAdr = retAdr:gsub('[%?&]+' , '&')
 	retAdr = retAdr:gsub('&' , '?', 1)
-	retAdr = retAdr .. extopt
+	retAdr = retAdr .. extOpt
 	m_simpleTV.Control.CurrentAddress = retAdr
 -- debug_in_file(retAdr .. '\n')
