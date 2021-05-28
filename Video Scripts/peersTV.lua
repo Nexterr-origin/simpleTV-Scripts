@@ -17,7 +17,6 @@
 	m_simpleTV.Control.CurrentAddress = 'error'
 	local userAgent = 'Mozilla/5.0 (SMART-TV; Linux; Tizen 4.0.0.2) AppleWebkit/605.1.15 (KHTML, like Gecko) SamsungBrowser/9.2 TV Safari/605.1.15'
 	local extOpt = '$OPT:adaptive-logic=highest'
-				.. '$OPT:adaptive-hls-ignore-discontinuity'
 				.. '$OPT:no-ts-cc-check'
 				.. '$OPT:http-user-agent=' .. userAgent
 				.. '$OPT:INT-SCRIPT-PARAMS=peers_tv'
