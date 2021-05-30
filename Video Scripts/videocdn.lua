@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (25/4/21)
+-- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (31/5/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://32.svetacdn.in/fnXOUDB9nNSO?kp_id=5928
@@ -18,7 +18,7 @@ local proxy = ''
 		 return
 		end
 	local inAdr = m_simpleTV.Control.CurrentAddress
-	inAdr = inAdr:gsub('//32%.', '//64.')
+	inAdr = inAdr:gsub('//32%.', '//22.')
 	m_simpleTV.OSD.ShowMessageT({text = '', showTime = 1000, id = 'channelName'})
 	if inAdr:match('^$videocdn') or not inAdr:match('&kinopoisk') then
 		if m_simpleTV.Control.MainMode == 0 then
@@ -192,7 +192,8 @@ local proxy = ''
 			if not retAdr then return end
 		local extOpt
 		if psevdotv then
-			extOpt = '$OPT:NO-SEEKABLE'
+			local videoTitle = title:gsub('.-:', '')
+			extOpt = '$OPT:NO-SEEKABLE$OPT:sub-source=logo:marq$OPT:marq-opacity=50$OPT:marq-size=12$OPT:marq-x=10$OPT:marq-y=5$OPT:marq-position=6$OPT:marq-marquee=' .. m_simpleTV.Common.UTF8ToMultiByte(videoTitle)
 			m_simpleTV.OSD.ShowMessageT({text = title, showTime = 1000 * 5, id = 'channelName'})
 			m_simpleTV.Control.SetTitle(title)
 		else
