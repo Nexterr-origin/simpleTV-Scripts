@@ -1,5 +1,5 @@
--- видеоскрипт для плейлиста "Страх ТВ" https://strah.video (4/5/21)
--- Copyright © 2017-2021 Nexter | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для плейлиста "Страх ТВ" https://strah.video (1/6/21)
+-- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: strahtv_pls.lua
 -- модуль: /core/playerjs.lua
@@ -15,7 +15,7 @@
 	require 'playerjs'
 	m_simpleTV.Control.ChangeAdress = 'Yes'
 	m_simpleTV.Control.CurrentAdress = 'error'
-	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:86.0) Gecko/20100101 Firefox/86.0'
+	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:89.0) Gecko/20100101 Firefox/89.0'
 	local session = m_simpleTV.Http.New(userAgent)
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 12000)
