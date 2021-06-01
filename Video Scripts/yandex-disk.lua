@@ -1,5 +1,5 @@
--- видеоскрипт "Яндекс.Диск" https://disk.yandex.ru (7/5/21)
--- Copyright © 2017-2021 Nexter | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт "Яндекс.Диск" https://disk.yandex.ru (1/6/21)
+-- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://disk.yandex.ru/i/BgqqM3DBhAwAxw
 -- https://disk.yandex.ru/mail?hash=npYAxrOu%2B1hqKJQXU5azg2aSsYX8iSnkGw2WEOk9llESDKrUk0jUzRk2oJr04pVbq%2FJ6bpmRyOJonT3VoXnDag%3D%3D
