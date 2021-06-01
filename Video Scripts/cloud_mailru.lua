@@ -1,4 +1,5 @@
--- видеоскрипт для https://cloud.mail.ru (1/6/21)
+-- видеоскрипт для https://cloud.mail.ru (2/6/21)
+-- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- открывает подобные ссылки
 -- https://cloud.mail.ru/public/GuR9/CpdDRwxu1
 -- https://cloud.mail.ru/public/4VZcMg86gm1s/%D0%90%D1%83%D0%B4%D0%B8%D0%BE%D0%BA%D0%BD%D0%B8%D0%B3%D0%B8
