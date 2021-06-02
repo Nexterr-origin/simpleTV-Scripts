@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (31/5/21)
+-- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (2/6/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://32.svetacdn.in/fnXOUDB9nNSO?kp_id=5928
@@ -18,7 +18,7 @@ local proxy = ''
 		 return
 		end
 	local inAdr = m_simpleTV.Control.CurrentAddress
-	inAdr = inAdr:gsub('//32%.', '//22.')
+	inAdr = inAdr:gsub('//32%.', '//58.')
 	m_simpleTV.OSD.ShowMessageT({text = '', showTime = 1000, id = 'channelName'})
 	if inAdr:match('^$videocdn') or not inAdr:match('&kinopoisk') then
 		if m_simpleTV.Control.MainMode == 0 then
@@ -98,7 +98,8 @@ local proxy = ''
 		n = '\\u0' .. table.concat(t, '\\u0')
 	 return	unescape3(n)
 	end
-	local function GetQualityFromAddress(url)
+	local function GetQualityFromAddress(url, title)
+		url = url:gsub('^$videocdn', '')
 		local du = url:match('#(%w+)')
 		if du then
 			url = decodeUrl(du)
@@ -147,6 +148,11 @@ local proxy = ''
 		for i = 1, #tab do
 			tab[i].Id = i
 			tab[i].Address = tab[i].Address .. '$OPT:NO-STIMESHIFT$OPT:demux=mp4,any'
+			if psevdotv then
+				local videoTitle = title:gsub('.-:', '')
+				local k = tab[i].qlty / 100
+				tab[i].Address = tab[i].Address .. '$OPT:NO-SEEKABLE$OPT:sub-source=marq$OPT:marq-opacity=70$OPT:marq-size=' .. (2.5 * k) .. '$OPT:marq-x=' .. (3 * k) .. '$OPT:marq-y=' .. (1.1 * k) .. '$OPT:marq-position=6$OPT:marq-marquee=' .. m_simpleTV.Common.UTF8ToMultiByte(videoTitle)
+			end
 		end
 		m_simpleTV.User.Videocdn.Table = tab
 		local index = GetMaxResolutionIndex(tab)
@@ -188,21 +194,17 @@ local proxy = ''
 		end
 	end
 	local function play(retAdr, title)
-		retAdr = GetQualityFromAddress(retAdr:gsub('^$videocdn', ''))
+		retAdr = GetQualityFromAddress(retAdr, title)
 			if not retAdr then return end
 		local extOpt
 		if psevdotv then
-			local videoTitle = title:gsub('.-:', '')
-			extOpt = '$OPT:NO-SEEKABLE$OPT:sub-source=logo:marq$OPT:marq-opacity=50$OPT:marq-size=12$OPT:marq-x=10$OPT:marq-y=5$OPT:marq-position=6$OPT:marq-marquee=' .. m_simpleTV.Common.UTF8ToMultiByte(videoTitle)
 			m_simpleTV.OSD.ShowMessageT({text = title, showTime = 1000 * 5, id = 'channelName'})
 			m_simpleTV.Control.SetTitle(title)
 		else
-			extOpt = ''
 			m_simpleTV.OSD.ShowMessageT({text = title, color = 0xff9999ff, showTime = 1000 * 5, id = 'channelName'})
 			m_simpleTV.Control.CurrentTitle_UTF8 = title
 		end
-		m_simpleTV.Control.CurrentAddress = retAdr .. extOpt
--- debug_in_file(retAdr .. '\n')
+		m_simpleTV.Control.CurrentAddress = retAdr
 	end
 	function Qlty_Videocdn()
 		local t = m_simpleTV.User.Videocdn.Table
