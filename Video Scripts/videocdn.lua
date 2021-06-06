@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (2/6/21)
+-- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (6/6/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://32.svetacdn.in/fnXOUDB9nNSO?kp_id=5928
@@ -147,11 +147,11 @@ local proxy = ''
 			end
 		for i = 1, #tab do
 			tab[i].Id = i
-			tab[i].Address = tab[i].Address .. '$OPT:NO-STIMESHIFT$OPT:demux=mp4,any'
+			tab[i].Address = tab[i].Address .. '$OPT:NO-STIMESHIFT$OPT:meta-description=https://github.com/Nexterr-origin/simpleTV-Scripts'
 			if psevdotv then
 				local videoTitle = title:gsub('.-:', '')
-				local k = tab[i].qlty / 100
-				tab[i].Address = tab[i].Address .. '$OPT:NO-SEEKABLE$OPT:sub-source=marq$OPT:marq-opacity=70$OPT:marq-size=' .. (2.5 * k) .. '$OPT:marq-x=' .. (3 * k) .. '$OPT:marq-y=' .. (1.1 * k) .. '$OPT:marq-position=6$OPT:marq-marquee=' .. m_simpleTV.Common.UTF8ToMultiByte(videoTitle)
+				local k = tab[i].qlty
+				tab[i].Address = tab[i].Address .. '$OPT:NO-SEEKABLE$OPT:sub-source=marq$OPT:marq-opacity=70$OPT:marq-size=' .. (0.03 * k) .. '$OPT:marq-position=6$OPT:marq-x=' .. (0.02 * k) .. '$OPT:marq-y=' .. (0.01 * k) .. '$OPT:marq-marquee=' .. m_simpleTV.Common.UTF8ToMultiByte(videoTitle)
 			end
 		end
 		m_simpleTV.User.Videocdn.Table = tab
