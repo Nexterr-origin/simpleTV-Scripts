@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "StarNet" https://www.starnet.md (17/4/21)
+-- видеоскрипт для плейлиста "StarNet" https://www.starnet.md (22/4/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: starnet-md_pls.lua
@@ -14,8 +14,7 @@
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local userAgent = 'Mozilla/5.0 (Linux; U; Android 4.1.1; POV_TV-HDMI-200BT Build/JRO03H) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Safari/534.30'
-	local session = m_simpleTV.Http.New(userAgent)
+	local session = m_simpleTV.Http.New()
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local id = inAdr:match('%.([^&$%?]*)')
@@ -28,7 +27,6 @@
 	rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 	m_simpleTV.Http.Close(session)
 		if rc ~= 200 then return end
-	local extOpt = '$OPT:http-user-agent=' .. userAgent
 	local t = {}
 	local base = retAdr:match('.+/')
 		for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-\n.-)\n') do
@@ -38,11 +36,11 @@
 				t[#t + 1] = {}
 				t[#t].Id = tonumber(name)
 				t[#t].Name = name .. 'p'
-				t[#t].Address = base .. adr .. extOpt
+				t[#t].Address = base .. adr
 			end
 		end
 		if #t == 0 then
-			m_simpleTV.Control.CurrentAddress = retAdr .. extOpt
+			m_simpleTV.Control.CurrentAddress = retAdr
 		 return
 		end
 	table.sort(t, function(a, b) return a.Id < b.Id end)
