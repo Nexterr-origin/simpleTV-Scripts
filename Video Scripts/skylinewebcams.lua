@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://www.skylinewebcams.com (8/5/21)
+-- видеоскрипт для сайта https://www.skylinewebcams.com (15/7/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://www.skylinewebcams.com/ru/webcam/italia/trentino-alto-adige/bolzano/san-candido.html
@@ -28,7 +28,7 @@
 			showError('2')
 		 return
 		end
-	local retAdr = answer:match('[^\'"<>]+%.m3u8[^<>\'"]*')
+	local retAdr = answer:match('%.m3u8[^<>\'"]+')
 		if not retAdr then
 			showError('OFF LINE')
 		 return
@@ -41,5 +41,5 @@
 	end
 	m_simpleTV.Control.CurrentTitle_UTF8 = title
 	m_simpleTV.OSD.ShowMessageT({text = title, showTime = 1000 * 5, id = 'channelName'})
-	m_simpleTV.Control.CurrentAddress = 'https://hd-auth.skylinewebcams.com/' .. retAdr
+	m_simpleTV.Control.CurrentAddress = 'https://hd-auth.skylinewebcams.com/live' .. retAdr
 -- debug_in_file(retAdr .. '\n')
