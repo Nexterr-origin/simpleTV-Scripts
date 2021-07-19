@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "Collaps" https://collaps.org (19/7/21)
+-- видеоскрипт для видеобалансера "Collaps" https://collaps.org (20/7/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://api1603044906.placehere.link/embed/movie/7059
@@ -121,7 +121,8 @@
 		for i = 1, #t do
 			t[i].Id = i
 			t[i].Address = m_simpleTV.Common.fromPercentEncoding(t[i].Address)
-			t[i].Address = t[i].Address:gsub('%.m3u8$', '-a1.m3u8')
+			local transl = m_simpleTV.User.collaps.transl or 1
+			t[i].Address = t[i].Address:gsub('%.m3u8$', '-a' .. transl .. '.m3u8')
 		end
 		m_simpleTV.User.collaps.Tab = t
 		local index = collapsIndex(t)
@@ -156,6 +157,7 @@
 			 return
 			end
 		debug_in_file(retAdr, file, true)
+		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
 		m_simpleTV.Control.CurrentAddress = file
 	end
 		if inAdr:match('^$collaps') then
@@ -173,6 +175,7 @@
 	local seson = ''
 	local title = m_simpleTV.Control.CurrentTitle_UTF8 or 'Collaps'
 	m_simpleTV.Control.SetTitle(title)
+	m_simpleTV.User.collaps.transl = nil
 	local serials = answer:match('seasons:(%[.-%]}%])')
 	if serials then
 		serials = serials:gsub('%[%]', '""')
@@ -233,6 +236,24 @@
 			end
 		title = answer:match('title:%s*"(.-)",') or 'Collaps'
 		title = title:gsub('\\u0026', '&')
+		local transl = answer:match('audio:%s*({[^}]+})')
+		if transl then
+			local err, a = pcall(json.decode, transl)
+			if err == true and a then
+				local i = 1
+				local tr = {}
+					while a.names[i] do
+						tr[i] = {}
+						tr[i].Id = i
+						tr[i].Name = a.names[i]
+						i = i + 1
+					end
+				if i > 2 then
+					local _, id = m_simpleTV.OSD.ShowSelect_UTF8('Выберете перевод - ' .. title, 0, tr, 5000, 1)
+					m_simpleTV.User.collaps.transl = id
+				end
+			end
+		end
 		local t1 = {}
 		t1[1] = {}
 		t1[1].Id = 1
