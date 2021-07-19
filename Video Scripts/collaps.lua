@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "Collaps" https://collaps.org (5/2/21)
+-- видеоскрипт для видеобалансера "Collaps" https://collaps.org (19/7/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://api1603044906.placehere.link/embed/movie/7059
@@ -19,7 +19,7 @@
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = ''
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:85.0) Gecko/20100101 Firefox/85.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:90.0) Gecko/20100101 Firefox/90.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 12000)
 	if not m_simpleTV.User then
@@ -30,6 +30,36 @@
 	end
 	local refer = 'https://filmhd1080.xyz/'
 	local host = inAdr:match('https?://.-/')
+	local function chiper(adr)
+		local rc, answer = m_simpleTV.Http.Request(session, {url = adr, headers = 'Referer: ' .. refer})
+		m_simpleTV.Http.Close(session)
+			if rc ~= 200 then return end
+		local ostime = math.floor((os.time() / 60 / 60))
+		local path = adr:match('https?://.-(/.+/)')
+		local origin = adr:match('(https?://.-)/')
+		local base = origin .. '/x-en-x/'
+		path = ostime .. path
+		local hash1 = split('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz')
+		local hash2 = split('DlChEXitLONYRkFjAsnBbymWzSHMqKPgQZpvwerofJTVdIuUcxaG')
+			local function replaseStr(str)
+				for i = 1, #str do
+					for h = 1, #hash1 do
+						if str[i] == hash1[h] then
+							str[i] = hash2[h]
+						 break
+						end
+					end
+				end
+			 return table.concat(str)
+			end
+		answer = string.gsub(answer, 'seg.-%.ts',
+				function(c)
+					c = encode64(path .. c)
+					c = split(c)
+				 return base .. replaseStr(c)
+				end)
+	 return answer
+	end
 	local function collapsIndex(t)
 		local lastQuality = tonumber(m_simpleTV.Config.GetValue('collaps_qlty') or 5000)
 		local index = #t
@@ -48,24 +78,20 @@
 	end
 	local function GetcollapsAdr(url)
 		url = url:gsub('^$collaps', '')
-		url = url:gsub('https://', 'http://')
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 			if rc ~= 200 then return end
-		local base = url:match('https?://.+/')
 		local t, i = {}, 1
-			for w in answer:gmatch('EXT%-X%-STREAM.-\n.-\n') do
+			for w in answer:gmatch('EXT%-X%-STREAM.-AUDIO="audio0".-\n.-\n') do
 				adr = w:match('\n(.-)%c')
 				name = w:match('RESOLUTION=%d+x(%d+)')
-					if not adr or not name then break end
-				name = tonumber(name)
-				t[i] = {}
-				t[i].Name = name .. 'p'
-				if not adr:match('^http') then
-					adr = base .. adr
+				if adr and name then
+					name = tonumber(name)
+					t[i] = {}
+					t[i].Name = name .. 'p'
+					t[i].Address = adr
+					t[i].qlty = name
+					i = i + 1
 				end
-				t[i].Address = adr
-				t[i].qlty = name
-				i = i + 1
 			end
 			if i == 1 then return end
 			for _, v in pairs(t) do
@@ -95,7 +121,7 @@
 		for i = 1, #t do
 			t[i].Id = i
 			t[i].Address = m_simpleTV.Common.fromPercentEncoding(t[i].Address)
-			t[i].Address = t[i].Address:gsub('%.m3u8$', '-a1.m3u8'):gsub('https://', 'http://') .. '$OPT:NO-STIMESHIFT'
+			t[i].Address = t[i].Address:gsub('%.m3u8$', '-a1.m3u8')
 		end
 		m_simpleTV.User.collaps.Tab = t
 		local index = collapsIndex(t)
@@ -115,7 +141,6 @@
 	end
 	local function play(Adr, title)
 		local retAdr = GetcollapsAdr(Adr)
-		m_simpleTV.Http.Close(session)
 			if not retAdr then
 				m_simpleTV.Control.CurrentAddress = 'http://wonky.lostcut.net/vids/error_getlink.avi'
 			 return
@@ -124,8 +149,14 @@
 			m_simpleTV.Control.CurrentTitle_UTF8 = title
 		end
 		m_simpleTV.OSD.ShowMessageT({text = title, color = 0xff9999ff, showTime = 1000 * 5, id = 'channelName'})
-		m_simpleTV.Control.CurrentAddress = retAdr
--- debug_in_file(retAdr .. '\n')
+		local file = m_simpleTV.Common.GetMainPath(2) .. 'temp_colaps'
+		retAdr = chiper(retAdr)
+			if not retAdr then
+				m_simpleTV.OSD.ShowMessageT({text = 'collaps ошибка [chiper]-' .. rc, color = 0xffff1000, showTime = 1000 * 5, id = 'channelName'})
+			 return
+			end
+		debug_in_file(retAdr, file, true)
+		m_simpleTV.Control.CurrentAddress = file
 	end
 		if inAdr:match('^$collaps') then
 			play(inAdr, title)
