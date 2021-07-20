@@ -31,6 +31,9 @@
 	local refer = 'https://filmhd1080.xyz/'
 	local host = inAdr:match('https?://.-/')
 	local function chiper(adr)
+		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:90.0) Gecko/20100101 Firefox/90.0')
+			if not session then return end
+		m_simpleTV.Http.SetTimeout(session, 8000)
 		local rc, answer = m_simpleTV.Http.Request(session, {url = adr, headers = 'Referer: ' .. refer})
 		m_simpleTV.Http.Close(session)
 			if rc ~= 200 then return end
@@ -136,12 +139,17 @@
 		t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
 		local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('⚙ Качество', index - 1, t, 5000, 1 + 4)
 		if ret == 1 then
-			m_simpleTV.Control.SetNewAddress(t[id].Address, m_simpleTV.Control.GetPosition())
+			local file = m_simpleTV.Common.GetMainPath(2) .. 'temp_colaps'
+			local retAdr = chiper(t[id].Address)
+				if not retAdr then return end
+			debug_in_file(retAdr, file, true)
+			m_simpleTV.Control.SetNewAddress(file, m_simpleTV.Control.GetPosition())
 			m_simpleTV.Config.SetValue('collaps_qlty', t[id].qlty)
 		end
 	end
 	local function play(Adr, title)
 		local retAdr = GetcollapsAdr(Adr)
+		m_simpleTV.Http.Close(session)
 			if not retAdr then
 				m_simpleTV.Control.CurrentAddress = 'http://wonky.lostcut.net/vids/error_getlink.avi'
 			 return
