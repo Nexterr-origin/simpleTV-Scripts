@@ -202,7 +202,7 @@
 				t0[i].Id = i
 			end
 			t0.ExtParams = {FilterType = 2}
-			local _, id = m_simpleTV.OSD.ShowSelect_UTF8('Выберете сезон - ' .. title, 0, t0, 5000, 1)
+			local _, id = m_simpleTV.OSD.ShowSelect_UTF8('Выберете сезон - ' .. title, 0, t0, 8000, 1)
 			id = id or 1
 		 	seson = t0[id].Address
 			season_title = ' (' .. t0[id].Name .. ')'
@@ -212,6 +212,18 @@
 			if tonumber(ses) > 1 then
 				season_title = ' (' .. t0[1].Name .. ')'
 			end
+		end
+		local i = 1
+		local tr = {}
+			while tab[seson].episodes[1].audio.names[i] do
+				tr[i] = {}
+				tr[i].Id = i
+				tr[i].Name = tab[seson].episodes[1].audio.names[i]
+				i = i + 1
+			end
+		if i > 2 then
+			local _, id = m_simpleTV.OSD.ShowSelect_UTF8('Выберете перевод - ' .. title, 0, tr, 8000, 1)
+			m_simpleTV.User.collaps.transl = id
 		end
 		local t, i = {}, 1
 			while tab[seson].episodes[i] do
@@ -230,7 +242,7 @@
 		end
 		t.ExtParams = {FilterType = 2}
 		title = title .. season_title
-		local _, id = m_simpleTV.OSD.ShowSelect_UTF8(title, 0, t, 5000, p)
+		local _, id = m_simpleTV.OSD.ShowSelect_UTF8(title, 0, t, 8000, p)
 		id = id or 1
 		inAdr = t[id].Address
 	else
@@ -244,6 +256,7 @@
 		title = title:gsub('\\u0026', '&')
 		local transl = answer:match('audio:%s*({[^}]+})')
 		if transl then
+			transl = transl:gsub('%[%]', '""')
 			local err, a = pcall(json.decode, transl)
 			if err == true and a then
 				local i = 1
@@ -255,7 +268,7 @@
 						i = i + 1
 					end
 				if i > 2 then
-					local _, id = m_simpleTV.OSD.ShowSelect_UTF8('Выберете перевод - ' .. title, 0, tr, 5000, 1)
+					local _, id = m_simpleTV.OSD.ShowSelect_UTF8('Выберете перевод - ' .. title, 0, tr, 8000, 1)
 					m_simpleTV.User.collaps.transl = id
 				end
 			end
@@ -267,6 +280,6 @@
 		t1[1].Address = inAdr
 		t1.ExtButton0 = {ButtonEnable = true, ButtonName = '⚙', ButtonScript = 'Qlty_collaps()'}
 		t1.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
-		m_simpleTV.OSD.ShowSelect_UTF8('Collaps', 0, t1, 5000, 64+32+128)
+		m_simpleTV.OSD.ShowSelect_UTF8('Collaps', 0, t1, 8000, 64 + 32 + 128)
 	end
 	play(inAdr, title)
