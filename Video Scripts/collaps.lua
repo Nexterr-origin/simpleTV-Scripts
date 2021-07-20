@@ -30,7 +30,7 @@
 	end
 	local refer = 'https://filmhd1080.xyz/'
 	local host = inAdr:match('https?://.-/')
-	local function chiper(adr)
+	local function GetFilePath(adr)
 		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:90.0) Gecko/20100101 Firefox/90.0')
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 8000)
@@ -61,7 +61,9 @@
 					c = split(c)
 				 return base .. replaseStr(c)
 				end)
-	 return answer
+		local filePath = m_simpleTV.Common.GetMainPath(2) .. 'temp_colaps'
+		debug_in_file(answer, filePath, true)
+	 return filePath
 	end
 	local function collapsIndex(t)
 		local lastQuality = tonumber(m_simpleTV.Config.GetValue('collaps_qlty') or 5000)
@@ -139,11 +141,9 @@
 		t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
 		local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('⚙ Качество', index - 1, t, 5000, 1 + 4)
 		if ret == 1 then
-			local file = m_simpleTV.Common.GetMainPath(2) .. 'temp_colaps'
-			local retAdr = chiper(t[id].Address)
+			local retAdr = GetFilePath(t[id].Address)
 				if not retAdr then return end
-			debug_in_file(retAdr, file, true)
-			m_simpleTV.Control.SetNewAddress(file, m_simpleTV.Control.GetPosition())
+			m_simpleTV.Control.SetNewAddress(retAdr, m_simpleTV.Control.GetPosition())
 			m_simpleTV.Config.SetValue('collaps_qlty', t[id].qlty)
 		end
 	end
@@ -158,15 +158,13 @@
 			m_simpleTV.Control.CurrentTitle_UTF8 = title
 		end
 		m_simpleTV.OSD.ShowMessageT({text = title, color = 0xff9999ff, showTime = 1000 * 5, id = 'channelName'})
-		local file = m_simpleTV.Common.GetMainPath(2) .. 'temp_colaps'
-		retAdr = chiper(retAdr)
+		retAdr = GetFilePath(retAdr)
 			if not retAdr then
-				m_simpleTV.OSD.ShowMessageT({text = 'collaps ошибка [chiper]-' .. rc, color = 0xffff1000, showTime = 1000 * 5, id = 'channelName'})
+				m_simpleTV.OSD.ShowMessageT({text = 'collaps ошибка: GetFilePath', color = 0xffff1000, showTime = 1000 * 5, id = 'channelName'})
 			 return
 			end
-		debug_in_file(retAdr, file, true)
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
-		m_simpleTV.Control.CurrentAddress = file
+		m_simpleTV.Control.CurrentAddress = retAdr
 	end
 		if inAdr:match('^$collaps') then
 			play(inAdr, title)
