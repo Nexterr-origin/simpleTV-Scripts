@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "Collaps" https://collaps.org (20/7/21)
+-- видеоскрипт для видеобалансера "Collaps" https://collaps.org (22/7/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://api1603044906.placehere.link/embed/movie/7059
@@ -30,6 +30,13 @@
 	end
 	local refer = 'https://filmhd1080.xyz/'
 	local host = inAdr:match('https?://.-/')
+	local title
+	if m_simpleTV.User.collaps.episode then
+		local index = m_simpleTV.Control.GetMultiAddressIndex()
+		if index then
+			title = m_simpleTV.User.collaps.episode[index].Name
+		end
+	end
 	local function GetFilePath(adr)
 		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:90.0) Gecko/20100101 Firefox/90.0')
 			if not session then return end
@@ -179,11 +186,12 @@
 		end
 	local season_title = ''
 	local seson = ''
-	local title = m_simpleTV.Control.CurrentTitle_UTF8 or 'Collaps'
-	m_simpleTV.Control.SetTitle(title)
+	title = m_simpleTV.Control.CurrentTitle_UTF8 or 'Collaps'
+	m_simpleTV.User.collaps.episode = nil
 	m_simpleTV.User.collaps.transl = nil
 	local serials = answer:match('seasons:(%[.-%]}%])')
 	if serials then
+		m_simpleTV.Control.SetTitle(title)
 		serials = serials:gsub('%[%]', '""')
 		local tab = json.decode(serials)
 			if not tab then return end
@@ -226,14 +234,18 @@
 			m_simpleTV.User.collaps.transl = id
 		end
 		local t, i = {}, 1
+		local episode = {}
 			while tab[seson].episodes[i] do
 				t[i] = {}
+				episode[i] = {}
 				t[i].Id = i
 				t[i].Name = tab[seson].episodes[i].episode .. ' серия'
+				episode[i].Name = title .. ' - ' .. season_title .. ' - ' .. t[i].Name
 				t[i].Address = '$collaps' .. tab[seson].episodes[i].hls
 				i = i + 1
 			end
 			if i == 1 then return end
+		m_simpleTV.User.collaps.episode = episode
 		t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
 		t.ExtButton0 = {ButtonEnable = true, ButtonName = '⚙', ButtonScript = 'Qlty_collaps()'}
 		local p = 0
@@ -241,10 +253,10 @@
 			p = 32 + 128
 		end
 		t.ExtParams = {FilterType = 2}
-		title = title .. season_title
-		local _, id = m_simpleTV.OSD.ShowSelect_UTF8(title, 0, t, 8000, p)
+		local _, id = m_simpleTV.OSD.ShowSelect_UTF8(title .. season_title, 0, t, 8000, p + 64)
 		id = id or 1
 		inAdr = t[id].Address
+		title = title .. ' - ' .. season_title .. ' - ' .. t[id].Name
 	else
 		inAdr = answer:match('hls:%s*"([^"]+)')
 			if not inAdr then
@@ -254,6 +266,7 @@
 			end
 		title = answer:match('title:%s*"(.-)",') or 'Collaps'
 		title = title:gsub('\\u0026', '&')
+		m_simpleTV.Control.SetTitle(title)
 		local transl = answer:match('audio:%s*({[^}]+})')
 		if transl then
 			transl = transl:gsub('%[%]', '""')
