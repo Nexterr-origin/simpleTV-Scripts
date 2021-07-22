@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "Collaps" https://collaps.org (22/7/21)
+-- видеоскрипт для видеобалансера "Collaps" https://collaps.org (23/7/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://api1603044906.placehere.link/embed/movie/7059
@@ -150,6 +150,7 @@
 		if ret == 1 then
 			local retAdr = GetFilePath(t[id].Address)
 				if not retAdr then return end
+			retAdr = retAdr .. '$OPT:adaptive-hls-ignore-discontinuity'
 			m_simpleTV.Control.SetNewAddress(retAdr, m_simpleTV.Control.GetPosition())
 			m_simpleTV.Config.SetValue('collaps_qlty', t[id].qlty)
 		end
@@ -171,7 +172,7 @@
 			 return
 			end
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
-		m_simpleTV.Control.CurrentAddress = retAdr
+		m_simpleTV.Control.CurrentAddress = retAdr .. '$OPT:adaptive-hls-ignore-discontinuity'
 	end
 		if inAdr:match('^$collaps') then
 			play(inAdr, title)
