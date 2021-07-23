@@ -29,7 +29,7 @@
 		m_simpleTV.User.collaps = {}
 	end
 	local refer = 'https://filmhd1080.xyz/'
-	local host = inAdr:match('https?://.-/')
+	local host = inAdr:match('https?://[^/]+/')
 	local title
 	if m_simpleTV.User.collaps.episode then
 		local index = m_simpleTV.Control.GetMultiAddressIndex()
@@ -44,28 +44,27 @@
 		local rc, answer = m_simpleTV.Http.Request(session, {url = adr, headers = 'Referer: ' .. refer})
 		m_simpleTV.Http.Close(session)
 			if rc ~= 200 then return end
-		local ostime = math.floor((os.time() / 60 / 60))
-		local path = adr:match('https?://.-(/.+/)')
-		local origin = adr:match('(https?://.-)/')
+		local path = adr:match('https?://[^/]+(/.+/)')
+		local origin = adr:match('https?://[^/]+')
+		origin = origin:gsub('https://', 'http://')
 		local base = origin .. '/x-en-x/'
-		path = ostime .. path
 		local hash1 = split('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz')
 		local hash2 = split('DlChEXitLONYRkFjAsnBbymWzSHMqKPgQZpvwerofJTVdIuUcxaG')
 			local function replaseStr(str)
-				for i = 1, #str do
-					for h = 1, #hash1 do
-						if str[i] == hash1[h] then
-							str[i] = hash2[h]
-						 break
+				str = split(str)
+					for i = 1, #str do
+						for h = 1, #hash1 do
+							if str[i] == hash1[h] then
+								str[i] = hash2[h]
+							 break
+							end
 						end
 					end
-				end
 			 return table.concat(str)
 			end
 		answer = string.gsub(answer, 'seg.-%.ts',
 				function(c)
-					c = encode64(path .. c)
-					c = split(c)
+					c = encode64(math.floor(os.time() / 3600) .. path .. c)
 				 return base .. replaseStr(c)
 				end)
 		local filePath = m_simpleTV.Common.GetMainPath(2) .. 'temp_colaps'
