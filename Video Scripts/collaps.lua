@@ -19,7 +19,8 @@
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = ''
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:90.0) Gecko/20100101 Firefox/90.0')
+	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:90.0) Gecko/20100101 Firefox/90.0'
+	local session = m_simpleTV.Http.New(userAgent)
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 12000)
 	if not m_simpleTV.User then
@@ -38,13 +39,15 @@
 		end
 	end
 	local function GetFilePath(adr)
-		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:90.0) Gecko/20100101 Firefox/90.0')
+		local path = adr:match('https?://[^/]+(/.+/)')
+			if not path then return end
+		local session = m_simpleTV.Http.New(userAgent)
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 8000)
 		local rc, answer = m_simpleTV.Http.Request(session, {url = adr, headers = 'Referer: ' .. refer})
 		m_simpleTV.Http.Close(session)
 			if rc ~= 200 then return end
-		local path = adr:match('https?://[^/]+(/.+/)')
+		path = math.floor(os.time() / 3600) .. path
 		local origin = adr:match('https?://[^/]+')
 		origin = origin:gsub('https://', 'http://')
 		local base = origin .. '/x-en-x/'
@@ -64,7 +67,7 @@
 			end
 		answer = string.gsub(answer, 'seg.-%.ts',
 				function(c)
-					c = encode64(math.floor(os.time() / 3600) .. path .. c)
+					c = encode64(path .. c)
 				 return base .. replaseStr(c)
 				end)
 		local filePath = m_simpleTV.Common.GetMainPath(2) .. 'temp_colaps'
@@ -149,7 +152,7 @@
 		if ret == 1 then
 			local retAdr = GetFilePath(t[id].Address)
 				if not retAdr then return end
-			retAdr = retAdr .. '$OPT:adaptive-hls-ignore-discontinuity'
+			retAdr = retAdr .. '$OPT:adaptive-hls-ignore-discontinuity$OPT:http-ext-header=Origin: ' .. host .. '$OPT:http-user-agent=' .. userAgent
 			m_simpleTV.Control.SetNewAddress(retAdr, m_simpleTV.Control.GetPosition())
 			m_simpleTV.Config.SetValue('collaps_qlty', t[id].qlty)
 		end
@@ -171,7 +174,8 @@
 			 return
 			end
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
-		m_simpleTV.Control.CurrentAddress = retAdr .. '$OPT:adaptive-hls-ignore-discontinuity'
+		retAdr = retAdr .. '$OPT:adaptive-hls-ignore-discontinuity$OPT:http-ext-header=Origin: ' .. host .. '$OPT:http-user-agent=' .. userAgent
+		m_simpleTV.Control.CurrentAddress = retAdr
 	end
 		if inAdr:match('^$collaps') then
 			play(inAdr, title)
