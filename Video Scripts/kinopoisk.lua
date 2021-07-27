@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (21/7/21)
+-- видеоскрипт для сайта http://www.kinopoisk.ru (27/7/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: yandex-vod.lua, kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
@@ -146,7 +146,7 @@ local tname = {
 			if languages_imdb == 'ru' and title and #title > 2 then
 				filmix_title = title
 			end
-			local sessionFilmix = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:84.0) Gecko/20100101 Firefox/84.0')
+			local sessionFilmix = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:90.0) Gecko/20100101 Firefox/90.0')
 				if not sessionFilmix then return end
 			m_simpleTV.Http.SetTimeout(sessionFilmix, 8000)
 			local ratimdbot, ratkinot, ratimdbdo, ratkindo, yearot, yeardo = '', '', '', '', '', ''
@@ -167,28 +167,13 @@ local tname = {
 				yeardo = year + 1
 			end
 			local namei = filmix_title:gsub('%?$', ''):gsub('.-`', ''):gsub('*', ''):gsub('«', '"'):gsub('»', '"')
-			local res, login, password, header = xpcall(function() require('pm') return pm.GetPassword('filmix') end, err)
-			if not login or not password or login == '' or password == '' then
-				login = decode64('bWV2YWxpbA')
-				password = decode64('bTEyMzQ1Ng')
-			end
-			if login and password then
-				local url
-				if filmixsite:match('filmix%.life') then
-					url = filmixsite
-				else
-					url = filmixsite .. 'engine/ajax/user_auth.php'
-				end
-				local url = filmixsite
-				local rc, answer = m_simpleTV.Http.Request(sessionFilmix, {body = 'login_name=' .. m_simpleTV.Common.toPercentEncoding(login) .. '&login_password=' .. m_simpleTV.Common.toPercentEncoding(password) .. '&login=submit', url = url, method = 'post', headers = 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8\nX-Requested-With: XMLHttpRequest\nReferer: ' .. filmixsite})
-			end
 			local filmixurl = filmixsite .. '/search'
+			m_simpleTV.Http.SetCookies(sessionFilmix, filmixurl, 'x-a-key=sinatra;FILMIXNET=vi8ivbcrao3d1tnme0ur85vo1e;dle_user_id=548034;dle_password=ba407303b7423c85f8644befdf057b78;dle_hash=d1cb96807ea656702f2633a87c0f1d8e;', '')
 			local rc, filmixansw = m_simpleTV.Http.Request(sessionFilmix, {url = filmixurl .. '/search/' .. namei})
 				if rc ~= 200 then
 					m_simpleTV.Http.Close(sessionFilmix)
 				 return
 				end
-			rc = m_simpleTV.Http.Request(sessionFilmix, {body = 'page=1', url = filmixurl .. '/api/notifications/get', method = 'post'})
 			local bodypar, bodypar1 = filmixansw:match('<div class="line%-block".-<input type="hidden" name="(.-)" value(=".-)".-<div')
 				if not (bodypar1 or bodypar2) then return end
 			bodypar = bodypar .. bodypar1:gsub('"', '')
