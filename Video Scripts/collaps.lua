@@ -2,7 +2,7 @@
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://api1603044906.placehere.link/embed/movie/7059
--- https://api.kinogram.best/embed/kp/5928
+-- https://api1603044906.kinogram.best/embed/kp/5928
 -- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://api[%d]*%..-/embed/movie/%d+')
@@ -22,7 +22,7 @@
 	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:90.0) Gecko/20100101 Firefox/90.0'
 	local session = m_simpleTV.Http.New(userAgent)
 		if not session then return end
-	m_simpleTV.Http.SetTimeout(session, 16000)
+	m_simpleTV.Http.SetTimeout(session, 12000)
 	if not m_simpleTV.User then
 		m_simpleTV.User = {}
 	end
@@ -38,37 +38,51 @@
 			title = m_simpleTV.User.collaps.episode[index].Name
 		end
 	end
+	local function replaseStr(str, a, b)
+		str = split(str)
+			for i = 1, #str do
+				for h = 1, #a do
+					if str[i] == a[h] then
+						str[i] = b[h]
+					 break
+					end
+				end
+			end
+	 return table.concat(str)
+	end
+	local function replaseT()
+		local a = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+		local b = 'DlChEXitLONYRkFjAsnBbymWzSHMqKPgQZpvwerofJTVdIuUcxaG'
+	 return split(a), split(b)
+	end
+	local function GetChiperUrl(url)
+		local adr = url:match('https?://[^/]+(.+)')
+		local path = math.floor(os.time() / 3600) .. '/' .. adr
+		local origin = url:match('https?://[^/]+')
+		local base = origin .. '/x-en-x/'
+		local a, b = replaseT()
+		adr = encode64(path)
+	 return base .. replaseStr(adr, a, b)
+	end
 	local function GetFilePath(adr)
 		local path = adr:match('https?://[^/]+(/.+/)')
 			if not path then return end
-		local session = m_simpleTV.Http.New(userAgent)
-			if not session then return end
+		local session1 = m_simpleTV.Http.New(userAgent)
+			if not session1 then return end
 		m_simpleTV.Http.SetTimeout(session, 8000)
 		adr = adr:gsub('^https', 'http')
-		local rc, answer = m_simpleTV.Http.Request(session, {url = adr})
-		m_simpleTV.Http.Close(session)
+		adr = GetChiperUrl(adr)
+		local rc, answer = m_simpleTV.Http.Request(session1, {url = adr})
+		m_simpleTV.Http.Close(session1)
 			if rc ~= 200 then return end
-		path = math.floor(os.time() / 3600) .. path
+		path = math.floor(os.time() / 3600) .. '/' .. path
 		local origin = adr:match('https?://[^/]+')
 		local base = origin .. '/x-en-x/'
-		local hash1 = split('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz')
-		local hash2 = split('DlChEXitLONYRkFjAsnBbymWzSHMqKPgQZpvwerofJTVdIuUcxaG')
-			local function replaseStr(str)
-				str = split(str)
-					for i = 1, #str do
-						for h = 1, #hash1 do
-							if str[i] == hash1[h] then
-								str[i] = hash2[h]
-							 break
-							end
-						end
-					end
-			 return table.concat(str)
-			end
-		answer = string.gsub(answer, 'seg.-%.ts',
+		local a, b = replaseT()
+		answer = string.gsub(answer, 'seg[^%.]+%.ts',
 				function(c)
 					c = encode64(path .. c)
-				 return base .. replaseStr(c)
+				 return base .. replaseStr(c, a, b)
 				end)
 		local filePath = m_simpleTV.Common.GetMainPath(2) .. 'temp_colaps'
 		debug_in_file(answer, filePath, true)
@@ -91,9 +105,14 @@
 	 return index
 	end
 	local function GetcollapsAdr(url)
+		local session0 = m_simpleTV.Http.New(userAgent)
+			if not session0 then return end
+		m_simpleTV.Http.SetTimeout(session0, 12000)
 		url = url:gsub('^$collaps', '')
 		url = url:gsub('^https', 'http')
-		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
+		url = GetChiperUrl(url)
+		local rc, answer = m_simpleTV.Http.Request(session0, {url = url})
+		m_simpleTV.Http.Close(session0)
 			if rc ~= 200 then return end
 		local t = {}
 			for w in answer:gmatch('EXT%-X%-STREAM.-AUDIO="audio0".-\n.-\n') do
@@ -156,7 +175,6 @@
 	end
 	local function play(Adr, title)
 		local retAdr = GetcollapsAdr(Adr)
-		m_simpleTV.Http.Close(session)
 			if not retAdr then
 				m_simpleTV.Control.CurrentAddress = 'http://wonky.lostcut.net/vids/error_getlink.avi'
 			 return
@@ -296,4 +314,5 @@
 		t1.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
 		m_simpleTV.OSD.ShowSelect_UTF8('Collaps', 0, t1, 8000, 64 + 32 + 128)
 	end
+	m_simpleTV.Http.Close(session)
 	play(inAdr, title)
