@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "Collaps" https://collaps.org (23/7/21)
+-- видеоскрипт для видеобалансера "Collaps" https://collaps.org (28/7/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://api1603044906.placehere.link/embed/movie/7059
@@ -22,15 +22,15 @@
 	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:90.0) Gecko/20100101 Firefox/90.0'
 	local session = m_simpleTV.Http.New(userAgent)
 		if not session then return end
-	m_simpleTV.Http.SetTimeout(session, 12000)
+	m_simpleTV.Http.SetTimeout(session, 16000)
 	if not m_simpleTV.User then
 		m_simpleTV.User = {}
 	end
 	if not m_simpleTV.User.collaps then
 		m_simpleTV.User.collaps = {}
 	end
-	local refer = 'https://filmhd1080.xyz/'
 	local host = inAdr:match('https?://[^/]+/')
+	local headers = 'Referer: ' .. host .. '/\nOrigin: ' .. host
 	local title
 	if m_simpleTV.User.collaps.episode then
 		local index = m_simpleTV.Control.GetMultiAddressIndex()
@@ -44,12 +44,12 @@
 		local session = m_simpleTV.Http.New(userAgent)
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 8000)
-		local rc, answer = m_simpleTV.Http.Request(session, {url = adr, headers = 'Referer: ' .. refer})
+		adr = adr:gsub('^https', 'http')
+		local rc, answer = m_simpleTV.Http.Request(session, {url = adr})
 		m_simpleTV.Http.Close(session)
 			if rc ~= 200 then return end
 		path = math.floor(os.time() / 3600) .. path
 		local origin = adr:match('https?://[^/]+')
-		origin = origin:gsub('https://', 'http://')
 		local base = origin .. '/x-en-x/'
 		local hash1 = split('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz')
 		local hash2 = split('DlChEXitLONYRkFjAsnBbymWzSHMqKPgQZpvwerofJTVdIuUcxaG')
@@ -92,22 +92,20 @@
 	end
 	local function GetcollapsAdr(url)
 		url = url:gsub('^$collaps', '')
-		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
+		url = url:gsub('^https', 'http')
+		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
 			if rc ~= 200 then return end
-		local t, i = {}, 1
+		local t = {}
 			for w in answer:gmatch('EXT%-X%-STREAM.-AUDIO="audio0".-\n.-\n') do
-				adr = w:match('\n(.-)%c')
-				name = w:match('RESOLUTION=%d+x(%d+)')
-				if adr and name then
-					name = tonumber(name)
-					t[i] = {}
-					t[i].Name = name .. 'p'
-					t[i].Address = adr
-					t[i].qlty = name
-					i = i + 1
+				local adr = w:match('\n(.-)%c')
+				local qlty = w:match('RESOLUTION=%d+x(%d+)')
+				if adr and qlty then
+					t[#t + 1] = {}
+					t[#t].Address = adr
+					t[#t].qlty = tonumber(qlty)
 				end
 			end
-			if i == 1 then return end
+			if #t == 0 then return end
 			for _, v in pairs(t) do
 				v.qlty = tonumber(v.qlty)
 				if v.qlty > 0 and v.qlty <= 180 then
@@ -126,18 +124,17 @@
 					v.qlty = 1444
 				elseif v.qlty > 1500 and v.qlty <= 2800 then
 					v.qlty = 2160
-				elseif v.qlty > 2800 and v.qlty <= 4500 then
+				else
 					v.qlty = 4320
 				end
 				v.Name = v.qlty .. 'p'
 			end
 		table.sort(t, function(a, b) return a.qlty < b.qlty end)
-		for i = 1, #t do
-			t[i].Id = i
-			t[i].Address = m_simpleTV.Common.fromPercentEncoding(t[i].Address)
-			local transl = m_simpleTV.User.collaps.transl or 1
-			t[i].Address = t[i].Address:gsub('%.m3u8$', '-a' .. transl .. '.m3u8')
-		end
+		local transl = m_simpleTV.User.collaps.transl or 1
+			for i = 1, #t do
+				t[i].Id = i
+				t[i].Address = t[i].Address:gsub('%.m3u8$', '-a' .. transl .. '.m3u8')
+			end
 		m_simpleTV.User.collaps.Tab = t
 		local index = collapsIndex(t)
 	 return t[index].Address
@@ -182,7 +179,7 @@
 		 return
 		end
 	inAdr = inAdr:gsub('&kinopoisk', ''):gsub('buildplayer%.com', 'iframecdn.club')
-	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr, headers = 'Referer: ' .. refer})
+	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr, headers = headers})
 		if rc ~= 200 then
 			m_simpleTV.Http.Close(session)
 			m_simpleTV.OSD.ShowMessageT({text = 'collaps ошибка[1]-' .. rc, color = 0xffff1000, showTime = 1000 * 5, id = 'channelName'})
