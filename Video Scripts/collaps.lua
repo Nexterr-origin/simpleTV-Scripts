@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "Collaps" https://collaps.org (28/7/21)
+-- видеоскрипт для видеобалансера "Collaps" https://collaps.org (8/8/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://api1603044906.placehere.link/embed/movie/7059
@@ -111,7 +111,7 @@
 		url = url:gsub('^$collaps', '')
 		url = url:gsub('^https', 'http')
 		url = GetChiperUrl(url)
-		local rc, answer = m_simpleTV.Http.Request(session0, {url = url})
+		local rc, answer = m_simpleTV.Http.Request(session0, {url = url, headers = 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\nAccept-Language: ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; rv:90.0) Gecko/20100101 Firefox/90.0\nConnection: keep-alive'})
 		m_simpleTV.Http.Close(session0)
 			if rc ~= 200 then return end
 		local t = {}
@@ -259,7 +259,7 @@
 				episode[i] = {}
 				t[i].Id = i
 				t[i].Name = tab[seson].episodes[i].episode .. ' серия'
-				episode[i].Name = title .. ' - ' .. season_title .. ' - ' .. t[i].Name
+				episode[i].Name = title .. season_title .. ' - ' .. t[i].Name
 				t[i].Address = '$collaps' .. tab[seson].episodes[i].hls
 				i = i + 1
 			end
@@ -275,7 +275,7 @@
 		local _, id = m_simpleTV.OSD.ShowSelect_UTF8(title .. season_title, 0, t, 8000, p + 64)
 		id = id or 1
 		inAdr = t[id].Address
-		title = title .. ' - ' .. season_title .. ' - ' .. t[id].Name
+		title = title .. season_title .. ' - ' .. t[id].Name
 	else
 		inAdr = answer:match('hls:%s*"([^"]+)')
 			if not inAdr then
