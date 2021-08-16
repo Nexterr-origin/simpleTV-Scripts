@@ -8,9 +8,10 @@
 
 
 [![addon TVSources][badge-tvsources]][TVSources]
+<!---
 [![addon PM][badge-pm]][PM]
 
-<!---[![simpleTV bugtracker][badge-simpletvbugtracker]][simpleTV bugtracker]--->
+[![simpleTV bugtracker][badge-simpletvbugtracker]][simpleTV bugtracker]--->
 
 [![simpleTV homepage][badge-simpletvhomepage]][simpleTV homepage]
 [![simpleTV IPTV player API][badge-simpletvapi]][simpleTV API]
@@ -27,7 +28,7 @@
 
 📌 **Installation**
  - video scripts to folder _`..\luaScr\user\video`_
- - scrapers [TVSources][TVSources] to folder _`..\luaScr\user\TVSources\AutoSetup`_
+ - scrapers _`TVSources`_ to folder _`..\luaScr\user\TVSources\AutoSetup`_
 
 <!---
 📌 **В некоторых скриптах возможно указать**
@@ -56,10 +57,11 @@
 [simpleTV API]: http://iptv.gen12.net/dokuwiki/doku.php?id=mantis:simpletv:api "simpleTV API"
 [Lua]: https://www.lua.org/manual/5.1 "Lua 5.1"
 [License]: ../../blob/master/LICENSE "License GPL 3.0"
-[TVSources]: http://iptv.gen12.net/bugtracker/view.php?id=1614 "Addon TVSources"
+[TVSources]: https://www.mediafire.com/folder/y4aqacseb5zee/TVSources3 "Addon TVSources by BM"
 [PM]: http://iptv.gen12.net/bugtracker/view.php?id=1485 "Addon Password Manager"
 [simpleTV homepage]: http://iptv.gen12.net "simpleTV homepage"
-[simpleTV bugtracker]: http://iptv.gen12.net/bugtracker "simpleTV bugtracker"
+
+<!---[simpleTV bugtracker]: http://iptv.gen12.net/bugtracker "simpleTV bugtracker" --->
 
 
 [badge-discussions]: https://img.shields.io/badge/💬-Discussions-%232b2b2b?style=flat-squar&labelColor=%232c68a8 "Discussions"
@@ -67,7 +69,7 @@
 [badge-simpletvapi]: https://img.shields.io/badge/simpleTV-Lua%20API-%232b2b2b?style=flat-squar&labelColor=%23303f50 "simpleTV Lua API"
 [badge-lua]: https://img.shields.io/badge/Lua-5.1-%232b2b2b?style=flat-square&labelColor=%23303f50 "Lua 5.1"
 [badge-license]: https://img.shields.io/badge/License-GPL%203.0-%232b2b2b?style=flat-square&labelColor=%23303f50 "License GPL 3.0"
-[badge-tvsources]: https://img.shields.io/badge/Addon-TVSources-%232b2b2b?style=flat-squar&labelColor=%23303f50 "Addon TVSources"
+[badge-tvsources]: https://img.shields.io/badge/BM%20Addon-TVSources-%232b2b2b?style=flat-squar&labelColor=%23303f50 "Addon TVSources by BM"
 [badge-pm]: https://img.shields.io/badge/Addon-Password%20Manager-%232b2b2b?style=flat-square&labelColor=%23303f50 "Addon Password Manager"
 [badge-simpletvhomepage]: https://img.shields.io/badge/simpleTV-homepage-%232b2b2b?style=flat-square&labelColor=%23303f50 "simpleTV homepage"
 [badge-simpletvbugtracker]: https://img.shields.io/badge/simpleTV-bugtracker-%232b2b2b?style=flat-square&labelColor=%23303f50 "simpleTV bugtracker"
