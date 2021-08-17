@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "ДомаТвНет" с сайта http://tv.domatv.net (7/3/21)
+-- скрапер TVS для загрузки плейлиста "ДомаТвНет" с сайта http://tv.domatv.net (17/8/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: domatv.lua
@@ -51,7 +51,7 @@ local filter = {
 		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:85.0) Gecko/20100101 Firefox/85.0')
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 8000)
-		local url = 'http://tv.domatv.net/211-tnv-planeta.html'
+		local url = 'http://ru.domatv.net/211-tnv-planeta.html'
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 		m_simpleTV.Http.Close(session)
 			if rc ~= 200 then return end
