@@ -1,7 +1,6 @@
--- видеоскрипт для видеобазы "kodik" http://kodik.cc (20/10/20)
+-- видеоскрипт для видеобазы "kodik" http://kodik.cc (24/8/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
--- http://kodik.info/serial/19183/acbb94d039454b7584f1f29fdd05ae23/720p
 -- https://hdrise.com/video/31756/445f20d7950d3df08f7574311e82521e/720p
 -- http://kodik.info/serial/13166/dc6c81648d5b5173461756cf1f2cd0e4/720p
 -- ##
@@ -90,12 +89,11 @@
 		retAdr = retAdr:gsub('^//', 'http://')
 		local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr, headers = 'Referer: ' .. refer})
 			if rc ~= 200 then return end
-		local domain = answer:match('domain = "(.-)"')
-		local d_sign = answer:match('d_sign = "(.-)"')
-		local pd = answer:match('pd = "(.-)"')
-		local pd_sign = answer:match('pd_sign = "(.-)"')
-		local ref = answer:match('ref = "(.-)"')
-		-- local ref_sign = answer:match('ref_sign = "(.-)"')
+		local domain = answer:match('domain = "([^"]+)')
+		local d_sign = answer:match('d_sign = "([^"]+)')
+		local pd = answer:match('pd = "([^"]+)')
+		local pd_sign = answer:match('pd_sign = "([^"]+)')
+		local ref = answer:match('ref = "([^"]+)')
 		local typ = answer:match('videoInfo%.type = \'(.-)\'')
 		local hash = answer:match('hash = \'(.-)\'')
 		local id = answer:match('id = \'(.-)\'')
@@ -104,67 +102,38 @@
 				or not pd
 				or not pd_sign
 				or not ref
-				-- or not ref_sign
 				or not typ
 				or not hash
 				or not id
 			then
 			 return
 			end
-		local script = answer:match('type="text/javascript" .-src="(.-)"')
-			if not script then return end
-		rc, answer = m_simpleTV.Http.Request(session, {url = 'http://' .. pd .. script, headers = 'Referer: ' .. refer})
-		local url = answer:match('url:"(.-)"')
-		local hash2 = answer:match('hash2:"(.-)"')
-			if not url or not hash2 then return end
 		local headers = 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8\nX-Requested-With: XMLHttpRequest\nReferer: ' .. refer
 		local body = 'd=' .. domain
 				.. '&d_sign=' .. d_sign
 				.. '&pd=' .. pd
-				..'&pd_sign=' .. pd_sign
+				.. '&pd_sign=' .. pd_sign
 				.. '&ref=' .. url_encode(ref)
-				-- .. '&ref_sign=' .. ref_sign
 				.. '&bad_user=false'
 				.. '&type=' .. typ
 				.. '&hash=' .. hash
-				.. '&hash2=' .. hash2
 				.. '&id=' .. id
-		rc, answer = m_simpleTV.Http.Request(session, {url = 'http://' .. pd .. url, method = 'post', headers = headers, body = body})
+		rc, answer = m_simpleTV.Http.Request(session, {url = 'http://kodik.info/gvi', method = 'post', headers = headers, body = body})
 			if rc ~= 200 then return end
 	 return answer
 	end
 	local function GetkodikAddress(answer)
-		answer = answer:gsub('%[', '')
-		local t, i = {}, 1
-		local qlty, adr
-		local link = answer:match('"link":"(.-)"')
-		if link then
-			local rc, answer = m_simpleTV.Http.Request(session, {url = link})
-				if rc ~= 200 then return end
-			for w in link:gmatch('#EXT%-X%-STREAM%-INF:(.-m3u8)') do
-				qlty = w:match('RESOLUTION=%d+x(%d+)')
-				adr = w:match('(http.+)')
-					if not qlty or not adr then break end
-				t[i] = {}
-				t[i].Address = adr .. '$OPT:NO-STIMESHIFT'
-				t[i].qlty = qlty
-				i = i + 1
-			end
-		else
-			for w in answer:gmatch('"%d+":{"src":".-}') do
-				qlty = w:match('"(%d+)"')
-				adr = w:match('"src":"(.-)"')
-					if not qlty or not adr then return end
-				t[i] = {}
-				if adr:match('kodik') then
-					adr = adr:gsub('%.mp4.+', '.mp4') .. '$OPT:NO-STIMESHIFT'
+		local t = {}
+			for qlty, adr in answer:gmatch('"(%d+)":%[{"src":"([^"]+)') do
+				if qlty and adr then
+					t[#t +1] = {}
+					t[#t].qlty = qlty
+					adr = string.reverse(adr)
+					adr = decode64(adr)
+					t[#t].Address = adr
 				end
-				t[i].qlty = qlty
-				t[i].Address = adr:gsub('^//', 'http://'):gsub('manifest%.m3u8', 'index.m3u8')
-				i = i + 1
 			end
-		end
-			if i == 1 then return end
+			if #t == 0 then return end
 			for _, v in pairs(t) do
 				v.qlty = tonumber(v.qlty)
 				if v.qlty > 0 and v.qlty <= 180 then
@@ -200,6 +169,7 @@
 	function SavePlst_kodik()
 		if m_simpleTV.User.kodik.Tabletitle and m_simpleTV.User.kodik.title then
 			m_simpleTV.OSD.ShowMessageT({text = 'Сохранение плейлиста ...', color = 0xff9bffff, showTime = 1000 * 30, id = 'channelName'})
+			require 'lfs'
 			local t = m_simpleTV.User.kodik.Tabletitle
 			local header = m_simpleTV.User.kodik.title
 			local adr, name
