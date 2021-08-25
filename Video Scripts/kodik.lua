@@ -1,4 +1,4 @@
--- видеоскрипт для видеобазы "kodik" http://kodik.cc (24/8/21)
+-- видеоскрипт для видеобазы "kodik" http://kodik.cc (25/8/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://hdrise.com/video/31756/445f20d7950d3df08f7574311e82521e/720p
@@ -10,12 +10,12 @@
 		if not inAdr:match('^https?://kodik%.')
 			and not inAdr:match('^https?://hdrise%.com')
 			and not inAdr:match('^https?://hdlizor%.com')
-			and not inAdr:match('^%$kodiks')
+			and not inAdr:match('^$kodiks')
 		then
 		 return
 		end
 	m_simpleTV.OSD.ShowMessageT({text = '', showTime = 1000, id = 'channelName'})
-	if inAdr:match('^%$kodiks') or not inAdr:match('&kinopoisk') then
+	if inAdr:match('^$kodiks') or not inAdr:match('&kinopoisk') then
 		if m_simpleTV.Control.MainMode == 0 then
 			m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
 		end
@@ -89,6 +89,7 @@
 		retAdr = retAdr:gsub('^//', 'http://')
 		local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr, headers = 'Referer: ' .. refer})
 			if rc ~= 200 then return end
+		answer = answer:gsub('<!%-%-.-%-%->', '')
 		local domain = answer:match('domain = "([^"]+)')
 		local d_sign = answer:match('d_sign = "([^"]+)')
 		local pd = answer:match('pd = "([^"]+)')
@@ -108,17 +109,26 @@
 			then
 			 return
 			end
-		local headers = 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8\nX-Requested-With: XMLHttpRequest\nReferer: ' .. refer
+		if not m_simpleTV.User.kodik.url then
+			local script = answer:match('type="text/javascript".-src="([^"]+)')
+				if not script then return end
+			rc, answer = m_simpleTV.Http.Request(session, {url = 'http://' .. pd .. script, headers = 'Referer: ' .. refer})
+			local url = answer:match('url:atob%("([^"]+)')
+				if not url then return end
+			url = decode64(url)
+			m_simpleTV.User.kodik.url = url
+		end
+		local headers = 'X-Requested-With: XMLHttpRequest\nReferer: ' .. refer
 		local body = 'd=' .. domain
 				.. '&d_sign=' .. d_sign
 				.. '&pd=' .. pd
 				.. '&pd_sign=' .. pd_sign
-				.. '&ref=' .. url_encode(ref)
+				.. '&ref=' .. m_simpleTV.Common.toPercentEncoding(ref)
 				.. '&bad_user=false'
 				.. '&type=' .. typ
 				.. '&hash=' .. hash
 				.. '&id=' .. id
-		rc, answer = m_simpleTV.Http.Request(session, {url = 'http://kodik.info/gvi', method = 'post', headers = headers, body = body})
+		rc, answer = m_simpleTV.Http.Request(session, {url = 'http://' .. pd .. m_simpleTV.User.kodik.url, method = 'post', headers = headers, body = body})
 			if rc ~= 200 then return end
 	 return answer
 	end
@@ -242,10 +252,11 @@
 		m_simpleTV.Control.CurrentAddress = retAdr .. extOpt
 -- debug_in_file(retAdr .. '\n')
 	end
-		if inAdr:match('^%$kodik') then
+		if inAdr:match('^$kodik') then
 			play(inAdr, title)
 		 return
 		end
+	m_simpleTV.User.kodik.url = nil
 	inAdr = inAdr:gsub('&kinopoisk', '')
 	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr, headers = 'Referer: ' .. refer})
 		if rc ~= 200 then
