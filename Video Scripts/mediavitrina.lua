@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "Витрина ТВ" https://www.vitrina.tv (16/4/21)
+-- видеоскрипт для плейлиста "Витрина ТВ" https://www.vitrina.tv (29/8/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: mediavitrina_pls.lua
@@ -57,6 +57,20 @@
 					t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s', adr, bw)
 				end
 			end
+			if #t > 0 then
+			 return t
+			end
+			for w in answer:gmatch('<Representation bandwidth="%d+" codecs="avc.-/>') do
+				local bw = w:match('bandwidth="(%d+)')
+				if bw then
+					bw = tonumber(bw)
+					bw = math.ceil(bw / 100000) * 100
+					t[#t + 1] = {}
+					t[#t].Id = bw
+					t[#t].Name = bw .. ' кбит/с'
+					t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s', adr, bw)
+				end
+			end
 	 return t
 	end
 	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
@@ -83,6 +97,7 @@
 		 return
 		end
 	url = url .. '?token=' .. token
+	url = url:gsub('\\/', '/')
 	rc, answer = m_simpleTV.Http.Request(session, {url = url})
 		if rc ~= 200 then
 			m_simpleTV.Http.Close(session)
@@ -111,7 +126,6 @@
 	t[#t].Id = 5000000
 	t[#t].Name = '▫ всегда высокое'
 	t[#t].Address = t[#t - 1].Address
-	t[#t + 1] = {}
 	local index = #t
 		for i = 1, #t do
 			if t[i].Id >= lastQuality then
