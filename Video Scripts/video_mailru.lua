@@ -1,36 +1,58 @@
--- видеоскрипт для сайта https://my.mail.ru/video (29/11/20)
+-- видеоскрипт для сайта https://my.mail.ru/video, https://smotri.mail.ru (29/8/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- ## необходим ##
+-- видеоскрипт: mediavitrina.lua, ok.lua
 -- ## открывает подобные ссылки ##
 -- https://my.mail.ru/v/fresh_movie/video/_groupvideo/244.html
 -- https://my.mail.ru/community/patj/video/embed/_groupvideo/2546
--- https://videoapi.my.mail.ru/videos/embed/mail/coldfilmupload/_myvideo/4006.html
 -- https://smotri.mail.ru/watch/537280
+-- https://smotri.mail.ru/online-tv/3/
 -- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://my%.mail%.ru')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://videoapi%.my%.mail%.ru')
-			and not m_simpleTV.Control.CurrentAddress:match('^https?://smotri%.mail%.ru/watch/%d')
+			and not m_simpleTV.Control.CurrentAddress:match('^https?://smotri%.mail%.ru/[^/]+/%d')
 		then
 		 return
 		end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = ''
-	if m_simpleTV.Control.MainMode == 0 then
-		m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = 'https://www.walletone.com/logo/provider/o001.png', UseLogo = 1, Once = 1})
+	if m_simpleTV.Control.MainMode == 0 and not inAdr:match('online%-tv') then
+		local logo
+		if inAdr:match('smotri%.mail') then
+			logo = 'https://smotri.cdnmail.ru/assets/default/static/logo/logoMain.svg'
+		else
+			logo = 'https://www.walletone.com/logo/provider/o001.png'
+		end
+		m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = logo, UseLogo = 1, Once = 1})
 	end
 	local smotri = inAdr:match('smotri%.mail%.ru/watch/(%d+)')
 		if smotri then
 			m_simpleTV.Control.CurrentAddress = 'https://pulsarback.mail.ru/api/v2/video/manifest?id=' .. smotri .. '$OPT:NO-STIMESHIFT'
 		 return
 		end
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0')
+		if not session then return end
+	m_simpleTV.Http.SetTimeout(session, 8000)
+	local smotriTv = inAdr:match('smotri%.mail%.ru/online%-tv/(%d+)')
+		if smotriTv then
+			local rc, answer = m_simpleTV.Http.Request(session, {url = 'https://pulsarback.mail.ru/api/v2/tv_channels/get?ids=' .. smotriTv})
+			m_simpleTV.Http.Close(session)
+				if rc ~= 200 then return end
+			local retAdr = answer:match('"player_url":"([^"]+)')
+			if retAdr then
+				retAdr = retAdr:gsub('\\/', '/')
+				m_simpleTV.Control.ChangeAddress = 'No'
+				m_simpleTV.Control.CurrentAddress = retAdr
+				dofile(m_simpleTV.MainScriptDir .. 'user\\video\\video.lua')
+			end
+		 return
+		end
 	if not inAdr:match('/embed/') then
 		inAdr = inAdr:gsub('/video/', '/video/embed/')
 		inAdr = inAdr:gsub('%.html', '')
 	end
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:81.0) Gecko/20100101 Firefox/81.0')
-		if not session then return end
-	m_simpleTV.Http.SetTimeout(session, 8000)
 	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
 		if rc ~= 200 then
 			m_simpleTV.Http.Close(session)
