@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "Витрина ТВ" https://www.vitrina.tv (29/8/21)
+-- видеоскрипт для плейлиста "Витрина ТВ" https://www.vitrina.tv (30/8/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: mediavitrina_pls.lua
@@ -60,16 +60,13 @@
 			if #t > 0 then
 			 return t
 			end
-			for w in answer:gmatch('<Representation bandwidth="%d+" codecs="avc.-/>') do
-				local bw = w:match('bandwidth="(%d+)')
-				if bw then
-					bw = tonumber(bw)
-					bw = math.ceil(bw / 100000) * 100
-					t[#t + 1] = {}
-					t[#t].Id = bw
-					t[#t].Name = bw .. ' кбит/с'
-					t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s', adr, bw)
-				end
+			for bw in answer:gmatch('<Representation[^>]+bandwidth="(%d+)"[^>]+codecs="avc') do
+				bw = tonumber(bw)
+				bw = math.ceil(bw / 100000) * 100
+				t[#t + 1] = {}
+				t[#t].Id = bw
+				t[#t].Name = bw .. ' кбит/с'
+				t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s', adr, bw)
 			end
 	 return t
 	end
