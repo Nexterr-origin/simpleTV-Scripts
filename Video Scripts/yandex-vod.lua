@@ -1,15 +1,11 @@
--- видеоскрипт для сайта https://yandex.ru (3/9/21)
+-- видеоскрипт для сайта https://yandex.ru (4/9/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
--- https://yandex.ru/portal/video?from=videohub&stream_id=4ec8f2d80cb564848e37d63ae22976d6
 -- https://ott-widget.kinopoisk.ru/kinopoisk.json?episode=&season=&from=kp&isMobile=0&kpId=336434
--- https://ott-widget.kinopoisk.ru/kinopoisk.json?episode=&season=&from=kp&isMobile=0&kpId=46225
--- https://ott-widget.kinopoisk.ru/kinopoisk.json?episode=&season=&from=kp&isMobile=0&kpId=942397
--- https://strm.yandex.ru/vh-ott-converted/ott-content/326170847-4933049816615d8eb8c731f8cbaffe58/master.m3u8
 -- https://frontend.vh.yandex.ru/player/15392977509995281185
 -- https://frontend.vh.yandex.ru/player/414780668cb673c2b384e399e52a9ff4.json
 -- https://yandex.ru/efir?stream_id=45685261fef35f8aa367435e40e862a9
--- https://strm.yandex.ru/vod/vh-ugc-converted/vod-content/e0e6a8712582b34740f346440d1ba051/acd5931b-20edbbe2-8d81ecff-78e4394f/kaltura/desc_a93aaf423b50f8943336f956d773b039/vdCkHCbFuoWc/ysign1=1b8711ccf2c80966d92a451643b4ea1792d26c1c6e4c45892355466d9c889f4b,abcID=967,from=morda,pfx,sfx,ts=5fd9b23f/master.m3u8
+-- https://strm.yandex.ru/vod/zen-vod/vod-content/7779553496393912423/ba180426-3d5e5cc6-ae5fc7fa-cd2d53b9/kaltura/desc_b5ef83cf0a864b04ea14928e349c7c94/v9n4YP6ngtH4/ysign1=358cf6e673a9f36518877e0009dbba9f92b62f011a0bb236efcdaba3ff4bc68a,abcID=967,from=zen,pfx,region=10000,sfx,ts=613fa1f1/master.m3u8
 -- https://zen.yandex.ru/video/watch/603848a5fe5aef7eb18d47e9
 -- https://zen.yandex.ru/media/popmech/izverjenie-vulkana-iz-spichek-zreliscnyi-opyt-6002240ff8b1af50bb2da5e3
 -- ##
@@ -28,6 +24,7 @@
 		end
 		if m_simpleTV.Control.CurrentAddress:match('PARAMS=yandex_tv')
 			or m_simpleTV.Control.CurrentAddress:match('decryption_key')
+			or m_simpleTV.Control.CurrentAddress:match('PARAMS=yandex_vod')
 		then
 		 return
 		end
@@ -147,7 +144,6 @@
 		if #t > 0 then
 			local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('⚙ Качество', index-1, t, 5000, 1 + 4)
 			if ret == 1 then
-				m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
 				m_simpleTV.Control.SetNewAddress(t[id].Address, m_simpleTV.Control.GetPosition())
 				m_simpleTV.Config.SetValue('yandex_vod_qlty', t[id].qlty)
 			end
@@ -367,10 +363,11 @@
 	if inAdr:match('^https?://zen%.yandex%.ru/') then
 		local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
 			if rc ~= 200 then return end
-		inAdr = answer:match('"streamUrl":"([^"]+)') or answer:match('"OutputStream":"([^"]+)')
+		inAdr = answer:match('"stream":"([^"]+)') or answer:match('"streamUrl":"([^"]+)') or answer:match('"OutputStream":"([^"]+)')
 			if not inAdr then return end
 		inAdr = inAdr:gsub('\\u002F', '/')
 		title = answer:match(':title" content="([^"]+)') or 'zen yandex'
+		title = title:gsub('amp;', '')
 		logo = answer:match(':image" content="([^"]+)') or logo
 	end
 	if title then
@@ -400,7 +397,9 @@
 		m_simpleTV.Control.SetTitle(title)
 	else
 		m_simpleTV.Control.CurrentTitle_UTF8 = title
-		m_simpleTV.Control.ChangeChannelLogo(logo, m_simpleTV.Control.ChannelID)
+		if logo then
+			m_simpleTV.Control.ChangeChannelLogo(logo, m_simpleTV.Control.ChannelID)
+		end
 	end
 	m_simpleTV.OSD.ShowMessageT({text = title, showTime = 1000 * 5, id = 'channelName'})
 	if inAdr:match('PARAMS=psevdotv') then
