@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://yandex.ru (5/5/21)
+-- видеоскрипт для сайта https://yandex.ru (3/9/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://yandex.ru/portal/video?from=videohub&stream_id=4ec8f2d80cb564848e37d63ae22976d6
@@ -10,6 +10,8 @@
 -- https://frontend.vh.yandex.ru/player/414780668cb673c2b384e399e52a9ff4.json
 -- https://yandex.ru/efir?stream_id=45685261fef35f8aa367435e40e862a9
 -- https://strm.yandex.ru/vod/vh-ugc-converted/vod-content/e0e6a8712582b34740f346440d1ba051/acd5931b-20edbbe2-8d81ecff-78e4394f/kaltura/desc_a93aaf423b50f8943336f956d773b039/vdCkHCbFuoWc/ysign1=1b8711ccf2c80966d92a451643b4ea1792d26c1c6e4c45892355466d9c889f4b,abcID=967,from=morda,pfx,sfx,ts=5fd9b23f/master.m3u8
+-- https://zen.yandex.ru/video/watch/603848a5fe5aef7eb18d47e9
+-- https://zen.yandex.ru/media/popmech/izverjenie-vulkana-iz-spichek-zreliscnyi-opyt-6002240ff8b1af50bb2da5e3
 -- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://strm%.yandex%.ru/vh')
@@ -18,6 +20,7 @@
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://frontend%.vh%.yandex%.ru')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://[w%.]*yandex.ru/efir')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://strm%.yandex%.ru/vod/')
+			and not m_simpleTV.Control.CurrentAddress:match('^https?://zen%.yandex%.ru/.+')
 			and not m_simpleTV.Control.CurrentAddress:match('^%$yndex')
 		then
 		 return
@@ -29,7 +32,7 @@
 		end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.OSD.ShowMessageT({text = '', showTime = 1000, id = 'channelName'})
-	local logo = 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/yandex-vod.png'
+	local logo
 	if inAdr:match('^$yndex') or not inAdr:match('&kinopoisk') then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
 	end
@@ -37,6 +40,11 @@
 		and not inAdr:match('&kinopoisk')
 		and not inAdr:match('PARAMS=psevdotv')
 	then
+		if inAdr:match('zen%.yandex%.ru') then
+			logo = 'https://avatars.mds.yandex.net/get-lpc/1368426/a157fe67-d325-4c4a-9621-ae970301043a/width_1280'
+		else
+			logo = 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/yandex-vod.png'
+		end
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = logo, TypeBackColor = 0, UseLogo = 1, Once = 1})
 	end
 	inAdr = inAdr:gsub('&kinopoisk', '')
@@ -138,6 +146,7 @@
 		if #t > 0 then
 			local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('⚙ Качество', index-1, t, 5000, 1 + 4)
 			if ret == 1 then
+				m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
 				m_simpleTV.Control.SetNewAddress(t[id].Address, m_simpleTV.Control.GetPosition())
 				m_simpleTV.Config.SetValue('yandex_vod_qlty', t[id].qlty)
 			end
@@ -353,6 +362,15 @@
 			 return
 			end
 		inAdr = plst .. inAdr
+	end
+	if inAdr:match('^https?://zen%.yandex%.ru/') then
+		local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
+			if rc ~= 200 then return end
+		inAdr = answer:match('"streamUrl":"([^"]+)') or answer:match('"OutputStream":"([^"]+)')
+			if not inAdr then return end
+		inAdr = inAdr:gsub('\\u002F', '/')
+		title = answer:match(':title" content="([^"]+)') or 'zen yandex'
+		logo = answer:match(':image" content="([^"]+)') or logo
 	end
 	if title then
 		title = m_simpleTV.Common.fromPercentEncoding(title)
