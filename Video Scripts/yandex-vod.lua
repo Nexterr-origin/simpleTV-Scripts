@@ -20,7 +20,8 @@
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://frontend%.vh%.yandex%.ru')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://[w%.]*yandex.ru/efir')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://strm%.yandex%.ru/vod/')
-			and not m_simpleTV.Control.CurrentAddress:match('^https?://zen%.yandex%.ru/.+')
+			and not m_simpleTV.Control.CurrentAddress:match('^https?://zen%.yandex%.ru/media/')
+			and not m_simpleTV.Control.CurrentAddress:match('^https?://zen%.yandex%.ru/video/watch/')
 			and not m_simpleTV.Control.CurrentAddress:match('^%$yndex')
 		then
 		 return
