@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (28/8/21)
+-- видеоскрипт для сайта http://www.kinopoisk.ru (8/9/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: yandex-vod.lua, kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
@@ -25,8 +25,8 @@ local proxy = ''
 local tname = {
 -- сортировать: поменять порядок строк
 -- отключить: поставить в начале строки --
-	'КиноПоиск онлайн',
-	'ivi',
+	-- 'КиноПоиск онлайн',
+	-- 'ivi',
 	'Videocdn',
 	'Videoframe',
 	'Filmix',
@@ -34,8 +34,8 @@ local tname = {
 	'Hdvb',
 	'CDN Movies',
 	'Kodik',
-	'Seasonvar',
-	'ZonaMobi',
+	-- 'Seasonvar',
+	-- 'ZonaMobi',
 	}
 -- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
@@ -334,7 +334,7 @@ local tname = {
 	local function checkScrtpts()
 		local t = {
 					'luaScr/user/video/hdvb-vb.lua',
-					'luaScr/user/video/kodik.lua',
+					-- 'luaScr/user/video/kodik.lua',
 					'luaScr/user/video/videocdn.lua',
 					'luaScr/user/video/videoframe.lua',
 				}
