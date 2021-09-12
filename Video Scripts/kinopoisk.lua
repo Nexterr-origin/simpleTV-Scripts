@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (11/9/21)
+-- видеоскрипт для сайта http://www.kinopoisk.ru (12/9/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: yandex-vod.lua, kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
@@ -102,6 +102,9 @@ local tname = {
 		elseif url:match('videocdn%.tv') then
 			rc, answer = m_simpleTV.Http.Request(session, {url = url})
 				if rc ~= 200 then return end
+			if title == '' then
+				title = answer:match('"title":"([^"]+)') or ''
+			end
 			return answer:match('"iframe_src":"([^"]+)')
 		elseif url:match('cdnmovies%.net') then
 			rc, answer = m_simpleTV.Http.Request(session, {url = url})
@@ -263,7 +266,7 @@ local tname = {
 				if answer:match('embedHost') then
 				 return url
 				end
-		elseif url:match('vb17120ayeshajenkins') then
+		elseif url:match('vb17121coramclean') then
 			rc, answer = m_simpleTV.Http.Request(session, {url = url})
 				if rc ~= 200 then return end
 			return answer:match('"iframe_url":"([^"]+)')
@@ -326,7 +329,7 @@ local tname = {
 			return svar[id].Address
 		elseif url:match('placehere') then
 			return url
-		elseif url:match('vb17120ayeshajenkins') then
+		elseif url:match('vb17121coramclean') then
 			return answer
 		end
 	 return
