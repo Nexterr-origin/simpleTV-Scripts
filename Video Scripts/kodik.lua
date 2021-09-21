@@ -1,8 +1,8 @@
--- видеоскрипт для видеобазы "kodik" http://kodik.cc (25/8/21)
+-- видеоскрипт для видеобазы "kodik" http://kodik.cc (21/9/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://hdrise.com/video/31756/445f20d7950d3df08f7574311e82521e/720p
--- http://kodik.info/serial/13166/dc6c81648d5b5173461756cf1f2cd0e4/720p
+-- http://kodik.cc/serial/37405/ab75ddfb810d744aae16eb202f3a5330/720
 -- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
@@ -40,7 +40,7 @@
 		m_simpleTV.User.kodik.qlty = tonumber(m_simpleTV.Config.GetValue('Kodik_qlty') or '10000')
 	end
 	local title
-	local refer = 'http://the-cinema.fun/'
+	local refer = 'http://the-cinema.online/'
 	if m_simpleTV.User.kodik.Tabletitle and not psevdotv then
 		local index = m_simpleTV.Control.GetMultiAddressIndex()
 		if index then
@@ -140,7 +140,7 @@
 					t[#t].qlty = qlty
 					adr = string.reverse(adr)
 					adr = decode64(adr)
-					t[#t].Address = adr
+					t[#t].Address = adr:gsub('^//', 'http://')
 				end
 			end
 			if #t == 0 then return end
