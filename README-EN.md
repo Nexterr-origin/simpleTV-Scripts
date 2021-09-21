@@ -20,7 +20,7 @@
 
 ---
 
-### ★ Scripts
+### ★ Scripts for simpleTV
 
 ---
 
