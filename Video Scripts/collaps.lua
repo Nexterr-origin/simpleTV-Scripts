@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "Collaps" https://collaps.org (8/8/21)
+-- видеоскрипт для видеобалансера "Collaps" https://collaps.org (22/9/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://api1603044906.placehere.link/embed/movie/7059
@@ -19,7 +19,7 @@
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = ''
-	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:90.0) Gecko/20100101 Firefox/90.0'
+	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:92.0) Gecko/20100101 Firefox/92.0'
 	local session = m_simpleTV.Http.New(userAgent)
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 12000)
@@ -37,6 +37,10 @@
 		if index then
 			title = m_simpleTV.User.collaps.episode[index].Name
 		end
+	end
+	local function showMsg(str, color)
+		local t = {text = str, showTime = 1000 * 5, color = color, id = 'channelName'}
+		m_simpleTV.OSD.ShowMessageT(t)
 	end
 	local function replaseStr(str, a, b)
 		str = split(str)
@@ -67,13 +71,9 @@
 	local function GetFilePath(adr)
 		local path = adr:match('https?://[^/]+(/.+/)')
 			if not path then return end
-		local session1 = m_simpleTV.Http.New(userAgent)
-			if not session1 then return end
-		m_simpleTV.Http.SetTimeout(session, 8000)
 		adr = adr:gsub('^https', 'http')
 		adr = GetChiperUrl(adr)
-		local rc, answer = m_simpleTV.Http.Request(session1, {url = adr})
-		m_simpleTV.Http.Close(session1)
+		local rc, answer = m_simpleTV.Http.Request(session, {url = adr})
 			if rc ~= 200 then return end
 		path = math.floor(os.time() / 3600) .. '/' .. path
 		local origin = adr:match('https?://[^/]+')
@@ -105,14 +105,10 @@
 	 return index
 	end
 	local function GetcollapsAdr(url)
-		local session0 = m_simpleTV.Http.New(userAgent)
-			if not session0 then return end
-		m_simpleTV.Http.SetTimeout(session0, 12000)
 		url = url:gsub('^$collaps', '')
 		url = url:gsub('^https', 'http')
 		url = GetChiperUrl(url)
-		local rc, answer = m_simpleTV.Http.Request(session0, {url = url, headers = 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\nAccept-Language: ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; rv:90.0) Gecko/20100101 Firefox/90.0\nConnection: keep-alive'})
-		m_simpleTV.Http.Close(session0)
+		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 			if rc ~= 200 then return end
 		local t = {}
 			for w in answer:gmatch('EXT%-X%-STREAM.-AUDIO="audio0".-\n.-\n') do
@@ -149,10 +145,16 @@
 				v.Name = v.qlty .. 'p'
 			end
 		table.sort(t, function(a, b) return a.qlty < b.qlty end)
-		local transl = m_simpleTV.User.collaps.transl or 1
+		local transl
+		local transl0 = m_simpleTV.User.collaps.transl or '1'
+		if answer:match('index%-a' .. transl0) then
+			transl = transl0
+		else
+			transl = answer:match('index%-a(%d+)') or '1'
+		end
 			for i = 1, #t do
 				t[i].Id = i
-				t[i].Address = t[i].Address:gsub('%.m3u8$', '-a' .. transl .. '.m3u8')
+				t[i].Address = t[i].Address:gsub('%.m3u8$', '-a' .. transl ..'.m3u8')
 			end
 		m_simpleTV.User.collaps.Tab = t
 		local index = collapsIndex(t)
@@ -168,7 +170,7 @@
 		if ret == 1 then
 			local retAdr = GetFilePath(t[id].Address)
 				if not retAdr then return end
-			retAdr = retAdr .. '$OPT:adaptive-hls-ignore-discontinuity$OPT:http-ext-header=Origin: ' .. host .. '$OPT:http-user-agent=' .. userAgent
+			retAdr = retAdr .. '$OPT:http-ext-header=Origin: ' .. host .. '$OPT:http-user-agent=' .. userAgent
 			m_simpleTV.Control.SetNewAddress(retAdr, m_simpleTV.Control.GetPosition())
 			m_simpleTV.Config.SetValue('collaps_qlty', t[id].qlty)
 		end
@@ -179,18 +181,17 @@
 				m_simpleTV.Control.CurrentAddress = 'http://wonky.lostcut.net/vids/error_getlink.avi'
 			 return
 			end
-		if m_simpleTV.Control.CurrentTitle_UTF8 then
-			m_simpleTV.Control.CurrentTitle_UTF8 = title
-		end
-		m_simpleTV.OSD.ShowMessageT({text = title, color = 0xff9999ff, showTime = 1000 * 5, id = 'channelName'})
+		m_simpleTV.Control.CurrentTitle_UTF8 = title
 		retAdr = GetFilePath(retAdr)
 			if not retAdr then
-				m_simpleTV.OSD.ShowMessageT({text = 'collaps ошибка: GetFilePath', color = 0xffff1000, showTime = 1000 * 5, id = 'channelName'})
+				showMsg('collaps ошибка: GetFilePath', ARGB(255, 255, 102, 0))
 			 return
 			end
+		showMsg(title, ARGB(255, 153, 153, 255))
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
-		retAdr = retAdr .. '$OPT:adaptive-hls-ignore-discontinuity$OPT:http-ext-header=Origin: ' .. host .. '$OPT:http-user-agent=' .. userAgent
+		retAdr = retAdr .. '$OPT:http-ext-header=Origin: ' .. host .. '$OPT:http-user-agent=' .. userAgent
 		m_simpleTV.Control.CurrentAddress = retAdr
+-- debug_in_file(retAdr .. '\n')
 	end
 		if inAdr:match('^$collaps') then
 			play(inAdr, title)
@@ -199,8 +200,7 @@
 	inAdr = inAdr:gsub('&kinopoisk', ''):gsub('buildplayer%.com', 'iframecdn.club')
 	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr, headers = headers})
 		if rc ~= 200 then
-			m_simpleTV.Http.Close(session)
-			m_simpleTV.OSD.ShowMessageT({text = 'collaps ошибка[1]-' .. rc, color = 0xffff1000, showTime = 1000 * 5, id = 'channelName'})
+			showMsg('collaps ошибка: 1', ARGB(255, 255, 102, 0))
 		 return
 		end
 	local season_title = ''
@@ -280,7 +280,7 @@
 		inAdr = answer:match('hls:%s*"([^"]+)')
 			if not inAdr then
 				m_simpleTV.Http.Close(session)
-				m_simpleTV.OSD.ShowMessageT({text = 'collaps ошибка[3]', color = 0xff99ff99, showTime = 1000 * 5, id = 'channelName'})
+				showMsg('collaps ошибка: 2', ARGB(255, 255, 102, 0))
 			 return
 			end
 		title = answer:match('title:%s*"(.-)",') or 'Collaps'
@@ -314,5 +314,4 @@
 		t1.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
 		m_simpleTV.OSD.ShowSelect_UTF8('Collaps', 0, t1, 8000, 64 + 32 + 128)
 	end
-	m_simpleTV.Http.Close(session)
 	play(inAdr, title)
