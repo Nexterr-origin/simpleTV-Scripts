@@ -1,4 +1,4 @@
--- видеоскрипт для поиска видео по видеобазе "Kodik", "Hdvb", "zona" (1/10/21)
+-- видеоскрипт для поиска видео по видеобазе "Kodik", "Hdvb", "Zona mobi", "Bazon" (1/10/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: kinopoisk.lua
@@ -140,13 +140,47 @@
 					end
 			end
 	end
+-- Bazon
+	rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9iYXpvbi5jYy9hcGkvc2VhcmNoP3Rva2VuPWMxMThlYjVmOGQzNjU2NWIyYjA4YjUzNDJkYTk3Zjc5JnRpdGxlPQ') .. m_simpleTV.Common.toPercentEncoding(retAdr)})
+	if rc == 200 then
+		answer = answer:gsub('%[%]', '""'):gsub(string.char(239, 187, 191), '')
+		local tab = json.decode(answer)
+			if tab then
+				local j = 1
+					while true do
+							if not tab.results[j] then break end
+						if tab.results[j].info and tab.results[j].info.rus and tab.results[j].kinopoisk_id then
+							t[i] = {}
+							local year = tab.results[j].info.year
+							local name = tab.results[j].info.rus
+							if year and year ~= '' then
+								t[i].year = tonumber(year or '0')
+								t[i].Name = name .. ' (' .. year .. ')'
+								year = ' | ' .. year
+							else
+								t[i].Name = name
+								t[i].year = 0
+								year = ''
+							end
+							t[i].Address = tab.results[j].kinopoisk_id
+							t[i].InfoPanelLogo = 'https://st.kp.yandex.net/images/film_iphone/iphone360_' .. tab.results[j].kinopoisk_id .. '.jpg'
+							t[i].InfoPanelName = 'Bazon'
+							t[i].InfoPanelShowTime = 30000
+							t[i].InfoPanelTitle = name .. year
+							t[i].InfoPanelDesc = tab.results[j].info.description
+							i = i + 1
+						end
+						j = j + 1
+					end
+			end
+	end
 -- Hdvb
 	local hdvbTitle
 	local hdvbRetAdr = ' ' .. retAdr .. ' '
 	hdvbRetAdr = hdvbRetAdr:gsub('%s+', ' '):gsub('%p', ' ')
 	rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly92YjE3MTIxY29yYW1jbGVhbi5wdy9hcGkvdmlkZW9zLmpzb24/dG9rZW49Yzk5NjZiOTQ3ZGEyZjNjMjliMzBjMGUwZGNjYTZjZjQmdGl0bGU9') .. m_simpleTV.Common.toPercentEncoding(retAdr)})
 	if rc == 200 then
-		answer = answer:gsub('(%[%])', '"nil"')
+		answer = answer:gsub('%[%]', '""')
 		answer = answer:gsub('\\', '\\\\'):gsub('\\"', '\\\\"'):gsub('\\/', '/')
 		local tab = json.decode(answer)
 		if tab then
@@ -212,7 +246,7 @@
 							end
 							t[i].Address = tab.response.docs[j].id
 							t[i].InfoPanelLogo = 'https://st.kp.yandex.net/images/film_iphone/iphone360_' .. tab.response.docs[j].id .. '.jpg'
-							t[i].InfoPanelName = 'Videocdn'
+							t[i].InfoPanelName = 'Zona mobi'
 							t[i].InfoPanelShowTime = 30000
 							t[i].InfoPanelTitle = name .. year
 							desc = tab.response.docs[j].description
