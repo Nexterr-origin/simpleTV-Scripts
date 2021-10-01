@@ -142,7 +142,7 @@
 	end
 -- Bazon
 	rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9iYXpvbi5jYy9hcGkvc2VhcmNoP3Rva2VuPWMxMThlYjVmOGQzNjU2NWIyYjA4YjUzNDJkYTk3Zjc5JnRpdGxlPQ') .. m_simpleTV.Common.toPercentEncoding(retAdr)})
-	if rc == 200 then
+	if rc == 200 and answer:match('^%s*{') then
 		answer = answer:gsub('%[%]', '""'):gsub(string.char(239, 187, 191), '')
 		local tab = json.decode(answer)
 			if tab then
