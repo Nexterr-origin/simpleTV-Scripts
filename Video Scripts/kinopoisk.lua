@@ -1,8 +1,8 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (12/9/21)
+-- видеоскрипт для сайта http://www.kinopoisk.ru (1/10/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: yandex-vod.lua, kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
--- iviru.lua, videocdn.lua, hdvb-vb.lua, collaps.lua, cdnmovies.lua, zonamobi.lua
+-- iviru.lua, videocdn.lua, hdvb-vb.lua, collaps.lua, cdnmovies.lua
 -- ## открывает подобные ссылки ##
 -- https://www.kinopoisk.ru/film/5928
 -- https://www.kinopoisk.ru/level/1/film/46225/sr/1/
@@ -35,7 +35,6 @@ local tname = {
 	'CDN Movies',
 	'Kodik',
 	-- 'Seasonvar',
-	-- 'ZonaMobi',
 	}
 -- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
@@ -99,13 +98,10 @@ local tname = {
 				if rc ~= 200 then return end
 				if not answer:match('"stream_type":"HLS","url":"%a') then return end
 			return url
-		elseif url:match('videocdn%.tv') then
+		elseif url:match('svetacdn') then
 			rc, answer = m_simpleTV.Http.Request(session, {url = url})
 				if rc ~= 200 then return end
-			if title == '' then
-				title = answer:match('"title":"([^"]+)') or ''
-			end
-			return answer:match('"iframe_src":"([^"]+)')
+			return url
 		elseif url:match('cdnmovies%.net') then
 			rc, answer = m_simpleTV.Http.Request(session, {url = url})
 				if rc ~= 200 then return end
@@ -130,12 +126,6 @@ local tname = {
 			rc, answer = m_simpleTV.Http.Request(session, {url = url})
 				if rc ~= 200 then return end
 			return answer:match('"link":"([^"]+)')
-		elseif url:match('zonasearch%.com/solr/movie') then
-				if not zonaUrl or zonaAbuse ~= '' or not zonaId then return end
-			if zonaSerial then
-				zonaUrl = zonaUrl:gsub('/movies/', '/tvseries/')
-			end
-			return zonaUrl
 		elseif url:match('filmix') then
 			local filmix_title
 			if eng_title and #eng_title > 2 then
@@ -278,13 +268,11 @@ local tname = {
 			return answer
 		elseif url:match('ivi%.ru') then
 			return answer
-		elseif url:match('videocdn%.tv') then
+		elseif url:match('svetacdn') then
 			return answer
 		elseif url:match('cdnmovies%.net') then
 			return answer
 		elseif url:match('kodikapi%.com') then
-			return answer
-		elseif url:match('zonasearch%.com/solr/movie') then
 			return answer
 		elseif url:match('widget%.kinopoisk%.ru') then
 			return answer
@@ -386,7 +374,7 @@ local tname = {
 			elseif tname[i] == 'ivi' then
 				turl[i] = {adr = decode64('aHR0cHM6Ly9hcGkuaXZpLnJ1L21vYmlsZWFwaS9zZWFyY2gvdjUvP2ZpZWxkcz1rcF9pZCxpZCxkcm1fb25seSZmYWtlPTAmcXVlcnk9'), tTitle = 'Фильмы и сериалы с ivi.ru', tLogo = 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/ivi.png'}
 			elseif tname[i] == 'Videocdn' then
-				turl[i] = {adr = decode64('aHR0cHM6Ly92aWRlb2Nkbi50di9hcGkvc2hvcnQ/YXBpX3Rva2VuPW9TN1d6dk5meGU0SzhPY3NQanBBSVU2WHUwMVNpMGZtJmtpbm9wb2lza19pZD0') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
+				turl[i] = {adr = decode64('aHR0cHM6Ly84MjA5LnN2ZXRhY2RuLmluL1BYazJRR2J2RVZtUz9rcF9pZD0') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
 			elseif tname[i] == 'Collaps' then
 				turl[i] = {adr = 'http://api.' .. os.time() .. decode64('LnBsYWNlaGVyZS5saW5rL2VtYmVkL2twLw') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
 			elseif tname[i] == 'CDN Movies' then
