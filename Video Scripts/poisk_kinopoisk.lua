@@ -1,4 +1,4 @@
--- видеоскрипт для поиска видео по видеобазе "Kodik", "Hdvb", "Videocdn", "zona" (19/11/20)
+-- видеоскрипт для поиска видео по видеобазе "Kodik", "Hdvb", "zona" (1/10/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: kinopoisk.lua
@@ -144,7 +144,7 @@
 	local hdvbTitle
 	local hdvbRetAdr = ' ' .. retAdr .. ' '
 	hdvbRetAdr = hdvbRetAdr:gsub('%s+', ' '):gsub('%p', ' ')
-	rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9kYi50ZWhyYW52ZC5iaXovYXBpL3ZpZGVvcy5qc29uP3Rva2VuPWM5OTY2Yjk0N2RhMmYzYzI5YjMwYzBlMGRjY2E2Y2Y0JnRpdGxlPQ') .. m_simpleTV.Common.toPercentEncoding(retAdr)})
+	rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly92YjE3MTIxY29yYW1jbGVhbi5wdy9hcGkvdmlkZW9zLmpzb24/dG9rZW49Yzk5NjZiOTQ3ZGEyZjNjMjliMzBjMGUwZGNjYTZjZjQmdGl0bGU9') .. m_simpleTV.Common.toPercentEncoding(retAdr)})
 	if rc == 200 then
 		answer = answer:gsub('(%[%])', '"nil"')
 		answer = answer:gsub('\\', '\\\\'):gsub('\\"', '\\\\"'):gsub('\\/', '/')
@@ -180,47 +180,6 @@
 					j = j + 1
 				end
 		end
-	end
-	local videocdnTitle
-	local videocdnRetAdr = ' ' .. retAdr .. ' '
-	videocdnRetAdr = videocdnRetAdr:gsub('%s+', ' '):gsub('%p', ' ')
--- Videocdn
-	rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly92aWRlb2Nkbi50di9hcGkvc2hvcnQ/YXBpX3Rva2VuPW9TN1d6dk5meGU0SzhPY3NQanBBSVU2WHUwMVNpMGZtJnRpdGxlPQ') .. m_simpleTV.Common.toPercentEncoding(retAdr)})
-	if rc == 200 then
-		answer = answer:gsub('(%[%])', '"nil"'):gsub(string.char(239, 187, 191), '')
-		local tab = json.decode(answer)
-			if tab then
-				local j = 1
-					while true do
-							if not tab.data[j] then break end
-						local name, year
-						name = tab.data[j].title or tab.data[j].title_orig
-						videocdnTitle = xren(name)
-						videocdnTitle = ' ' .. videocdnTitle .. ' '
-						videocdnTitle = videocdnTitle:gsub('%s+', ' '):gsub('%p', ' ')
-						if tab.data[j].kp_id and videocdnTitle:match(videocdnRetAdr) then
-							t[i] = {}
-							year = tab.data[j].year
-							if year and year ~= '' then
-								year = year:match('%d+')
-								t[i].year = tonumber(year or '0')
-								t[i].Name = name .. ' (' .. year .. ')'
-								year = ' | ' .. year
-							else
-								t[i].Name = name
-								t[i].year = 0
-								year = ''
-							end
-							t[i].Address = tab.data[j].kp_id
-							t[i].InfoPanelLogo = 'https://st.kp.yandex.net/images/film_iphone/iphone360_' .. tab.data[j].kp_id .. '.jpg'
-							t[i].InfoPanelName = 'Videocdn'
-							t[i].InfoPanelShowTime = 30000
-							t[i].InfoPanelTitle = name .. year
-							i = i + 1
-						end
-						j = j + 1
-					end
-			end
 	end
 	local zonaTitle
 	local zonaRetAdr = ' ' .. retAdr .. ' '
