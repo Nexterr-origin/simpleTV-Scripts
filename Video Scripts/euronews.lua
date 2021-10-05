@@ -1,15 +1,15 @@
--- видеоскрипт для сайта http://www.euronews.com (26/8/21)
+-- видеоскрипт для сайта https://www.euronews.com (8/11/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- открывает ссылки:
--- http://www.euronews.com/live - English
--- http://fr.euronews.com/live - Français
--- http://de.euronews.com/live - Deutsch
--- http://it.euronews.com/live - Italiano
--- http://es.euronews.com/live - Español
--- http://pt.euronews.com/live - Português
--- http://ru.euronews.com/live - Русский
--- http://gr.euronews.com/live - Ελληνικά
--- http://hu.euronews.com/live - Magyar
+-- https://www.euronews.com/live - English
+-- https://fr.euronews.com/live - Français
+-- https://de.euronews.com/live - Deutsch
+-- https://it.euronews.com/live - Italiano
+-- https://es.euronews.com/live - Español
+-- https://pt.euronews.com/live - Português
+-- https://ru.euronews.com/live - Русский
+-- https://gr.euronews.com/live - Ελληνικά
+-- https://hu.euronews.com/live - Magyar
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://%a+%.euronews%.com/live') then return end
 	if m_simpleTV.Control.MainMode == 0 then
@@ -20,9 +20,9 @@
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
 	inAdr = inAdr:gsub('//www%.', '//en.')
-	local lng = inAdr:match('http?://(..)%.')
+	local lng = inAdr:match('https?://(..)%.')
 		if not lng then return end
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:93.0) Gecko/20100101 Firefox/93.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 12000)
 	local url = string.format('https://%s.euronews.com/api/watchlive.json?countryCode=%s&playerName=jw', lng, lng)
