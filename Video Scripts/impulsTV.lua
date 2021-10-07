@@ -1,9 +1,9 @@
--- видеоскрипт для плейлиста "impulsTV" http://impulstv.ru (22/9/20)
+-- видеоскрипт для плейлиста "impulsTV" http://impulstv.ru (7/10/20)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: impulsTV_pls.lua
 -- расширение дополнения httptimeshift: impulstv-timeshift_ext.lua
--- открывает подобные ссылки:
+-- ## открывает подобные ссылки ##
 -- http://impulstv/960
 -- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
@@ -62,8 +62,22 @@
 	local retAdr = Get_Address() or Get_Address()
 	m_simpleTV.Http.Close(session)
 		if not retAdr then
-			showError('2\nобновите плейлист')
 			m_simpleTV.User.impulstv.authkey = nil
+			if package.loaded['tvs_core']
+				and package.loaded['tvs_func']
+				and not m_simpleTV.User.impulstv.updateSource
+			then
+				local tmp_sources = tvs_core.tvs_GetSourceParam() or {}
+					for SID, v in pairs(tmp_sources) do
+						if v.name:find('impulsTV') then
+							tvs_core.UpdateSource(SID, true)
+							m_simpleTV.User.impulstv.updateSource = true
+							m_simpleTV.Control.Restart(false)
+						end
+					end
+			else
+				showError('2\nобновите плейлист')
+			end
 		 return
 		end
 	retAdr = retAdr:gsub('amp;', '')
