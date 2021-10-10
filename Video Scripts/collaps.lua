@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "Collaps" https://collaps.org (22/9/21)
+-- видеоскрипт для видеобалансера "Collaps" https://collaps.org (10/10/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://api1603044906.placehere.link/embed/movie/7059
@@ -170,7 +170,7 @@
 		if ret == 1 then
 			local retAdr = GetFilePath(t[id].Address)
 				if not retAdr then return end
-			retAdr = retAdr .. '$OPT:http-ext-header=Origin: ' .. host .. '$OPT:http-user-agent=' .. userAgent
+			retAdr = retAdr .. '$OPT:adaptive-hls-ignore-discontinuity$OPT:http-ext-header=Origin: ' .. host .. '$OPT:http-user-agent=' .. userAgent
 			m_simpleTV.Control.SetNewAddress(retAdr, m_simpleTV.Control.GetPosition())
 			m_simpleTV.Config.SetValue('collaps_qlty', t[id].qlty)
 		end
@@ -189,7 +189,7 @@
 			end
 		showMsg(title, ARGB(255, 153, 153, 255))
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
-		retAdr = retAdr .. '$OPT:http-ext-header=Origin: ' .. host .. '$OPT:http-user-agent=' .. userAgent
+		retAdr = retAdr .. '$OPT:adaptive-hls-ignore-discontinuity$OPT:http-ext-header=Origin: ' .. host .. '$OPT:http-user-agent=' .. userAgent
 		m_simpleTV.Control.CurrentAddress = retAdr
 -- debug_in_file(retAdr .. '\n')
 	end
