@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://www.twitch.tv (28/1/21)
+-- видеоскрипт для сайта https://www.twitch.tv (10/10/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://www.twitch.tv/dota2mc_ru
@@ -20,7 +20,7 @@
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local id = inAdr:match('([^/]+)$')
 	local client_id = 'kimne78kx3ncx6brgo4mv6wki5h1ko'
-	local device_id = 'RAtExpViSAyxtTkND7gZ7c5PnGgqhXA0'
+	local device_id = 'twitch-web-wall-mason'
 	local headers = 'x-requested-with: XMLHttpRequest'
 					.. '\nClient-Id: ' .. client_id
 					.. '\nX-Device-Id: ' .. device_id
