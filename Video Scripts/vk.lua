@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://vk.com (24/12/20)
+-- видеоскрипт для сайта http://vk.com (11/10/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: YT.lua, vimeo.lua ...
@@ -40,9 +40,7 @@
 		 return
 		end
 	m_simpleTV.Http.SetTimeout(session, 8000)
-	local url = decode64('aHR0cHM6Ly9hcGkudmsuY29tL21ldGhvZC92aWRlby5nZXQ/dmlkZW9zPQ==')
-		.. oidvid
-		.. decode64('JmFjY2Vzc190b2tlbj02NjcxM2U0N2M4YjU4MDNiZDhlOWIyOGVjMzFiMDFkMDVmZjY1ZTFiZTFjMWYwYTI0Zjc3MjVlMzEwZTAxNzFlOTdjN2MyMjRlOTZlNjQ5MGE2MmJlJnY9NS43Mw==')
+	local url = decode64('aHR0cHM6Ly9hcGkudmsuY29tL21ldGhvZC92aWRlby5nZXQ/YWNjZXNzX3Rva2VuPTY2NzEzZTQ3YzhiNTgwM2JkOGU5YjI4ZWMzMWIwMWQwNWZmNjVlMWJlMWMxZjBhMjRmNzcyNWUzMTBlMDE3MWU5N2M3YzIyNGU5NmU2NDkwYTYyYmUmdj01LjEzMSZ2aWRlb3M9') .. oidvid
 	local extOpt = '$OPT:http-user-agent=' .. userAgent
 	local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 		if rc ~= 200 then
