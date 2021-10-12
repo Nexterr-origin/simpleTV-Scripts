@@ -1,9 +1,13 @@
--- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (6/6/21)
+-- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (12/10/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://32.svetacdn.in/fnXOUDB9nNSO?kp_id=5928
 -- https://32.tvmovies.in/fnXOUDB9nNSO/tv-series/92
 -- https://32.tvmovies.in/fnXOUDB9nNSO/movie/22080
+-- ## домен ##
+local domen = 'http://58.svetacdn.in'
+-- '' - по умолчанию
+-- 'http://58.svetacdn.in' (пример)
 -- ## прокси ##
 local proxy = ''
 -- '' - нет
@@ -18,7 +22,10 @@ local proxy = ''
 		 return
 		end
 	local inAdr = m_simpleTV.Control.CurrentAddress
-	inAdr = inAdr:gsub('//32%.', '//58.')
+	if domen ~= '' then
+		inAdr = inAdr:gsub('^https?://.-/', domen .. '/')
+	end
+	htmlEntities = require 'htmlEntities'
 	m_simpleTV.OSD.ShowMessageT({text = '', showTime = 1000, id = 'channelName'})
 	if inAdr:match('^$videocdn') or not inAdr:match('&kinopoisk') then
 		if m_simpleTV.Control.MainMode == 0 then
@@ -31,7 +38,7 @@ local proxy = ''
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = ''
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:81.0) Gecko/20100101 Firefox/81.0', proxy, false)
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:93.0) Gecko/20100101 Firefox/93.0', proxy, false)
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 12000)
 	if not m_simpleTV.User then
@@ -205,6 +212,7 @@ local proxy = ''
 			m_simpleTV.Control.CurrentTitle_UTF8 = title
 		end
 		m_simpleTV.Control.CurrentAddress = retAdr
+-- debug_in_file(adr .. '\n')
 	end
 	function Qlty_Videocdn()
 		local t = m_simpleTV.User.Videocdn.Table
@@ -241,31 +249,30 @@ local proxy = ''
 		end
 	inAdr = inAdr:gsub('&kinopoisk', ''):gsub('%?block=%w+', '')
 	m_simpleTV.User.Videocdn.Tabletitle = nil
-	if proxy ~= '' then
-		inAdr = inAdr:gsub('^https?://[^/]+', 'https://32.svetacdn.in')
-	end
 	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr:gsub('$OPT:.+', '')})
 	m_simpleTV.Http.Close(session)
 		if rc ~= 200 then return end
+	answer = htmlEntities.decode(answer)
+	answer = answer:gsub('\\\\\\/', '/')
+	answer = answer:gsub('\\"', '"')
+	answer = unescape3(answer)
+	answer = answer:gsub('\\', '')
 	title = answer:match('<title>([^<]+)') or answer:match('id="title" value="([^"]+)')
 	if not title or title == '' then
 		title = m_simpleTV.Control.CurrentTitle_UTF8
 	end
 	m_simpleTV.Control.SetTitle(title)
-	local tv_series
-	if answer:match('value="tv_series"') then
-		tv_series = true
-	end
+	local tv_series = answer:match('value="tv_series"')
 	local transl
 	local tr = answer:match('<div class="translations".-</div>')
 	if tr then
-		tr = tr:gsub('<template class="__cf_email__" data%-cfemail="%x+">%[email&#160;protected%]</template>', 'MUZOBOZ@')
+		tr = tr:gsub('<template class="__cf_email__" data%-cfemail="%x+">%[email.-%]</template>', 'MUZOBOZ@')
 		local t, i = {}, 1
 		local selected, adr, name
 			for w in tr:gmatch('<option.-</option>') do
 				adr = w:match('value="([^"]+)')
 				name = w:match('>([^<]+)')
-				if adr and name then
+				if adr and name and not name:match('^%s*@%s*$') then
 					t[i] = {}
 					t[i].Id = i
 					t[i].Name = name:gsub('<template.-template>', 'неизвестно'):gsub('&amp;', '&')
@@ -292,23 +299,19 @@ local proxy = ''
 			transl = t[1].Address
 		end
 	end
-	transl = transl or '0'
-	local answer = answer:match('id="files" value="(.-)"')
+	transl = transl or '%d+'
+	local answer = answer:match('id="files" value="(.+)')
 		if not answer then return end
-	answer = answer:gsub('&quot;', '"')
-	answer = answer:match('"' .. transl .. '":%[({.-}%]})%]')
-			or answer:match('"' .. transl .. '":%[({.-}%]})')
-			or answer:match('"' .. transl .. '":"(.-)"')
-			or answer
-	answer = '[' .. answer .. ']'
 	if tv_series then
+		answer = answer:match('"' .. transl .. '":"(.-)">')
+			if not answer then return end
 		require 'json'
 		local du = answer:match('#(%w+)')
 		if du then
 			answer = decodeUrl(du)
 		end
 		answer = answer:gsub('\\', '\\\\'):gsub('\\"', '\\\\"'):gsub('\\/', '/')
-		answer = answer:gsub('(%[%])', '"nil"')
+		answer = answer:gsub('%[%]', '""')
 		local tab = json.decode(answer)
 			if not tab then return end
 		local season_title = ''
@@ -326,9 +329,7 @@ local proxy = ''
 				if j == 1 then return end
 			if j > 2 then
 				local _, id = m_simpleTV.OSD.ShowSelect_UTF8(title, 0, s, 5000, 1)
-				if not id then
-					id = 1
-				end
+				id = id or 1
 				seson = s[id].Address
 				season_title = ' (' .. s[id].Name .. ')'
 			else
@@ -384,6 +385,8 @@ local proxy = ''
 		m_simpleTV.User.Videocdn.title = title
 		title = title .. ' - ' .. m_simpleTV.User.Videocdn.Tabletitle[1].Name
 	else
+		answer = answer:match('"' .. transl .. '":"([^"]+)')
+			if not answer then return end
 		inAdr = answer:gsub('\\/', '/')
 		if psevdotv then
 			local t = m_simpleTV.Control.GetCurrentChannelInfo()
