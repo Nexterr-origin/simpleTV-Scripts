@@ -185,7 +185,7 @@ local proxy = ''
 			header = m_simpleTV.Common.UTF8ToMultiByte(header)
 			header = header:gsub('%c', ''):gsub('[\\/"%*:<>%|%?]+', ' '):gsub('%s+', ' '):gsub('^%s*', ''):gsub('%s*$', '')
 			local fileEnd = ' (Videocdn ' .. os.date('%d.%m.%y') ..').m3u'
-			local folder = m_simpleTV.Common.GetMainPath(2) .. m_simpleTV.Common.UTF8ToMultiByte('сохраненые плейлисты/')
+			local folder = m_simpleTV.Common.GetMainPath(1) .. m_simpleTV.Common.UTF8ToMultiByte('сохраненые плейлисты/')
 			lfs.mkdir(folder)
 			local folderAk = folder .. 'Videocdn/'
 			lfs.mkdir(folderAk)
@@ -258,7 +258,6 @@ local proxy = ''
 	answer = answer:gsub('\\"', '"')
 	answer = unescape3(answer)
 	answer = answer:gsub('\\', '')
-	answer = answer:gsub('\\/', '/')
 	title = answer:match('<title>([^<]+)') or answer:match('id="title" value="([^"]+)')
 	if not title or title == '' then
 		title = m_simpleTV.Control.CurrentTitle_UTF8
@@ -312,7 +311,6 @@ local proxy = ''
 		if du then
 			answer = decodeUrl(du)
 		end
-		answer = answer:gsub('\\', '\\\\'):gsub('\\"', '\\\\"'):gsub('\\/', '/')
 		answer = answer:gsub('%[%]', '""')
 		local tab = json.decode(answer)
 			if not tab then return end
@@ -345,7 +343,7 @@ local proxy = ''
 						if not tab[seson].folder[i] then break end
 					t[i] = {}
 					t[i].Id = i
-					t[i].Name = unescape3(tab[seson].folder[i].comment):gsub('&lt;.+', ''):gsub('<i>.-</i>', ''):gsub('<br>', '')
+					t[i].Name = tab[seson].folder[i].comment:gsub('<i>.-</i>', ''):gsub('<br>', '')
 					t[i].Address = '$videocdn' .. tab[seson].folder[i].file
 					i = i + 1
 				end
@@ -355,7 +353,7 @@ local proxy = ''
 						if not tab[i] then break end
 					t[i] = {}
 					t[i].Id = i
-					t[i].Name = unescape3(tab[i].comment):gsub('&lt;.+', ''):gsub('<i>.-</i>', ''):gsub('<br>', '')
+					t[i].Name = tab[i].comment:gsub('<i>.-</i>', ''):gsub('<br>', '')
 					t[i].Address = '$videocdn' .. tab[i].file
 					i = i + 1
 				end
@@ -375,7 +373,7 @@ local proxy = ''
 		else
 			t.ExtButton0 = {ButtonEnable = true, ButtonName = '⚙', ButtonScript = 'Qlty_Videocdn()'}
 		end
-		t.ExtParams = {FilterType = 2, StopOnError = 1, StopAfterPlay = 1, PlayMode = 1}
+		t.ExtParams = {FilterType = 2, StopOnError = 1, StopAfterPlay = 1, PlayMode = 0}
 		local p = 0
 		if i == 2 then
 			p = 32
