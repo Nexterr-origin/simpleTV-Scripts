@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (12/10/21)
+-- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (13/10/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://32.svetacdn.in/fnXOUDB9nNSO?kp_id=5928
@@ -113,8 +113,9 @@ local proxy = ''
 		else
 			url = url:gsub('^%[', '')
 		end
+		url = url:gsub('(//[^%s]+/...)', '%1.mp4')
 		local t, i = {}, 1
-			for adr in url:gmatch('//.-mp4') do
+			for adr in url:gmatch('%](//[^%s]+%.mp4)') do
 				t[i] = {}
 				t[i].qlty = adr:match('/(%d+)%.mp4') or 10
 				t[i].Address = adr:gsub('^//', 'http://')
@@ -212,7 +213,7 @@ local proxy = ''
 			m_simpleTV.Control.CurrentTitle_UTF8 = title
 		end
 		m_simpleTV.Control.CurrentAddress = retAdr
--- debug_in_file(adr .. '\n')
+-- debug_in_file(retAdr .. '\n')
 	end
 	function Qlty_Videocdn()
 		local t = m_simpleTV.User.Videocdn.Table
@@ -257,6 +258,7 @@ local proxy = ''
 	answer = answer:gsub('\\"', '"')
 	answer = unescape3(answer)
 	answer = answer:gsub('\\', '')
+	answer = answer:gsub('\\/', '/')
 	title = answer:match('<title>([^<]+)') or answer:match('id="title" value="([^"]+)')
 	if not title or title == '' then
 		title = m_simpleTV.Control.CurrentTitle_UTF8
@@ -373,7 +375,7 @@ local proxy = ''
 		else
 			t.ExtButton0 = {ButtonEnable = true, ButtonName = '⚙', ButtonScript = 'Qlty_Videocdn()'}
 		end
-		t.ExtParams = {FilterType = 2}
+		t.ExtParams = {FilterType = 2, StopOnError = 1, StopAfterPlay = 1, PlayMode = 1}
 		local p = 0
 		if i == 2 then
 			p = 32
@@ -385,9 +387,8 @@ local proxy = ''
 		m_simpleTV.User.Videocdn.title = title
 		title = title .. ' - ' .. m_simpleTV.User.Videocdn.Tabletitle[1].Name
 	else
-		answer = answer:match('"' .. transl .. '":"([^"]+)')
-			if not answer then return end
-		inAdr = answer:gsub('\\/', '/')
+		inAdr = answer:match('"' .. transl .. '":"([^"]+)')
+			if not inAdr then return end
 		if psevdotv then
 			local t = m_simpleTV.Control.GetCurrentChannelInfo()
 			if t
