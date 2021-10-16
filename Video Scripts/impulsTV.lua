@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "impulsTV" http://impulstv.ru (7/10/20)
+-- видеоскрипт для плейлиста "impulsTV" http://impulstv.ru (15/10/20)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: impulsTV_pls.lua
@@ -70,7 +70,7 @@
 				local tmp_sources = tvs_core.tvs_GetSourceParam() or {}
 					for SID, v in pairs(tmp_sources) do
 						if v.name:find('impulsTV') then
-							tvs_core.UpdateSource(SID, true)
+							tvs_core.UpdateSource(SID, false)
 							m_simpleTV.User.impulstv.updateSource = true
 							m_simpleTV.Control.Restart(false)
 						end
