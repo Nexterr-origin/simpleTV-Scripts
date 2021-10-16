@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://www.lostfilm.tv (7/7/20)
+-- видеоскрипт для сайта http://www.lostfilm.tv (15/10/20)
 -- Copyright © 2017-2020 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- Acestream
@@ -15,7 +15,7 @@
 -- ## зеркало ##
 local url = ''
 -- '' = нет
--- 'https://www.lostfilm.run' (пример)
+-- 'https://www.lostfilmtv1.site' (пример)
 -- ## прокси ##
 local prx = ''
 -- '' - нет
@@ -24,7 +24,7 @@ local prx = ''
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 		if not inAdr then return end
-		if not inAdr:match('^https?://www.lostfilm%..-/series/')
+		if not inAdr:match('^https?://www%.lostfilm[tv%d]*%.[^/]+/series/')
 			and not inAdr:match('https?://n%.tracktor%.')
 			and not inAdr:match('&lostfilm')
 			and not inAdr:match('^https?://store%.bogi%.ru')
