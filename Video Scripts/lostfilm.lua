@@ -13,7 +13,7 @@
 -- http://www.lostfilm.tv/series/The_Night_Manager
 -- http://www.lostfilm.tv/series/The_Punisher/video/2
 -- ## зеркало ##
-local url = ''
+local zer = ''
 -- '' = нет
 -- 'https://www.lostfilmtv1.site' (пример)
 -- ## прокси ##
@@ -36,9 +36,6 @@ local prx = ''
 	end
 	if not m_simpleTV.User.lostfilm then
 		m_simpleTV.User.lostfilm = {}
-	end
-	if url ~= '' then
-		inAdr = inAdr:gsub('^https?://www%.lostfilm%.tv', url)
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = ''
@@ -75,12 +72,17 @@ local prx = ''
 			end
 		 return
 		end
-	m_simpleTV.OSD.ShowMessageT({text = '', showTime = 1000, id = 'channelName'})
-	m_simpleTV.Interface.SetBackground({BackColor = 0, BackColorEnd = 255, PictFileName = '', TypeBackColor = 0, UseLogo = 3, Once = 1})
+	if zer ~= '' then
+		inAdr = inAdr:gsub('^https?://[^/]+', zer)
+	end
+	if m_simpleTV.Control.MainMode == 0 then
+		m_simpleTV.OSD.ShowMessageT({text = '', showTime = 1000, id = 'channelName'})
+		m_simpleTV.Interface.SetBackground({BackColor = 0, BackColorEnd = 255, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
+	end
 	if not m_simpleTV.User.lostfilm.qlty then
 		m_simpleTV.User.lostfilm.qlty = tonumber(m_simpleTV.Config.GetValue('lostfilm_qlty') or '3')
 	end
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3729.108 Safari/537.36', proxy, false)
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:93.0) Gecko/20100101 Firefox/93.0', proxy, false)
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 12000)
 	local function trim(str)
