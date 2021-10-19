@@ -1,11 +1,11 @@
--- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (4/4/21)
+-- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (19/10/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
--- https://700filmov.ru/film/637
--- http://700filmov.ru/serial/109
+-- http://moonwalk.cam/movie/53295
+-- http://moonwalk.cam/serial/5311
 -- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('^https?://700filmov%.ru/')
+		if not m_simpleTV.Control.CurrentAddress:match('^https?://moonwalk%.cam')
 			and not m_simpleTV.Control.CurrentAddress:match('^$cdnmovies')
 		then
 		 return
@@ -198,7 +198,9 @@
 		t.ExtButton0 = {ButtonEnable = true, ButtonName = '⚙', ButtonScript = 'qlty_cdnmovies()'}
 		t.ExtParams = {}
 		t.ExtParams.LuaOnCancelFunName = 'OnMultiAddressCancel_cdnmovies'
-		t.ExtParams.LuaOnTimeoutFunName = 'OnMultiAddressCancel_cdnmovies'
+		t.ExtParams.StopOnError = 1
+		t.ExtParams.StopAfterPlay = 1
+		t.ExtParams.PlayMode = 1
 		m_simpleTV.OSD.ShowSelect_UTF8(title, 0, t, 10000, 2 + 64)
 		m_simpleTV.User.cdnmovies.episodeTitle = title .. ': ' .. t[1].Name
 		m_simpleTV.Control.CurrentAddress = 'wait'
@@ -217,7 +219,7 @@
 		play(adr, title)
 	end
 	local function getData()
-		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:86.0) Gecko/20100101 Firefox/86.0')
+		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:94.0) Gecko/20100101 Firefox/94.0')
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 8000)
 		inAdr = inAdr:gsub('&kinopoisk', '')
