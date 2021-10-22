@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://www.1tv.ru (5/9/19)
+-- видеоскрипт для сайта https://www.1tv.ru (23/10/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://www.1tv.ru/live
@@ -6,14 +6,18 @@
 -- https://www.1tv.ru/-/immzl
 -- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('^https?://www%.1tv%.ru/.+') then return end
+		if not m_simpleTV.Control.CurrentAddress:match('^https?://www%.1tv%.ru/.+')
+			and not m_simpleTV.Control.CurrentAddress:match('^https?://1tv%.ru/.+')
+		then
+		 return
+		end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	require 'json'
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
 	local logo = 'https://static.1tv.ru/assets/web/logo-ac67852f1625b338f9d1fb96be089d03557d50bfc5790d5f48dc56799f59dec6.svg'
-	m_simpleTV.OSD.ShowMessageT({text = '', showTime = 1000, id = 'channelName'})
 	if m_simpleTV.Control.MainMode == 0 and not inAdr:match('/live') then
+		m_simpleTV.OSD.ShowMessageT({text = '', showTime = 1000, id = 'channelName'})
 		m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = logo, UseLogo = 1, Once = 1})
 	end
 	local function showError(str)
