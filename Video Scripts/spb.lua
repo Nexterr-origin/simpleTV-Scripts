@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "spb" https://tv.spbtv.com + https://ru.spbtv.com (29/9/20)
+-- видеоскрипт для плейлиста "spb" https://tv.spbtv.com + https://ru.spbtv.com (22/10/21)
 -- ## необходим ##
 -- скрапер TVS: spb_pls.lua
 -- ## открывает подобные ссылки ##
@@ -55,7 +55,8 @@
 	end
 	local url = api .. '/channels/' .. channel
 		.. '/stream.json?client_id=' .. m_simpleTV.User.spb.client_id
-		.. decode64('JmNsaWVudF92ZXJzaW9uPTEuNy4wLjMwNiZ0aW1lem9uZT0xMDgwMCZsb2NhbGU9cnUtUlUmcHJvdG9jb2w9aGxzJnZpZGVvX2NvZGVjPWgyNjQmYXVkaW9fY29kZWM9bXA0YSZkcm09c3BidHZjYXMmc2NyZWVuX3dpZHRoPTEyODAmc2NyZWVuX2hlaWdodD04MDAmZGV2aWNlX3Rva2VuPQ')
+		.. '&protocol=hls'
+		.. decode64('JmNsaWVudF92ZXJzaW9uPTEuNy4wLjMwNiZ0aW1lem9uZT0xMDgwMCZsb2NhbGU9cnUtUlUmdmlkZW9fY29kZWM9aDI2NCZhdWRpb19jb2RlYz1tcDRhJmRybT1zcGJ0dmNhcyZzY3JlZW5fd2lkdGg9MTI4MCZzY3JlZW5faGVpZ2h0PTgwMCZkZXZpY2VfdG9rZW49')
 		.. token
 	local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Accept: application/json'})
 		if rc ~= 200 then
@@ -72,6 +73,7 @@
 	rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 	m_simpleTV.Http.Close(session)
 		if rc ~= 200 then return end
+	local extOpt = '$OPT:adaptive-livedelay=60000$OPT:adaptive-minbuffer=30000$OPT:no-ts-trust-pcr$OPT:no-ts-cc-check'
 	local base = retAdr:match('.+/')
 	local t, i = {}, 1
 		for res, br, res1, adr in answer:gmatch('EXT%-X%-STREAM%-IN([%C]+)[:,]BANDWIDTH=(%d+)([%C]*).-\n(.-)\n') do
@@ -93,11 +95,11 @@
 			end
 			adr = adr:gsub('%-vid%-', '')
 			adr = adr:gsub('^[%c%s]*(.-)[%c%s]*$', '%1')
-			t[i].Address = adr:gsub('https://', 'http://'):gsub('%?.-$', '')
+			t[i].Address = adr:gsub('https://', 'http://'):gsub('%?.-$', '') .. extOpt
 			i = i + 1
 		end
 		if i == 1 then
-			m_simpleTV.Control.CurrentAddress = retAdr
+			m_simpleTV.Control.CurrentAddress = retAdr .. extOpt
 		 return
 		end
 	table.sort(t, function(a, b) return a.Id < b.Id end)
@@ -111,7 +113,7 @@
 		t[#t + 1] = {}
 		t[#t].Id = 10000
 		t[#t].Name = '▫ адаптивное'
-		t[#t].Address = retAdr
+		t[#t].Address = retAdr .. extOpt
 		index = #t
 			for i = 1, #t do
 				if t[i].Id >= lastQuality then
