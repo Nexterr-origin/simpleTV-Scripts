@@ -73,7 +73,7 @@
 	rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 	m_simpleTV.Http.Close(session)
 		if rc ~= 200 then return end
-	local extOpt = '$OPT:adaptive-livedelay=60000$OPT:adaptive-minbuffer=30000$OPT:no-ts-trust-pcr$OPT:no-ts-cc-check'
+	local extOpt = '$OPT:adaptive-livedelay=60000$OPT:adaptive-minbuffer=60000'
 	local base = retAdr:match('.+/')
 	local t, i = {}, 1
 		for res, br, res1, adr in answer:gmatch('EXT%-X%-STREAM%-IN([%C]+)[:,]BANDWIDTH=(%d+)([%C]*).-\n(.-)\n') do
