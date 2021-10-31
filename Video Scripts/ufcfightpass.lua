@@ -18,8 +18,8 @@
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
 	local id = inAdr:match('/live/([^/]+)')
-	local idVod = inAdr:match('/video/([^/]+)')
-		if not id and not idVod then
+	local id_vod = inAdr:match('/video/([^/]+)')
+		if not id and not id_vod then
 			showMsg('неправильная ссылка')
 		 return
 		end
@@ -29,6 +29,7 @@
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local headers = 'Content-Type: application/json\nRealm: dce.ufc\nx-api-key: 857a1e5d-e35e-4fdf-805b-a87b6f8364bf\nAuthorization: Bearer '
 	local apiUrl = 'https://dce-frontoffice.imggaming.com/api/v2/'
+	local title = 'UFC Fight Pass'
 	local function showMsg(str)
 		local t = {text = 'UFC Fight Pass: ' .. str, color = ARGB(255, 255, 102, 0), showTime = 1000 * 5, id = 'channelName'}
 		m_simpleTV.OSD.ShowMessageT(t)
@@ -45,13 +46,13 @@
 			if rc ~= 201 then return end
 	 return answer:match('"authorisationToken":"([^"]+)')
 	end
-	local function GetAddress(id, idVod, token)
+	local function GetAddress(id, id_vod, token)
 		local headers = headers .. token
 		local url
 		if id then
 			url = apiUrl .. 'stream?sportId=0&propertyId=0&tournamentId=0&displayGeoblockedLive=false&eventId=' .. id
 		else
-			url = apiUrl .. 'stream/vod/' .. idVod
+			url = apiUrl .. 'stream/vod/' .. id_vod
 		end
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
 			if rc ~= 200 then return end
@@ -59,6 +60,15 @@
 			if not url then return end
 		rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
 			if rc ~= 200 then return end
+		if id_vod then
+			title = answer:match('"title":"(.-)"}') or title
+			if m_simpleTV.Control.MainMode == 0 then
+				m_simpleTV.Control.ChangeChannelName(title, m_simpleTV.Control.ChannelID, false)
+				local poster = answer:match('"thumbnailUrl":"([^"]+)') or logo
+				poster = poster:gsub('/original/', '/346x346/')
+				m_simpleTV.Control.ChangeChannelLogo(poster, m_simpleTV.Control.ChannelID)
+			end
+		end
 	 return answer:match('"hlsUrl":"([^"]+)')
 	end
 	local authToken = GetTokens()
@@ -66,11 +76,12 @@
 			showMsg('необходима авторизация')
 		 return
 		end
-	local retAdr = GetAddress(id, idVod, authToken)
+	local retAdr = GetAddress(id, id_vod, authToken)
 		if not retAdr then
 			showMsg('нет адреса трансляции/видео')
 		 return
 		end
+	m_simpleTV.Control.CurrentTitle_UTF8 = title
 	local extOpt = '$OPT:http-user-agent=' .. userAgent
 	retAdr = retAdr .. extOpt
 	m_simpleTV.Control.CurrentAddress = retAdr
