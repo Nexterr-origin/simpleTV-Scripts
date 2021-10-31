@@ -29,58 +29,50 @@
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local headers = 'Content-Type: application/json\nRealm: dce.ufc\nx-api-key: 857a1e5d-e35e-4fdf-805b-a87b6f8364bf\nAuthorization: Bearer '
 	local apiUrl = 'https://dce-frontoffice.imggaming.com/api/v2/'
-	local title = 'UFC Fight Pass'
-	local function showMsg(str)
-		local t = {text = 'UFC Fight Pass: ' .. str, color = ARGB(255, 255, 102, 0), showTime = 1000 * 5, id = 'channelName'}
-		m_simpleTV.OSD.ShowMessageT(t)
-	end
-	local function GetTokens()
+	local function GetTokens(headers, apiUrl)
 		local error_text, pm = pcall(require, 'pm')
 			if not package.loaded.pm then return end
 		local ret, login, pass = pm.GetTestPassword('ufcfightpass', 'ufcfightpass', true)
 			if not login or not pass or login == '' or pass == '' then return end
 		local url = apiUrl .. 'login'
-		local headers = headers .. 'null'
+		headers = headers .. 'null'
 		local body = string.format('{"id":"%s","secret":"%s"}', login, pass)
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url, method = 'post', body = body, headers = headers})
 			if rc ~= 201 then return end
 	 return answer:match('"authorisationToken":"([^"]+)')
 	end
-	local function GetAddress(id, id_vod, token)
-		local headers = headers .. token
+	local function GetAddress(id, id_vod, token, headers, apiUrl)
 		local url
 		if id then
 			url = apiUrl .. 'stream?sportId=0&propertyId=0&tournamentId=0&displayGeoblockedLive=false&eventId=' .. id
 		else
 			url = apiUrl .. 'stream/vod/' .. id_vod
 		end
-		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
+		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers .. token})
 			if rc ~= 200 then return end
 		url = answer:match('"playerUrlCallback":"([^"]+)')
 			if not url then return end
 		rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
 			if rc ~= 200 then return end
-		if id_vod then
-			title = answer:match('"title":"(.-)"}') or title
-			if m_simpleTV.Control.MainMode == 0 then
-				m_simpleTV.Control.ChangeChannelName(title, m_simpleTV.Control.ChannelID, false)
-				local poster = answer:match('"thumbnailUrl":"([^"]+)') or logo
-				poster = poster:gsub('/original/', '/346x346/')
-				m_simpleTV.Control.ChangeChannelLogo(poster, m_simpleTV.Control.ChannelID)
-			end
-		end
-	 return answer:match('"hlsUrl":"([^"]+)')
+	 return answer:match('"hlsUrl":"([^"]+)'), answer:match('"title":"(.-)"}'), answer:match('"thumbnailUrl":"([^"]+)')
 	end
-	local authToken = GetTokens()
+	local authToken = GetTokens(headers, apiUrl)
 		if not authToken then
 			showMsg('необходима авторизация')
 		 return
 		end
-	local retAdr = GetAddress(id, id_vod, authToken)
+	local retAdr, title, pic = GetAddress(id, id_vod, authToken, headers, apiUrl)
 		if not retAdr then
 			showMsg('нет адреса трансляции/видео')
 		 return
 		end
+	title = title or 'UFC Fight Pass'
+	pic = pic or logo
+	if m_simpleTV.Control.MainMode == 0 then
+		m_simpleTV.Control.ChangeChannelName(title, m_simpleTV.Control.ChannelID, false)
+		pic = pic:gsub('/original/', '/346x346/')
+		m_simpleTV.Control.ChangeChannelLogo(pic, m_simpleTV.Control.ChannelID)
+	end
 	m_simpleTV.Control.CurrentTitle_UTF8 = title
 	local extOpt = '$OPT:http-user-agent=' .. userAgent
 	retAdr = retAdr .. extOpt
