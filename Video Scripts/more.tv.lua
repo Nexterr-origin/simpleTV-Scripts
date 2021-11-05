@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://more.tv (7/3/21)
+-- видеоскрипт для сайта https://more.tv (5/11/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://more.tv/den_vyborov_2
@@ -32,7 +32,7 @@
 	require 'json'
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3945.79 Safari/537.36')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:94.0) Gecko/20100101 Firefox/94.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 12000)
 	local function moreIndex(t)
@@ -54,20 +54,25 @@
 	local function moreAdr(url)
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 			if rc ~= 200 then return end
-		local t0, i = {}, 1
-		local name, adr, btr
+		local t0 = {}
+		local base = url:match('.+/')
 			for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-\n.-)\n') do
-				adr = w:match('\n(.+)')
-				name = w:match('RESOLUTION=%d+x(%d+)')
-				btr = w:match('BANDWIDTH=(%d+)')
-					if not adr or not name or not btr then break end
-				t0[i] = {}
-				t0[i].qlty = name
-				t0[i].Address = adr
-				t0[i].btr = tonumber(btr)
-				i = i + 1
+				local adr = w:match('\n(.+)')
+				local name = w:match('RESOLUTION=%d+x(%d+)')
+				local btr = w:match('BANDWIDTH=(%d+)')
+				if adr and name and btr then
+					t0[#t0 + 1] = {}
+					t0[#t0].qlty = name
+					if not adr:match('^https?') then
+						adr = base .. adr
+					end
+					t0[#t0].Address = adr
+					t0[#t0].btr = tonumber(btr)
+				end
 			end
-			if i == 1 then return end
+			if #t0 == 0 then
+			 return url
+			end
 			for _, v in pairs(t0) do
 				v.qlty = tonumber(v.qlty)
 				if v.qlty > 0 and v.qlty <= 180 then
@@ -102,7 +107,7 @@
 		table.sort(t, function(a, b) return a.qlty < b.qlty end)
 		for i = 1, #t do
 			t[i].Id = i
-			t[i].Address = t[i].Address .. '$OPT:NO-STIMESHIFT$OPT:adaptive-use-access'
+			t[i].Address = t[i].Address .. '$OPT:NO-STIMESHIFT'
 		end
 		m_simpleTV.User.more.Tab = t
 		local index = moreIndex(t)
@@ -273,14 +278,15 @@
 			m_simpleTV.Http.Close(session)
 		 return
 		end
-	local retAdr = answer:match('"hls_url":%s*"([^"]+)')
-	if not retAdr
-		and not inAdr:match('PARAMS=psevdotv')
-	then
-		retAdr = answer:match('"previews_hls":%s*%["(.-)"')
-			if not retAdr then return end
-		title = title .. ' (предосмотр)'
-	end
+	local retAdr = answer:match('"protocol":"HLS"[^}]+"url":%s*"([^"]+)') or answer:match('"hls_url":%s*"([^"]+)')
+		if not retAdr
+			and not inAdr:match('PARAMS=psevdotv')
+		then
+			local err = 'more.tv: Недоступно'
+			m_simpleTV.Control.CurrentTitle_UTF8 = err
+			m_simpleTV.OSD.ShowMessageT({text = err, color = ARGB(255, 255, 102, 0), showTime = 1000 * 3, id = 'channelName'})
+		 return
+		end
 		if not retAdr then return end
 	retAdr = moreAdr(retAdr)
 	m_simpleTV.Http.Close(session)
