@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (19/10/21)
+-- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (7/11/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- http://moonwalk.cam/movie/53295
@@ -114,7 +114,7 @@
 		t.ExtButton0 = {ButtonEnable = true, ButtonName = '🎞️'}
 		local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('перевод: ' .. m_simpleTV.User.cdnmovies.title, selected - 1, t, 10000, 1 + 2 + 4 + 8)
 			if ret == 2 then
-				m_simpleTV.Control.ExecuteAction(63)
+				m_simpleTV.Control.Restart(-2.0, true)
 			 return
 			end
 			if t[1].Address then
