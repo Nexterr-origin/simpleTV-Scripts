@@ -1,11 +1,10 @@
--- видеоскрипт для сайта https://tele-sport.ru (27/3/21)
+-- видеоскрипт для сайта https://tele-sport.ru (11/11/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: ok.lua
 -- ## открывает подобные ссылки ##
--- https://tele-sport.ru/skiing/sprint-1/4-1/2-finaly-chempionat-rossii-po-lyzhnym-gonkam-2021
--- https://tele-sport.ru/show/primernyi-serial/primernyi-serial-14-kokorin-v-promorolike-fiorentiny-istoriya-bolelshchika-raketchika-iz-san-sebastyana-astroprognoz
--- https://tele-sport.ru/football/spain/real-sosedad-barselona-la-liga-0-3-video-dublya-serzhino-desta
+-- https://tele-sport.ru/pryamaya-translyatsiya-telekanala-telesport
+-- https://tele-sport.ru/football/russia/russiancup/baltika-khimki-bet-siti-kubok-rossii-3-tur
 -- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://tele%-sport%.ru') then return end
@@ -13,11 +12,12 @@
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local logo = 'https://tele-sport.ru/_nuxt/img/logo.4db3253.svg'
+	local logo = 'https://tele-sport.ru/_nuxt/c64bef8f3f7b264c51fd4e2705116424.svg'
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = logo, UseLogo = 1, Once = 1})
 	end
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:87.0) Gecko/20100101 Firefox/87.0')
+	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:94.0) Gecko/20100101 Firefox/94.0'
+	local session = m_simpleTV.Http.New(userAgent)
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
@@ -34,24 +34,25 @@
 	end
 	local url = answer:match('<iframe.-src="([^"]+)')
 		if not url then return end
-	url = url:gsub('^//', 'http://')
+	url = url:gsub('^//', 'https://')
 		if not url:match('tele%-sport') then
 			m_simpleTV.Control.ChangeAddress = 'No'
 			m_simpleTV.Control.CurrentAddress = url
 			dofile(m_simpleTV.MainScriptDir .. 'user/video/video.lua')
 		 return
 		end
+	url = url:gsub('/embedded', '/api/front')
 	rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: ' .. inAdr})
 	m_simpleTV.Http.Close(session)
 		if rc ~= 200 then return end
-	answer = answer:gsub('<!%-.-%->', '')
-	answer = answer:match('"sources":(%[.-%])};')
+	answer = answer:match('"sources":(%[.+)')
 		if not answer then return end
 	answer = answer:gsub('%[%]', '""')
+	answer = unescape3(answer)
 	answer = answer:gsub('\\/', '/')
 	local tab = json.decode(answer)
 		if not tab then return end
-	local extOpt = '$OPT:http-referrer=' .. inAdr
+	local extOpt = '$OPT:http-referrer=https://tele-sport.ru/$OPT:http-user-agent=' .. userAgent
 	local t, i = {}, 1
 		while tab[i] do
 			local res = tab[i].resolution:match('(%d+)p')
@@ -59,7 +60,7 @@
 				t[#t + 1] = {}
 				t[#t].Id = tonumber(res)
 				t[#t].Name = res .. 'p'
-				t[#t].Address = tab[i].playListUri .. extOpt
+				t[#t].Address = tab[i].playListUri:gsub('^/', 'https://player.tele-sport.ru/') .. extOpt
 			end
 			i = i + 1
 		end
