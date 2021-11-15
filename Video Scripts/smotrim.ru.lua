@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://smotrim.ru (21/1/21)
+-- видеоскрипт для сайта https://smotrim.ru (15/11/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## Необходим ##
 -- видеоскприпт: mediavitrina.lua
@@ -9,13 +9,19 @@
 -- https://smotrim.ru/live/vitrina/254
 -- https://smotrim.ru/live/channel/248 -- радио
 -- https://smotrim.ru/live/61647
+-- https://smotrim.ru/podcast/45
 -- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('^https?://smotrim%.ru') then return end
-	m_simpleTV.OSD.ShowMessageT({text = '', showTime = 1000, id = 'channelName'})
+		if not m_simpleTV.Control.CurrentAddress:match('^https?://smotrim%.ru')
+			and not m_simpleTV.Control.CurrentAddress:match('^smotrim_podcast=')
+		then
+		 return
+		end
+	local logo = 'https://cdnmg-st.smotrim.ru/smotrimru/smotrimru/i/logo-main-white.svg'
 	if m_simpleTV.Control.MainMode == 0 then
-		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = 'https://player.vgtrk.com/images/logos2/logo_smotrim_new.png', TypeBackColor = 0, UseLogo = 1, Once = 1})
+		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = logo, TypeBackColor = 0, UseLogo = 1, Once = 1})
 	end
+	require 'json'
 	if not m_simpleTV.User then
 		m_simpleTV.User = {}
 	end
@@ -25,7 +31,7 @@
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:85.0) Gecko/20100101 Firefox/85.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:95.0) Gecko/20100101 Firefox/95.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local function showErr(str)
@@ -103,13 +109,59 @@
 		 return true
 		end
 	end
+	local function player_vgtrk(data)
+		local retAdr = data:match('download_url%s*=%s*[\'"]([^\'"]+)')
+		m_simpleTV.Control.CurrentAddress = retAdr
+	end
+	local function Podcast(data)
+		local title = data:match('"og:title" content="([^"]+)') or 'Podcast'
+		local pic = data:match('"og:image" content="([^"]+)') or logo
+		m_simpleTV.Control.CurrentTitle_UTF8 = title
+		local podcastId = inAdr:match('/podcast/(%d+)')
+		local url = 'https://api.smotrim.ru/api/v1/audios/?includes=anons:datePub:duration:episodeTitle:rubrics:title&limit=1000&plan=free,free&sort=date&rubrics=' .. podcastId
+		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
+			if rc ~= 200 then return end
+		answer = unescape3(answer)
+		answer = answer:gsub('%[%]', '""')
+		local tab = json.decode(answer)
+			if not tab or not tab.data then return end
+		local t, i = {}, 1
+			while tab.data[i] do
+				local name = tab.data[i].episodeTitle
+				t[i] = {}
+				t[i].Id = i
+				t[i].Name = name
+				t[i].Address = 'smotrim_podcast=https://player.vgtrk.com/iframe/audio/id/' .. tab.data[i].id .. '/sid/smotrim/'
+				t[i].InfoPanelLogo = pic
+				t[i].InfoPanelDesc = tab.data[i].anons
+				t[i].InfoPanelName = title
+				t[i].InfoPanelTitle = name
+				t[i].InfoPanelShowTime = 5000
+				i = i + 1
+			end
+			if i == 1 then return end
+		t.ExtParams = {}
+		t.ExtParams.AutoNumberFormat = '%1 - %2'
+		m_simpleTV.OSD.ShowSelect_UTF8(title, 0, t, 5000)
+		local rc, answer = m_simpleTV.Http.Request(session, {url = t[1].Address:gsub('smotrim_podcast=', '')})
+			if rc ~= 200 then return end
+		player_vgtrk(answer)
+	end
 	function smotrim_ru_SaveQuality(obj, id)
 		m_simpleTV.Config.SetValue('smotrim_ru_qlty', tostring(id))
 	end
-	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
+	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr:gsub('smotrim_podcast=', '')})
 		if rc ~= 200 then
 			m_simpleTV.Http.Close(session)
 			showErr(1)
+		 return
+		end
+		if inAdr:match('/podcast/') then
+			Podcast(answer)
+		 return
+		end
+		if inAdr:match('^smotrim_podcast=') then
+			player_vgtrk(answer)
 		 return
 		end
 	local embedUrl = answer:match('http[^\'\"<>]+player%.[^<>\'\"]+') or answer:match('http[^\'\"<>]+icecast%-[^<>\'\"]+')
@@ -141,6 +193,7 @@
 			m_simpleTV.Control.CurrentAddress = embedUrl
 		 return
 		end
+	embedUrl = embedUrl:gsub('amp;', '')
 	rc, answer = m_simpleTV.Http.Request(session, {url = embedUrl, headers = 'Referer: ' .. inAdr})
 		if rc ~= 200 then
 			m_simpleTV.Http.Close(session)
@@ -149,8 +202,13 @@
 		end
 	answer = answer:gsub('%s+', '')
 	local dataUrl = answer:match('dataUrl=\'([^\']+)')
-		if not dataUrl then
+	local dataUrlAudio = answer:match('window%.pl%.audio_url=[\'"]([^\'"]+)')
+		if not dataUrl and not dataUrlAudio then
 			showErr(4)
+		 return
+		end
+		if dataUrlAudio then
+			m_simpleTV.Control.CurrentAddress = dataUrlAudio
 		 return
 		end
 	dataUrl = dataUrl:gsub('^//', 'https://')
