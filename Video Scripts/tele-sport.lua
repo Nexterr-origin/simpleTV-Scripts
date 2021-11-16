@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://tele-sport.ru (11/11/21)
+-- видеоскрипт для сайта https://tele-sport.ru (16/11/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: ok.lua
@@ -52,7 +52,7 @@
 	answer = answer:gsub('\\/', '/')
 	local tab = json.decode(answer)
 		if not tab then return end
-	local extOpt = '$OPT:http-referrer=https://tele-sport.ru/$OPT:http-user-agent=' .. userAgent
+	local extOpt = '$OPT:no-adaptive-use-stv-access$OPT:http-referrer=https://tele-sport.ru/$OPT:http-user-agent=' .. userAgent
 	local t, i = {}, 1
 		while tab[i] do
 			local res = tab[i].resolution:match('(%d+)p')
