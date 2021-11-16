@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "TV+ HD" http://www.tvplusonline.ru (15/11/21)
+-- скрапер TVS для загрузки плейлиста "TV+ HD" http://www.tvplusonline.ru (16/11/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: tv+hd.lua
@@ -71,8 +71,12 @@ local filter = {
 				if title and adr and closed then
 					local RawM3UString = catchup(adr)
 					if (closed == 1 and RawM3UString) or closed == 0 then
+						title = unescape1(title)
+						if title == 'Матч! Футбол 3' then
+							adr = 'matchfootball3'
+						end
 						t[#t +1] = {}
-						t[#t].name = unescape1(title)
+						t[#t].name = title
 						t[#t].RawM3UString = RawM3UString
 						if closed == 1 then
 							adr = adr .. '&plus=true'
