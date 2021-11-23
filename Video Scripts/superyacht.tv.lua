@@ -1,10 +1,9 @@
--- видеоскрипт для сайта https://www.superyacht.tv (3/6/20)
+-- видеоскрипт для сайта https://www.superyacht.tv (24/11/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://www.superyacht.tv/en/superyacht-tv-en
 -- https://www.superyacht.tv/en/the-yachts/moonstone
 -- https://superyacht.tv/en/barcelona-superyacht-show-2019/jonathan-zwaans-of-y-co
--- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://[%a%.]*superyacht%.tv/.+') then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
@@ -21,7 +20,7 @@
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.129 Safari/537.36')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:94.0) Gecko/20100101 Firefox/94.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
@@ -42,28 +41,26 @@
 			end
 		end
 		m_simpleTV.Control.CurrentTitle_UTF8 = title
-		m_simpleTV.OSD.ShowMessageT({text = title, color = 0xff9999ff, showTime = 5000, id = 'channelName'})
+		m_simpleTV.OSD.ShowMessageT({text = title, showTime = 5000, id = 'channelName'})
 	end
-	retAdr = retAdr:gsub('^https://', 'http://')
 	rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 	m_simpleTV.Http.Close(session)
 		if rc ~= 200 then return end
 	local host = retAdr:match('^https?://[^/]+')
 	answer = answer .. '\n'
-	local t, i = {}, 1
-	local adr, name
+	local t = {}
 		for w in answer:gmatch('EXT%-X%-STREAM%-INF.-\n.-\n') do
-			adr = w:match('\n(.-)\n')
-			name = w:match('BANDWIDTH=(%d+)')
-				if not adr or not name then break end
-			name = tonumber(name)
-			t[i] = {}
-			t[i].Id = name
-			t[i].Name = name / 1000 .. ' кбит/с'
-			t[i].Address = host .. '/' .. adr
-			i = i + 1
+			local adr = w:match('\n(.-)\n')
+			local name = w:match('BANDWIDTH=(%d+)')
+			if adr and name then
+				name = tonumber(name)
+				t[#t + 1] = {}
+				t[#t].Id = name
+				t[#t].Name = name / 1000 .. ' кбит/с'
+				t[#t].Address = host .. adr
+			end
 		end
-		if i == 1 then
+		if #t == 0 then
 			m_simpleTV.Control.CurrentAddress = retAdr
 		 return
 		end
