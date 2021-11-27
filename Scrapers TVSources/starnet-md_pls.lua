@@ -1,8 +1,7 @@
--- скрапер TVS для загрузки плейлиста "StarNet" https://www.starnet.md (12/4/21)
+-- скрапер TVS для загрузки плейлиста "StarNet" https://www.starnet.md (27/11/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: starnet-md.lua
--- расширение дополнения httptimeshift: starnetmd-timeshift_ext.lua
 -- ## Переименовать каналы ##
 local filter = {
 	{'ZeeTV', 'Zee TV'},
@@ -51,10 +50,9 @@ local filter = {
 		t_pls = ProcessFilterTableLocal(t_pls)
 			for i = 1, #t_pls do
 				if t_pls[i].address:match('tshift=true') then
-					t_pls[i].RawM3UString = 'catchup="append" catchup-days="7" catchup-source=""'
+					t_pls[i].RawM3UString = 'catchup="fs" catchup-days="7" catchup-source=""'
 				end
 			end
-		showMess(Source.name .. ' (' .. #t_pls .. ')', ARGB(255, 153, 255, 153))
 		local m3ustr = tvs_core.ProcessFilterTable(UpdateID, Source, t_pls)
 		local handle = io.open(m3u_file, 'w+')
 			if not handle then return end
