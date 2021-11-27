@@ -1,8 +1,7 @@
--- видеоскрипт для плейлиста "StarNet" https://www.starnet.md (22/4/21)
+-- видеоскрипт для плейлиста "StarNet" https://www.starnet.md (27/11/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: starnet-md_pls.lua
--- расширение дополнения httptimeshift: starnetmd-timeshift_ext.lua
 -- ## открывает подобные ссылки ##
 -- http://starnet-md.DISCOVERY_SCIENCEHD_H264&tshift=true
 -- ##
@@ -18,7 +17,8 @@
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local id = inAdr:match('%.([^&$%?]*)')
-	local url = decode64('aHR0cDovL3Rva2VuLnN0Yi5tZC9hcGkvRmx1c3NvbmljL3N0cmVhbS8') .. id .. '/metadata.json'
+	local url = string.reverse('8SbhVmc0N3LjlmbvN3c1xmRvkGch9CZt5iY0NnLuV2avR3LvoDc0RHa')
+	local url = decode64(url) .. id .. '/metadata.json'
 	local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 		if rc ~= 200 then return end
 	local retAdr = answer:match('"url":"([^"]+)')
@@ -29,14 +29,17 @@
 		if rc ~= 200 then return end
 	local t = {}
 	local base = retAdr:match('.+/')
-		for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-\n.-)\n') do
-			local name = w:match('RESOLUTION=%d+x(%d+)')
+		for w in string.gmatch(answer,'EXT%-X%-STREAM%-INF(.-%.m3u8.-)\n') do
 			local adr = w:match('\n(.+)')
-			if name and adr then
+			local name = w:match('RESOLUTION=%d+x(%d+)')
+			local br = w:match(',BANDWIDTH=(%d+)')
+			if adr and name and br then
+				br = tonumber(br)
+				br = math.floor(br / 100000) * 100
 				t[#t + 1] = {}
-				t[#t].Id = tonumber(name)
-				t[#t].Name = name .. 'p'
-				t[#t].Address = base .. adr
+				t[#t].Id = br
+				t[#t].Name = name .. 'p' .. ' (' .. br .. ' кбит/с)'
+				t[#t].Address = base .. adr:gsub('/[^.]+', '/index')
 			end
 		end
 		if #t == 0 then
