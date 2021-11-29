@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "StarNet" https://www.starnet.md (27/11/21)
+-- скрапер TVS для загрузки плейлиста "StarNet" https://www.starnet.md (29/11/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: starnet-md.lua
@@ -8,7 +8,6 @@ local filter = {
 	{'Время: далёкое и близкое', 'Время'},
 	{'Живи', 'Живи!'},
 	}
--- ##
 	module('starnet-md_pls', package.seeall)
 	local my_src_name = 'StarNet'
 	local function ProcessFilterTableLocal(t)
@@ -50,7 +49,7 @@ local filter = {
 		t_pls = ProcessFilterTableLocal(t_pls)
 			for i = 1, #t_pls do
 				if t_pls[i].address:match('tshift=true') then
-					t_pls[i].RawM3UString = 'catchup="fs" catchup-days="7" catchup-source=""'
+					t_pls[i].RawM3UString = 'catchup="flussonic-hls" catchup-days="7" catchup-source=""'
 				end
 			end
 		local m3ustr = tvs_core.ProcessFilterTable(UpdateID, Source, t_pls)
