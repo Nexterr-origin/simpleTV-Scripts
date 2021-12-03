@@ -1,11 +1,8 @@
--- скрапер TVS для загрузки плейлиста "Yandex" https://tv.yandex.ru (6/5/21)
+-- скрапер TVS для загрузки плейлиста "Yandex" https://tv.yandex.ru (3/12/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: yandex.lua
 -- расширение дополнения httptimeshift: yandex-timesift_ext.lua
--- ## глубина архива для всех каналов (в днях) ##
-local arhiv = 7
--- 0 - по умолчанию
 -- ## переименовать каналы ##
 local filter = {
 	{'1 HD Music Television', '1HD'},
@@ -97,7 +94,6 @@ local filter = {
 	{'Юрган', 'Юрган (Сыктывкар)'},
 	{'Якутия 24', 'Якутия 24 (Якутск)'},
 	}
--- ##
 	module('yandex_pls', package.seeall)
 	local my_src_name = 'Yandex'
 	local function ProcessFilterTableLocal(t)
@@ -119,7 +115,7 @@ local filter = {
 	 return 2, 'UTF-8'
 	end
 	local function LoadFromSite(url)
-		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:82.0) Gecko/20100101 Firefox/82.0')
+		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:95.0) Gecko/20100101 Firefox/95.0')
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 12000)
 		local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly95YW5kZXgucnUvcG9ydGFsL3R2c3RyZWFtX2pzb24vY2hhbm5lbHM/c3RyZWFtX29wdGlvbnM9aGlyZXMmbG9jYWxlPXJ1JmZyb209bW9yZGE')})
@@ -129,67 +125,26 @@ local filter = {
 		require 'json'
 		local tab = json.decode(answer)
 			if not tab or not tab.set then return end
-		local t, i = {}, 1
-		local k2
-			while tab.set[i] do
-				t[i] = {}
-				t[i].name = tab.set[i].title
-				t[i].address = tab.set[i].content_url
-				t[i].special = tab.set[i].is_special_project
-				t[i].channel_type = tab.set[i].channel_type or ''
-				t[i].ya_plus = tab.set[i].ya_plus
-				t[i].hidden = tab.set[i].hidden or ''
-				if arhiv == 0 then
-					t[i].catchup_age = tab.set[i].catchup_age or 0
-				else
-					t[i].catchup_age = 3600 * 24 * arhiv
-				end
-				k2 = 1
-					while true do
-							if not tab.set[i].status or not tab.set[i].status[k2] then break end
-							if tab.set[i].status[k2] == 'hidden' then
-								t[i].status = true
-							 break
-							end
-						k2 = k2 + 1
-					end
-				if tab.set[i].channel_category
-					and tab.set[i].channel_category[1] == 'yandex'
+		local t = {}
+			for i = 1, #tab.set do
+				if tab.set[i].streams
+					and not tab.set[i].streams[1].drmConfig
+					and tab.set[i].content_type_name == 'channel'
+					and not tab.set[i].is_special_project
 				then
-					t[i].channel_category = true
+					t[#t + 1] = {}
+					t[#t].name = tab.set[i].title
+					t[#t].address = tab.set[i].content_url:gsub('^([^:]+://[^/]+/[^/]+/[^/]+).-(/[^/]+%.%w+).-$', '%1%2')
+					if tab.set[i].has_cachup == 1 then
+						t[#t].RawM3UString = 'catchup="append" catchup-minutes="' .. (tab.set[i].catchup_age / 60) .. 'catchup-source="?start=${start}" catchup-record-source="?start=${start}&end=${end}"'
+					end
+					if #t > 0 and not t[#t].address:match('/kal/') or t[#t].address:match('/kal/weather') then
+						table.remove(t)
+					end
 				end
-				i = i + 1
 			end
 			if #t == 0 then return end
-		local t0, j = {}, 1
-			for _, v in pairs(t) do
-				if not (v.status == true
-					or v.ya_plus
-					or v.channel_category == true
-					or v.special == true
-					or v.hidden == '1'
-					or v.channel_type:match('^yatv')
-					or v.address:match('/non__fake/')
-					or v.address:match('/kal/weather_')
-					or v.address:match('/sony_channel/')
-					or v.address:match('/sony_turbo/')
-					or v.address:match('/sony_sci_fi/')
-					or v.address:match('/ngc_hd/')
-					or v.address:match('/ngc_wild_hd/')
-					or v.address:match('/viasat_sport/')
-					or v.address:match('/ya_chan_tv'))
-					and v.address:match('^https?:')
-				then
-					v.RawM3UString = 'catchup="append" catchup-minutes="' .. (v.catchup_age / 60)
-										.. '" catchup-source="?start=${start}"'
-										.. ' catchup-record-source="?start=${start}&end=${end}"'
-					v.address = v.address:gsub('^([^:]+://[^/]+/[^/]+/[^/]+).-(/[^/]+%.%w+).-$', '%1%2')
-					t0[j] = v
-					j = j + 1
-				end
-			end
-			if j == 1 then return end
-	 return t0
+	 return t
 	end
 	function GetList(UpdateID, m3u_file)
 			if not UpdateID then return end
@@ -197,17 +152,7 @@ local filter = {
 			if not TVSources_var.tmp.source[UpdateID] then return end
 		local Source = TVSources_var.tmp.source[UpdateID]
 		local t_pls = LoadFromSite()
-			if not t_pls then
-				m_simpleTV.OSD.ShowMessageT({text = Source.name .. ' - ошибка загрузки плейлиста'
-											, color = 0xffff6600
-											, showTime = 1000 * 5
-											, id = 'channelName'})
-			 return
-			end
-		m_simpleTV.OSD.ShowMessageT({text = Source.name .. ' (' .. #t_pls .. ')'
-									, color = 0xff99ff99
-									, showTime = 1000 * 5
-									, id = 'channelName'})
+			if not t_pls then return end
 		t_pls = ProcessFilterTableLocal(t_pls)
 		local m3ustr = tvs_core.ProcessFilterTable(UpdateID, Source, t_pls)
 		local handle = io.open(m3u_file, 'w+')
