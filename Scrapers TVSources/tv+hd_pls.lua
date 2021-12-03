@@ -70,7 +70,7 @@ local filter = {
 						if title == 'Матч! Футбол 3' then
 							adr = 'matchfootball3'
 						end
-						t[#t +1] = {}
+						t[#t + 1] = {}
 						t[#t].name = title
 						t[#t].RawM3UString = RawM3UString
 						if closed == 1 then
