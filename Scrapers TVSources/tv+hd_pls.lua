@@ -33,10 +33,6 @@ local filter = {
 	function GetVersion()
 	 return 2, 'UTF-8'
 	end
-	local function showMsg(str, color)
-		local t = {text = str, color = color, showTime = 1000 * 5, id = 'channelName'}
-		m_simpleTV.OSD.ShowMessageT(t)
-	end
 	local function LoadFromSite()
 		local session = m_simpleTV.Http.New('TV+Android/1.1.20.0 (Linux;Android 7.1.2) ExoPlayerLib/2.14.0')
 			if not session then return end
@@ -93,10 +89,7 @@ local filter = {
 			if not TVSources_var.tmp.source[UpdateID] then return end
 		local Source = TVSources_var.tmp.source[UpdateID]
 		local t_pls = LoadFromSite()
-			if not t_pls then
-				showMsg(Source.name .. ' ошибка загрузки плейлиста', ARGB(255, 255, 102, 0))
-			 return
-			end
+			if not t_pls then return end
 		t_pls = ProcessFilterTableLocal(t_pls)
 		local m3ustr = tvs_core.ProcessFilterTable(UpdateID, Source, t_pls)
 		local handle = io.open(m3u_file, 'w+')
