@@ -2,7 +2,6 @@
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: tv+hd_pls.lua
--- расширение дополнения httptimeshift: tvhd-timeshift_ext.lua
 -- ## открывает подобные ссылки ##
 -- https://tv+hd.perviyhd
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
