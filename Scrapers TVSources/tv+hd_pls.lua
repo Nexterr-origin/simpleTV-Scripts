@@ -1,8 +1,7 @@
--- скрапер TVS для загрузки плейлиста "TV+ HD" http://www.tvplusonline.ru (16/11/21)
+-- скрапер TVS для загрузки плейлиста "TV+ HD" http://www.tvplusonline.ru (3/12/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: tv+hd.lua
--- расширение дополнения httptimeshift: tvhd-timeshift_ext.lua
 -- ## переименовать каналы ##
 local filter = {
 	{'Майдан', 'Майдан (Казань)'},
@@ -39,7 +38,7 @@ local filter = {
 		m_simpleTV.OSD.ShowMessageT(t)
 	end
 	local function LoadFromSite()
-		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:95.0) Gecko/20100101 Firefox/95.0')
+		local session = m_simpleTV.Http.New('TV+Android/1.1.20.0 (Linux;Android 7.1.2) ExoPlayerLib/2.14.0')
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 8000)
 		local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly93d3cudHZwbHVzb25saW5lLnJ1L2FwaS9jaGFubmVscw')})
@@ -58,7 +57,7 @@ local filter = {
 			local function catchup(adr)
 				for i = 1, #dvr do
 					if adr == dvr[i] then
-					 return 'catchup="append" catchup-days="2" catchup-source=""'
+					 return 'catchup="flussonic-hls" catchup-days="1" catchup-source=""'
 					end
 				end
 			 return
