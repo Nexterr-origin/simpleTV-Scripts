@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "TV+ HD" http://www.tvplusonline.ru (1/11/21)
+-- видеоскрипт для плейлиста "TV+ HD" http://www.tvplusonline.ru (3/12/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: tv+hd_pls.lua
@@ -13,14 +13,15 @@
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:95.0) Gecko/20100101 Firefox/95.0')
+	local userAgent = 'TV+Android/1.1.20.0 (Linux;Android 7.1.2) ExoPlayerLib/2.14.0'
+	local session = m_simpleTV.Http.New(userAgent)
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local id = inAdr:match('%.([^&]+)')
 	if inAdr:match('&plus=true') then
 		inAdr = 'QPtFWZyR3c/AHaw5ic2RGZl52ZpNHdld2L1JnLl5Was52bzVHbwZHduc3d39yL6MHc0RHa'
 	else
-		inAdr = 'vMHbo9ycsVmbuFGaj9SawF2L1JnLl5Was52bzVHbwZHduc3d39yL6MHc0RHa'
+		inAdr = '0zYmATPxZSbYR2NnhVMP1Dc/wmcV5GZDRWZudWaz9SawF2L1JnLl5Was52bzVHbwZHduc3d39yL6MHc0RHa'
 	end
 	local rc, answer = m_simpleTV.Http.Request(session, {url = decode64(string.reverse(inAdr)) .. id})
 	m_simpleTV.Http.Close(session)
@@ -29,5 +30,6 @@
 	local retAdr = answer:match('https?://[^%s"]+')
 		if not retAdr then return end
 	retAdr = retAdr:gsub('/index[^.]+%.', '/index.')
+	retAdr = retAdr .. '$OPT:http-user-agent=' .. userAgent
 	m_simpleTV.Control.CurrentAddress = retAdr
 -- debug_in_file(retAdr .. '\n')
