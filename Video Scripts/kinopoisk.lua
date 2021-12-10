@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (1/10/21)
+-- видеоскрипт для сайта http://www.kinopoisk.ru (10/12/21)
 -- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: yandex-vod.lua, kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
@@ -15,7 +15,7 @@
 -- http://rating.kinopoisk.ru/7378.gif
 -- https://www.kinopoisk.ru/series/733493/
 -- ## сайт (зеркало) filmix.ac ##
-local filmixsite = 'https://filmix.ac'
+local filmixsite = 'https://filmix.life'
 -- 'https://filmix.life' (пример)
 -- ## прокси для Seasonvar ##
 local proxy = ''
@@ -250,8 +250,8 @@ local tname = {
 			rc, answer = m_simpleTV.Http.Request(session, {url = url})
 				if rc ~= 200 then return end
 			return answer:match('"path":"([^"]+)')
-		elseif url:match('placehere') then
-			rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: api.placehere.link/\nOrigin: api.placehere.link'})
+		elseif url:match('delivembd') then
+			rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: api.delivembd.ws/\nOrigin: api.delivembd.ws'})
 				if rc ~= 200 then return end
 				if answer:match('embedHost') then
 				 return url
@@ -315,7 +315,7 @@ local tname = {
 				end
 			id = id or 1
 			return svar[id].Address
-		elseif url:match('placehere') then
+		elseif url:match('delivembd') then
 			return url
 		elseif url:match('vb17121coramclean') then
 			return answer
@@ -376,7 +376,7 @@ local tname = {
 			elseif tname[i] == 'Videocdn' then
 				turl[i] = {adr = decode64('aHR0cHM6Ly84MjA5LnN2ZXRhY2RuLmluL1BYazJRR2J2RVZtUz9rcF9pZD0') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
 			elseif tname[i] == 'Collaps' then
-				turl[i] = {adr = 'http://api.' .. os.time() .. decode64('LnBsYWNlaGVyZS5saW5rL2VtYmVkL2twLw') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
+				turl[i] = {adr = 'http://api.' .. os.time() .. decode64('LmRlbGl2ZW1iZC53cy9lbWJlZC9rcC8') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
 			elseif tname[i] == 'CDN Movies' then
 				turl[i] = {adr = decode64('aHR0cHM6Ly9jZG5tb3ZpZXMubmV0L2FwaT90b2tlbj0wNTU5ZjA3MmYxZTA5ODJlYmZhMzRjZTIwN2Y5ZTJiOCZraW5vcG9pc2tfaWQ9') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/cdnmovie.png'}
 			elseif tname[i] == 'Hdvb' then
