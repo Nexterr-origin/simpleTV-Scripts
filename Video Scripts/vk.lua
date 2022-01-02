@@ -1,148 +1,85 @@
--- видеоскрипт для сайта http://vk.com (11/10/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта http://vk.com (3/1/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: YT.lua, vimeo.lua ...
 -- ## открывает подобные ссылки ##
+-- https://vk.com/video-93049196_456239755?list=ln-cBjJ7S4jYYx3ADnmDT
 -- https://vk.com/video-33598391_456239036
--- https://vk.com/video2797862_166856999?list=e957bb0f2a63f9c911
 -- http://vkontakte.ru/video-208344_73667683
 -- https://vk.com/feed?z=video-101982925_456239539%2F1900258e458f45eccc%2Fpl_post_-101982925_3149238
--- https://vk.com/video.php?act=s&oid=-21693490&id=159155218
--- https://vk.com/video_ext.php?oid=-24136539&id=456239830&hash=34e326ffb9cbb93e
 -- https://vk.com/videos-53997646?section=album_49667766&z=video-53997646_456239913%2Fclub53997646%2Fpl_-53997646_49667766
 -- https://vk.com/video537396248_456239159
+-- https://vk.com/video_ext.php?oid=-24136539&id=456239830&hash=34e326ffb9cbb93e
+-- https://vk.com/video-208344_456241847
+-- https://vk.com/video-208344_456241842
+-- https://vk.com/video/playlist/-121487680_192
+-- https://vk.com/video-40535376_456239575
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://vk%.com/.+')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://vkontakte%.ru/.+')
 		then
 		 return
 		end
+	local logo = 'https://smajlik.ru/wp-content/uploads/2017/12/3.png'
+	if m_simpleTV.Control.MainMode == 0 then
+		m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = logo, UseLogo = 1, Once = 1})
+	end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.Control.ChangeAddress = 'Yes'
-	m_simpleTV.Control.CurrentAddress = ''
-	if m_simpleTV.Control.MainMode == 0 then
-		m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = 'https://smajlik.ru/wp-content/uploads/2017/12/3.png', UseLogo = 1, Once = 1})
-	end
-	local function showError(str)
-		m_simpleTV.OSD.ShowMessageT({text = 'vk ошибка: ' .. str, showTime = 1000 * 5, color = 0xffff1000, id = 'vk'})
-	end
-	inAdr = inAdr:gsub('vkontakte%.ru', 'vk%.com')
-	inAdr = inAdr:gsub('&id=', '_')
-	local oidvid = inAdr:match('(%-?%d+_%d+)')
-		if not oidvid then
-			showError('1')
-		 return
-		end
-	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:84.0) Gecko/20100101 Firefox/84.0'
-	local session = m_simpleTV.Http.New(userAgent)
-		if not session then
-			showError('2')
-		 return
-		end
+	m_simpleTV.Control.CurrentAddress = 'error'
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:97.0) Gecko/20100101 Firefox/97.0')
+		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
-	local url = decode64('aHR0cHM6Ly9hcGkudmsuY29tL21ldGhvZC92aWRlby5nZXQ/YWNjZXNzX3Rva2VuPTY2NzEzZTQ3YzhiNTgwM2JkOGU5YjI4ZWMzMWIwMWQwNWZmNjVlMWJlMWMxZjBhMjRmNzcyNWUzMTBlMDE3MWU5N2M3YzIyNGU5NmU2NDkwYTYyYmUmdj01LjEzMSZ2aWRlb3M9') .. oidvid
-	local extOpt = '$OPT:http-user-agent=' .. userAgent
-	local rc, answer = m_simpleTV.Http.Request(session, {url = url})
-		if rc ~= 200 then
-			m_simpleTV.Http.Close(session)
-			showError('3 - ' .. rc)
+	inAdr = inAdr:gsub('&id=', '_')
+	local vId = inAdr:match('[%a=](%-?%d+_%d+)')
+	local listId = inAdr:match('list=([^&]+)')
+	local playlist_id = inAdr:match('/playlist/(%-?%d+_%d+)')
+		if not vId and not playlist_id then return end
+	local body = 'act=show&al=1&claim=&dmcah=&hd=&list=' .. (listId or '') .. '&load_playlist=1&module=direct&playlist_id=' .. (playlist_id or '') .. '&show_original=&t=&video=' .. (vId or '')
+	local headers = 'X-Requested-With: XMLHttpRequest\nReferer: ' .. inAdr
+	local url = 'https://vk.com/al_video.php?act=show'
+	local rc, answer = m_simpleTV.Http.Request(session, {url = url, method = 'post', body = body, headers = headers})
+		if rc ~= 200 then return end
+	answer = answer:gsub('\\/', '/')
+	local retAdr = answer:match('"hls":"([^"]+)')
+		if not retAdr then
+			answer = answer:gsub('\\"', '"')
+			retAdr = answer:match('<iframe class[^>]+src="([^"]+)') or answer:match('cur%.incViews%(%);"%ssrc="([^"]+)')
+				if not retAdr then return end
+			retAdr = retAdr:gsub('^//', 'https://')
+			m_simpleTV.Control.ChangeAddress = 'No'
+			m_simpleTV.Control.CurrentAddress = retAdr
+			dofile(m_simpleTV.MainScriptDir_UTF8 .. 'user/video/video.lua')
 		 return
 		end
-	answer = answer:gsub('%[%]', '""')
-	require 'json'
-	local tab = json.decode(answer)
-		if not tab
-			or not tab.response
-			or not tab.response.count
-			or not tab.response.items
-			or not tab.response.items[1]
-			or not tab.response.items[1].files
-			or tab.response.count == 0
-		then
-			showError('4')
-		 return
-		end
-	local title = tab.response.items[1].title
 	local addTitle = 'vk'
+	local title = answer:match('"payload":%[%d+,%["([^"]+)')
+	title = m_simpleTV.Common.multiByteToUTF8(title)
 	if not title then
 		title = addTitle
 	else
 		if m_simpleTV.Control.MainMode == 0 then
 			m_simpleTV.Control.ChangeChannelName(title, m_simpleTV.Control.ChannelID, false)
-			local poster = tab.response.items[1].photo_320 or 'https://smajlik.ru/wp-content/uploads/2017/12/3.png'
+			local poster = answer:match('background%-image:url%(([^)]+)') or logo
 			m_simpleTV.Control.ChangeChannelLogo(poster, m_simpleTV.Control.ChannelID)
 		end
 		title = addTitle .. ' - ' .. title
 	end
-		if tab.response.items[1].files.flv_320 then
-			m_simpleTV.Control.CurrentAddress = tab.response.items[1].files.flv_320 .. extOpt
-		 return
-		end
-		if tab.response.items[1].files.external
-			and not (tab.response.items[1].files.live or tab.response.items[1].files.hls)
-		then
-			m_simpleTV.Control.ChangeAddress = 'No'
-			m_simpleTV.Control.CurrentAddress = tab.response.items[1].files.external
-			dofile(m_simpleTV.MainScriptDir_UTF8 .. 'user\\video\\video.lua')
-		 return
-		end
-	local t0 = {}
-	if tab.response.items[1].files.mp4_1080 then
-		t0[1080] = tab.response.items[1].files.mp4_1080
-	end
-	if tab.response.items[1].files.mp4_720 then
-		t0[720] = tab.response.items[1].files.mp4_720
-	end
-	if tab.response.items[1].files.mp4_480 then
-		t0[480] = tab.response.items[1].files.mp4_480
-	end
-	if tab.response.items[1].files.mp4_360 then
-		t0[360] = tab.response.items[1].files.mp4_360
-	end
-	if tab.response.items[1].files.mp4_240 then
-		t0[240] = tab.response.items[1].files.mp4_240
-	end
-	local t, i = {}, 1
-	local hls
-	if #t0 == 0 and (tab.response.items[1].files.hls or tab.response.items[1].files.live) then
-		hls = tab.response.items[1].files.hls or tab.response.items[1].files.live
-		local rc, answer = m_simpleTV.Http.Request(session, {url = hls})
-			if rc ~= 200 then
-				m_simpleTV.Http.Close(session)
-				showError('5 - ' .. rc)
-			 return
-			end
+	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
+		if rc ~= 200 then return end
+	local t = {}
 		for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-\n.-)\n') do
 			adr = w:match('\n(.+)')
 			name = w:match('RESOLUTION=%d+x(%d+)')
-				if not adr or not name then break end
-			t[i] = {}
-			t[i].Name = name .. 'p'
-			if not adr:match('^https?://') then
-				adr = hls:match('.+/') .. adr
-			end
-			t[i].Address = adr .. '$OPT:no-ts-trust-pcr' .. extOpt
-			t[i].Id = tonumber(name)
-			i = i + 1
-		end
-	else
-		for k, v in pairs(t0) do
-			t[i] = {}
-			t[i].Id = k
-			t[i].Name = k .. 'p'
-			t[i].Address = v .. '$OPT:NO-STIMESHIFT' .. extOpt
-			i = i + 1
-		end
-	end
-	m_simpleTV.Http.Close(session)
-		if i == 1 then
-				if hls then
-					m_simpleTV.Control.CurrentAddress = hls .. '$OPT:no-ts-trust-pcr'
-					m_simpleTV.Control.CurrentTitle_UTF8 = title
-				 return
+			if adr and name then
+				t[#t + 1] = {}
+				t[#t].Name = name .. 'p'
+				if not adr:match('^https?://') then
+					adr = retAdr:match('.+/') .. adr
 				end
-			showError('6')
-		 return
+				t[#t].Address = adr
+				t[#t].Id = tonumber(name)
+			end
 		end
 	table.sort(t, function(a, b) return a.Id < b.Id end)
 	local lastQuality = tonumber(m_simpleTV.Config.GetValue('vk_qlty') or 5000)
