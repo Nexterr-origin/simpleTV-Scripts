@@ -1,9 +1,8 @@
--- видеоскрипт для видеобалансера "Collaps" https://collaps.org (10/10/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для видеобалансера "Collaps" https://collaps.org (2/1/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
--- https://api1603044906.placehere.link/embed/movie/7059
+-- https://api1603044906.kinogram.best/embed/movie/7059
 -- https://api1603044906.kinogram.best/embed/kp/5928
--- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://api[%d]*%..-/embed/movie/%d+')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://api[%d]*%..-/embed/kp/%d+')
@@ -19,7 +18,7 @@
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = ''
-	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:92.0) Gecko/20100101 Firefox/92.0'
+	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:96.0) Gecko/20100101 Firefox/96.0'
 	local session = m_simpleTV.Http.New(userAgent)
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 12000)
@@ -111,10 +110,9 @@
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 			if rc ~= 200 then return end
 		local t = {}
-			for w in answer:gmatch('EXT%-X%-STREAM.-AUDIO="audio0".-\n.-\n') do
-				local adr = w:match('\n(.-)%c')
+			for w, adr in answer:gmatch('EXT%-X%-STREAM%-INF(.-)\n(.-%.m3u8)') do
 				local qlty = w:match('RESOLUTION=%d+x(%d+)')
-				if adr and qlty then
+				if adr and w:match('AUDIO="audio0"') and qlty then
 					t[#t + 1] = {}
 					t[#t].Address = adr
 					t[#t].qlty = tonumber(qlty)
@@ -170,7 +168,7 @@
 		if ret == 1 then
 			local retAdr = GetFilePath(t[id].Address)
 				if not retAdr then return end
-			retAdr = retAdr .. '$OPT:adaptive-hls-ignore-discontinuity$OPT:http-ext-header=Origin: ' .. host .. '$OPT:http-user-agent=' .. userAgent
+			retAdr = retAdr .. '$OPT:demux=avdemux$OPT:http-ext-header=Origin: ' .. host .. '$OPT:http-user-agent=' .. userAgent
 			m_simpleTV.Control.SetNewAddress(retAdr, m_simpleTV.Control.GetPosition())
 			m_simpleTV.Config.SetValue('collaps_qlty', t[id].qlty)
 		end
@@ -197,7 +195,7 @@
 			play(inAdr, title)
 		 return
 		end
-	inAdr = inAdr:gsub('&kinopoisk', ''):gsub('buildplayer%.com', 'iframecdn.club')
+	inAdr = inAdr:gsub('&kinopoisk', '')
 	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr, headers = headers})
 		if rc ~= 200 then
 			showMsg('collaps ошибка: 1', ARGB(255, 255, 102, 0))
