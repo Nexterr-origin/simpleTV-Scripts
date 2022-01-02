@@ -20,6 +20,7 @@
 		then
 		 return
 		end
+	htmlEntities = require 'htmlEntities'
 	local logo = 'https://smajlik.ru/wp-content/uploads/2017/12/3.png'
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = logo, UseLogo = 1, Once = 1})
@@ -54,10 +55,11 @@
 		end
 	local addTitle = 'vk'
 	local title = answer:match('"payload":%[%d+,%["([^"]+)')
-	title = m_simpleTV.Common.multiByteToUTF8(title)
 	if not title then
 		title = addTitle
 	else
+		title = m_simpleTV.Common.multiByteToUTF8(title)
+		title = htmlEntities.decode(title)
 		if m_simpleTV.Control.MainMode == 0 then
 			m_simpleTV.Control.ChangeChannelName(title, m_simpleTV.Control.ChannelID, false)
 			local poster = answer:match('background%-image:url%(([^)]+)') or logo
@@ -89,6 +91,9 @@
 		t[#t].Id = 5000
 		t[#t].Name = '▫ всегда высокое'
 		t[#t].Address = t[#t - 1].Address
+		t[#t].Id = 50000
+		t[#t].Name = '▫ адаптивное'
+		t[#t].Address = retAdr
 		index = #t
 			for i = 1, #t do
 				if t[i].Id >= lastQuality then
