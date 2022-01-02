@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "Collaps" https://collaps.org (2/1/22)
+-- видеоскрипт для видеобалансера "Collaps" https://collaps.org (3/1/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://api1603044906.kinogram.best/embed/movie/7059
@@ -168,7 +168,7 @@
 		if ret == 1 then
 			local retAdr = GetFilePath(t[id].Address)
 				if not retAdr then return end
-			retAdr = retAdr .. '$OPT:adaptive-hls-ignore-discontinuity$OPT:adaptive-minbuffer=60000$OPT:http-ext-header=Origin: ' .. host .. '$OPT:http-user-agent=' .. userAgent
+			retAdr = retAdr .. '$OPT:adaptive-use-avdemux$OPT:http-ext-header=Origin: ' .. host .. '$OPT:http-user-agent=' .. userAgent
 			m_simpleTV.Control.SetNewAddress(retAdr, m_simpleTV.Control.GetPosition())
 			m_simpleTV.Config.SetValue('collaps_qlty', t[id].qlty)
 		end
@@ -187,7 +187,7 @@
 			end
 		showMsg(title, ARGB(255, 153, 153, 255))
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
-		retAdr = retAdr .. '$OPT:adaptive-hls-ignore-discontinuity$OPT:adaptive-minbuffer=60000$OPT:http-ext-header=Origin: ' .. host .. '$OPT:http-user-agent=' .. userAgent
+		retAdr = retAdr .. '$OPT:adaptive-use-avdemux$OPT:http-ext-header=Origin: ' .. host .. '$OPT:http-user-agent=' .. userAgent
 		m_simpleTV.Control.CurrentAddress = retAdr
 -- debug_in_file(retAdr .. '\n')
 	end
