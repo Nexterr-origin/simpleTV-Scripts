@@ -1,13 +1,10 @@
--- видеоскрипт для сайта https://livestream.com/watch (26/11/20)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта https://livestream.com/watch (4/1/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://livestream.com/accounts/10612724/newstalk57
--- https://livestream.com/accounts/9869799/events/3519786
 -- https://livestream.com/accounts/21927570/events/7222857/videos/182731354
--- https://livestream.com/accounts/29119579/nchafuturity2020
 -- https://livestream.com/calciocataniachannel/events/9333273/videos/211648595
--- https://livestream.com/accounts/362/events/3557232/videos/67864563/player?autoPlay=false&height=360&mute=false
--- ##
+-- https://livestream.com/accounts/362/events/3557232/videos/67864563/player?autoPlay=false&height=360
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://livestream%.com') then return end
 	if m_simpleTV.Control.MainMode == 0 then
@@ -24,7 +21,7 @@
 	local accounts_events = answer:match('/accounts/%d+/events/%d+')
 		if not accounts_events then return end
 	local videos = inAdr:match('/videos/%d+') or ''
-	inAdr = 'https://api.new.livestream.com' .. accounts_events .. videos
+	inAdr = 'https://player-api.new.livestream.com' .. accounts_events .. videos
 	rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
 	m_simpleTV.Http.Close(session)
 		if rc ~= 200 then return end
