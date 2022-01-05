@@ -1,23 +1,23 @@
--- видеоскрипт для видеобалансера "Collaps" https://collaps.org (4/1/22)
+-- видеоскрипт для видеобалансера "Collaps" https://collaps.org (5/1/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://api1603044906.kinogram.best/embed/movie/7059
 -- https://api1603044906.kinogram.best/embed/kp/5928
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('^https?://api[%d]*%..-/embed/movie/%d+')
-			and not m_simpleTV.Control.CurrentAddress:match('^https?://api[%d]*%..-/embed/kp/%d+')
-			and not m_simpleTV.Control.CurrentAddress:match('^%$collaps')
+		if not m_simpleTV.Control.CurrentAddress:match('^https?://api[%d]*%[^/]+/embed/movie/%d+')
+			and not m_simpleTV.Control.CurrentAddress:match('^https?://api[%d]*[^/]+/embed/kp/%d+')
+			and not m_simpleTV.Control.CurrentAddress:match('^$collaps')
 		then
 		 return
 		end
-	local inAdr = m_simpleTV.Control.CurrentAddress
 	require 'json'
+	local inAdr = m_simpleTV.Control.CurrentAddress
 	if inAdr:match('^$collaps') or not inAdr:match('&kinopoisk') then
 		m_simpleTV.OSD.ShowMessageT({text = '', showTime = 1000, id = 'channelName'})
 		m_simpleTV.Interface.SetBackground({BackColor = 0, BackColorEnd = 255, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
-	m_simpleTV.Control.CurrentAddress = ''
+	m_simpleTV.Control.CurrentAddress = 'error'
 	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:96.0) Gecko/20100101 Firefox/96.0'
 	local session = m_simpleTV.Http.New(userAgent)
 		if not session then return end
@@ -28,8 +28,6 @@
 	if not m_simpleTV.User.collaps then
 		m_simpleTV.User.collaps = {}
 	end
-	local host = inAdr:match('https?://[^/]+/')
-	local headers = 'Referer: ' .. host .. '/\nOrigin: ' .. host
 	local title
 	if m_simpleTV.User.collaps.episode then
 		local index = m_simpleTV.Control.GetMultiAddressIndex()
@@ -104,8 +102,7 @@
 	end
 	local function GetcollapsAdr(url)
 		url = url:gsub('^$collaps', '')
-		url = url:gsub('^https', 'http')
-		url = GetChiperUrl(url)
+		-- url = GetChiperUrl(url)
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 			if rc ~= 200 then return end
 		local t = {}
@@ -163,11 +160,11 @@
 		m_simpleTV.Control.ExecuteAction(37)
 		local index = collapsIndex(t)
 		t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
-		local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('⚙ Качество', index - 1, t, 5000, 1 + 4)
+		local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('⚙ Качество', index - 1, t, 10000, 1 + 4)
 		if ret == 1 then
-			local retAdr = GetFilePath(t[id].Address)
-				if not retAdr then return end
-			retAdr = retAdr .. '$OPT:no-ts-cc-check$OPT:no-adaptive-use-stv-access$OPT:http-ext-header=Origin: ' .. host .. '$OPT:http-user-agent=' .. userAgent
+			local retAdr = t[id].Address
+			-- retAdr = GetFilePath(retAdr)
+				-- if not retAdr then return end
 			m_simpleTV.Control.SetNewAddress(retAdr, m_simpleTV.Control.GetPosition())
 			m_simpleTV.Config.SetValue('collaps_qlty', t[id].qlty)
 		end
@@ -179,14 +176,13 @@
 			 return
 			end
 		m_simpleTV.Control.CurrentTitle_UTF8 = title
-		retAdr = GetFilePath(retAdr)
-			if not retAdr then
-				showMsg('collaps ошибка: GetFilePath', ARGB(255, 255, 102, 0))
-			 return
-			end
+		-- retAdr = GetFilePath(retAdr)
+			-- if not retAdr then
+				-- showMsg('collaps ошибка: GetFilePath', ARGB(255, 255, 102, 0))
+			 -- return
+			-- end
 		showMsg(title, ARGB(255, 153, 153, 255))
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
-		retAdr = retAdr .. '$OPT:no-ts-cc-check$OPT:no-adaptive-use-stv-access$OPT:http-ext-header=Origin: ' .. host .. '$OPT:http-user-agent=' .. userAgent
 		m_simpleTV.Control.CurrentAddress = retAdr
 -- debug_in_file(retAdr .. '\n')
 	end
@@ -195,7 +191,7 @@
 		 return
 		end
 	inAdr = inAdr:gsub('&kinopoisk', '')
-	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr, headers = headers})
+	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr, headers = 'Referer: ' .. inAdr})
 		if rc ~= 200 then
 			showMsg('collaps ошибка: 1', ARGB(255, 255, 102, 0))
 		 return
@@ -226,7 +222,7 @@
 				t0[i].Id = i
 			end
 			t0.ExtParams = {FilterType = 2}
-			local _, id = m_simpleTV.OSD.ShowSelect_UTF8('Выберете сезон - ' .. title, 0, t0, 8000, 1)
+			local _, id = m_simpleTV.OSD.ShowSelect_UTF8('Выберете сезон - ' .. title, 0, t0, 10000, 1)
 			id = id or 1
 		 	seson = t0[id].Address
 			season_title = ' (' .. t0[id].Name .. ')'
@@ -246,7 +242,7 @@
 				i = i + 1
 			end
 		if i > 2 then
-			local _, id = m_simpleTV.OSD.ShowSelect_UTF8('Выберете перевод - ' .. title, 0, tr, 8000, 1)
+			local _, id = m_simpleTV.OSD.ShowSelect_UTF8('Выберете перевод - ' .. title, 0, tr, 10000, 1)
 			m_simpleTV.User.collaps.transl = id
 		end
 		local t, i = {}, 1
@@ -269,7 +265,7 @@
 			p = 32 + 128
 		end
 		t.ExtParams = {FilterType = 2}
-		local _, id = m_simpleTV.OSD.ShowSelect_UTF8(title .. season_title, 0, t, 8000, p + 64)
+		local _, id = m_simpleTV.OSD.ShowSelect_UTF8(title .. season_title, 0, t, 15000, p + 64)
 		id = id or 1
 		inAdr = t[id].Address
 		title = title .. season_title .. ' - ' .. t[id].Name
@@ -297,7 +293,7 @@
 						i = i + 1
 					end
 				if i > 2 then
-					local _, id = m_simpleTV.OSD.ShowSelect_UTF8('Выберете перевод - ' .. title, 0, tr, 8000, 1)
+					local _, id = m_simpleTV.OSD.ShowSelect_UTF8('Выберете перевод - ' .. title, 0, tr, 10000, 1)
 					m_simpleTV.User.collaps.transl = id
 				end
 			end
@@ -309,6 +305,6 @@
 		t1[1].Address = inAdr
 		t1.ExtButton0 = {ButtonEnable = true, ButtonName = '⚙', ButtonScript = 'Qlty_collaps()'}
 		t1.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
-		m_simpleTV.OSD.ShowSelect_UTF8('Collaps', 0, t1, 8000, 64 + 32 + 128)
+		m_simpleTV.OSD.ShowSelect_UTF8('Collaps', 0, t1, 10000, 64 + 32 + 128)
 	end
 	play(inAdr, title)
