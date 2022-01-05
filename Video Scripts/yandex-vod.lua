@@ -1,23 +1,20 @@
--- видеоскрипт для сайта https://yandex.ru (4/9/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта https://yandex.ru (6/1/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://ott-widget.kinopoisk.ru/kinopoisk.json?episode=&season=&from=kp&isMobile=0&kpId=336434
 -- https://frontend.vh.yandex.ru/player/15392977509995281185
 -- https://frontend.vh.yandex.ru/player/414780668cb673c2b384e399e52a9ff4.json
--- https://yandex.ru/efir?stream_id=45685261fef35f8aa367435e40e862a9
--- https://strm.yandex.ru/vod/zen-vod/vod-content/7779553496393912423/ba180426-3d5e5cc6-ae5fc7fa-cd2d53b9/kaltura/desc_b5ef83cf0a864b04ea14928e349c7c94/v9n4YP6ngtH4/ysign1=358cf6e673a9f36518877e0009dbba9f92b62f011a0bb236efcdaba3ff4bc68a,abcID=967,from=zen,pfx,region=10000,sfx,ts=613fa1f1/master.m3u8
 -- https://zen.yandex.ru/video/watch/603848a5fe5aef7eb18d47e9
 -- https://zen.yandex.ru/media/popmech/izverjenie-vulkana-iz-spichek-zreliscnyi-opyt-6002240ff8b1af50bb2da5e3
--- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://strm%.yandex%.ru/vh')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://[w%.]*yandex.ru/portal/')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://ott%-widget%.kinopoisk%.ru')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://frontend%.vh%.yandex%.ru')
-			and not m_simpleTV.Control.CurrentAddress:match('^https?://[w%.]*yandex.ru/efir')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://strm%.yandex%.ru/vod/')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://zen%.yandex%.ru/media/')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://zen%.yandex%.ru/video/watch/')
+			and not m_simpleTV.Control.CurrentAddress:match('^https?://market.yandex.ru/live/')
 			and not m_simpleTV.Control.CurrentAddress:match('^%$yndex')
 		then
 		 return
@@ -46,10 +43,10 @@
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = logo, TypeBackColor = 0, UseLogo = 1, Once = 1})
 	end
 	inAdr = inAdr:gsub('&kinopoisk', '')
+	htmlEntities = require 'htmlEntities'
 	require 'json'
 	if inAdr:match('^https?://[w%.]*yandex.ru/portal/')
 		or inAdr:match('^https?://frontend%.vh%.yandex%.ru')
-		or inAdr:match('^https?://[w%.]*yandex.ru/efir')
 	then
 		local filmId = inAdr:match('stream_id=(%w+)') or inAdr:match('/player/(%w+)')
 		if filmId then
@@ -333,10 +330,16 @@
 			end
 		end
 	end
+	if inAdr:match('market%.yandex') then
+		local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
+			if rc ~= 200 then return end
+		inAdr = answer:match('[^\'\"<>]+frontend%.vh%.[^<>\'\"?]+')
+			if not inAdr then return end
+	end
 	if inAdr:match('frontend%.vh%.') then
 		local plst = ''
 		local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr:gsub('$yndex', '') .. '?from=fb&vsid=0'})
-			if rc ~= 200 then m_simpleTV.Http.Close(session) return end
+			if rc ~= 200 then return end
 		if not inAdr:match('$yndex') then
 			answer = answer:gsub('\\"', '%%22')
 			title = answer:match('"dvr".-"title":"(.-)"') or answer:match('"title":"(.-)"') or 'Yandex'
@@ -363,11 +366,11 @@
 	if inAdr:match('^https?://zen%.yandex%.ru/') then
 		local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
 			if rc ~= 200 then return end
-		inAdr = answer:match('"stream":"([^"]+)') or answer:match('"streamUrl":"([^"]+)') or answer:match('"OutputStream":"([^"]+)')
+		inAdr = answer:match('"([^"]+%.m3u8[^"]*)","StreamType":"ST_HLS"') or answer:match('"([^"]+%.m3u8[^"]*)')
 			if not inAdr then return end
 		inAdr = inAdr:gsub('\\u002F', '/')
 		title = answer:match(':title" content="([^"]+)') or 'zen yandex'
-		title = title:gsub('amp;', '')
+		title = htmlEntities.decode(title)
 		logo = answer:match(':image" content="([^"]+)') or logo
 	end
 	if title then
