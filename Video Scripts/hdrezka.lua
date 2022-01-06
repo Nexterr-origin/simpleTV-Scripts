@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://rezka.ag (6/1/22)
+-- видеоскрипт для сайта https://rezka.tv (6/1/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- модуль: /core/playerjs.lua
@@ -214,7 +214,7 @@ local proxy = ''
 	m_simpleTV.User.rezka.isVideo = nil
 	m_simpleTV.User.rezka.titleTab = nil
 	m_simpleTV.User.rezka.host = inAdr:match('^https?://[^/]+')
-	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
+	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr .. '?app_rules=1'})
 		if rc ~= 200 then
 			showError('4')
 			m_simpleTV.Http.Close(session)
