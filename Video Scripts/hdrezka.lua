@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://rezka.tv (6/1/22)
+-- видеоскрипт для сайта https://hdrezka.tv (6/1/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- модуль: /core/playerjs.lua
