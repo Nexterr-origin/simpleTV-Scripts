@@ -1,25 +1,24 @@
--- видеоскрипт для сайта https://rezka.ag (7/3/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта https://rezka.ag (6/1/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- ## необходим ##
+-- модуль: /core/playerjs.lua
 -- ## открывает подобные ссылки ##
--- https://rezka.ag/films/comedy/31810-horoshie-malchiki-2019.html
--- https://rezka.ag/series/fiction/34492-porogi-vremeni-1993.html
--- https://rezka.ag/series/comedy/34512-kosmicheskie-voyska-2020.html
--- http://nexthdrezka.com/series/fiction/34385-skvoz-sneg-2020.html
--- http://betahdrezka.com/cartoons/adventures/7717-priklyucheniya-kota-v-sapogah-2015.html
+-- http://hdrezka.tv/films/fiction/41910-matrica-voskreshenie-2021.html
+-- http://hdrezka.tv/series/drama/27920-yelloustoun-2018.html
 -- ## прокси ##
 local proxy = ''
 -- '' - нет
 -- например 'http://proxy-nossl.antizapret.prostovpn.org:29976'
--- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://rezka%.ag/.+')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://%a+hdrezka%.com/.+')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://hdrezka%-ag%.com/.+')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://hdrezka%..+')
-			and not m_simpleTV.Control.CurrentAddress:match('^%$rezka')
+			and not m_simpleTV.Control.CurrentAddress:match('^$rezka')
 		then
 		 return
 		end
+	require 'playerjs'
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.OSD.ShowMessageT({text = '', showTime = 1000, id = 'channelName'})
 	local logo = 'https://static.hdrezka.ac/templates/hdrezka/images/avatar.png'
@@ -35,7 +34,7 @@ local proxy = ''
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = ''
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.3809.87 Safari/537.36', proxy, false)
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:96.0) Gecko/20100101 Firefox/96.0', proxy, false)
 		if not session then
 			showError('1')
 		 return
@@ -54,6 +53,13 @@ local proxy = ''
 		if index then
 			title = m_simpleTV.User.rezka.title .. ' - ' .. m_simpleTV.User.rezka.titleTab[index].Name
 		end
+	end
+	local function rezkaDeSex(url)
+		url = url:match('#[^"]+')
+			if not url then
+			 return url
+			end
+	 return playerjs.decode(url, m_simpleTV.User.rezka.playerjs_url)
 	end
 	local function rezkaGetStream(adr)
 		local url = m_simpleTV.User.rezka.host .. '/ajax/get_cdn_series/?t=' .. os.time()
@@ -184,7 +190,12 @@ local proxy = ''
 				 return
 				end
 		end
-		m_simpleTV.Http.Close(session)
+		retAdr = rezkaDeSex(retAdr)
+			if not retAdr or retAdr == '' then
+				m_simpleTV.Control.CurrentAddress = 'http://wonky.lostcut.net/vids/error_getlink.avi'
+				showError('2.01')
+			 return
+			end
 		retAdr = GetRezkaAdr(retAdr)
 			if not retAdr then
 				m_simpleTV.Control.CurrentAddress = 'http://wonky.lostcut.net/vids/error_getlink.avi'
@@ -209,7 +220,12 @@ local proxy = ''
 			m_simpleTV.Http.Close(session)
 		 return
 		end
+	answer = answer:gsub('\\/', '/')
+	answer = answer:gsub('\\"', '"')
 	answer = answer:gsub('<!%-%-.-%-%->', ''):gsub('/%*.-%*/', '')
+	local playerjs_url = answer:match('src="([^"]+/js/playerjs[^"]+)')
+		if not playerjs_url then return end
+	m_simpleTV.User.rezka.playerjs_url = inAdr:match('^https?://[^/]+') .. playerjs_url
 	local title = answer:match('<h1 itemprop="name">([^<]+)') or 'HDrezka'
 	local poster = answer:match('"og:image" content="([^"]+)') or logo
 	local desc = answer:match('"og:description" content="(.-)"%s*/>')
@@ -339,6 +355,13 @@ local proxy = ''
 			if not retAdr then
 				m_simpleTV.Http.Close(session)
 				showError('7.1')
+				m_simpleTV.Control.CurrentAddress = 'http://wonky.lostcut.net/vids/error_getlink.avi'
+			 return
+			end
+		retAdr = rezkaDeSex(retAdr)
+			if not retAdr or retAdr == '' then
+				m_simpleTV.Http.Close(session)
+				showError('7.01')
 				m_simpleTV.Control.CurrentAddress = 'http://wonky.lostcut.net/vids/error_getlink.avi'
 			 return
 			end
