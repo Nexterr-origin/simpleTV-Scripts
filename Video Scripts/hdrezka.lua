@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://hdrezka.tv (6/1/22)
+-- видеоскрипт для сайта https://hdrezka.tv (7/1/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- модуль: /core/playerjs.lua
@@ -87,17 +87,6 @@ local proxy = ''
 	end
 	local function GetRezkaAdr(urls)
 		urls = urls:gsub('\\/', '/')
-		local subt = urls:match('"subtitle":"[^"]+')
-		if subt then
-			local s, j = {}, 1
-			for w in subt:gmatch('http.-%.vtt') do
-				s[j] = {}
-				s[j] = w
-				j = j + 1
-			end
-			subt = '$OPT:sub-track=0$OPT:input-slave=' .. table.concat(s, '#')
-			urls = urls:gsub('"subtitle":"[^"]+', '')
-		end
 		local t, i = {}, 1
 		local url = urls:match('"url":"[^"]+') or urls
 		local qlty, adr
@@ -134,6 +123,20 @@ local proxy = ''
 		m_simpleTV.User.rezka.Tab = t
 		local index = rezkaIndex(t)
 	 return t[index].Address
+	end
+	local function rezkaISubt(url)
+		local subt = url:match('"subtitle":"[^"]+')
+		if subt then
+			subt = subt:gsub('\\/', '/')
+			local s = {}
+			for w in subt:gmatch('http.-%.vtt') do
+				s[#s + 1] = w
+			end
+			subt = table.concat(s, '#')
+			subt = subt:gsub('://', '/webvtt://')
+			subt = '$OPT:sub-track=0$OPT:input-slave=' .. subt
+		end
+	 return subt
 	end
 	function OnMultiAddressOk_rezka(Object, id)
 		if id == 0 then
@@ -190,6 +193,7 @@ local proxy = ''
 				 return
 				end
 		end
+		local subt = rezkaISubt(retAdr)
 		retAdr = rezkaDeSex(retAdr)
 			if not retAdr or retAdr == '' then
 				m_simpleTV.Control.CurrentAddress = 'http://wonky.lostcut.net/vids/error_getlink.avi'
@@ -204,6 +208,7 @@ local proxy = ''
 			end
 		m_simpleTV.Control.CurrentTitle_UTF8 = title
 		m_simpleTV.OSD.ShowMessageT({text = title, color = 0xff9999ff, showTime = 1000 * 5, id = 'channelName'})
+		retAdr = retAdr .. (subt or '')
 		m_simpleTV.Control.CurrentAddress = retAdr
 -- debug_in_file(retAdr .. '\n')
 	end
@@ -358,6 +363,7 @@ local proxy = ''
 				m_simpleTV.Control.CurrentAddress = 'http://wonky.lostcut.net/vids/error_getlink.avi'
 			 return
 			end
+		local subt = rezkaISubt(retAdr)
 		retAdr = rezkaDeSex(retAdr)
 			if not retAdr or retAdr == '' then
 				m_simpleTV.Http.Close(session)
@@ -372,14 +378,14 @@ local proxy = ''
 				m_simpleTV.Control.CurrentAddress = 'http://wonky.lostcut.net/vids/error_getlink.avi'
 			 return
 			end
-		m_simpleTV.User.rezka.DelayedAddress = retAdr
+		m_simpleTV.User.rezka.DelayedAddress = retAdr .. (subt or '')
 		m_simpleTV.User.rezka.title = title
 		title = title .. ' - ' .. m_simpleTV.User.rezka.titleTab[1].Name
 		if #t > 1 then
 			inAdr = 'wait'
 			m_simpleTV.User.rezka.isVideo = false
 		else
-			inAdr = retAdr
+			inAdr = retAdr .. (subt or '')
 		end
 		m_simpleTV.Control.CurrentTitle_UTF8 = title
 		m_simpleTV.OSD.ShowMessageT({text = title, color = 0xff9999ff, showTime = 1000 * 5, id = 'channelName'})
