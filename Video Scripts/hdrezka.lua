@@ -130,11 +130,9 @@ local proxy = ''
 			subt = subt:gsub('\\/', '/')
 			local s = {}
 			for w in subt:gmatch('http.-%.vtt') do
-				s[#s + 1] = w
+				s[#s + 1] = w:gsub('://', '/webvtt://')
 			end
-			subt = table.concat(s, '#')
-			subt = subt:gsub('://', '/webvtt://')
-			subt = '$OPT:sub-track=0$OPT:input-slave=' .. subt
+			subt = '$OPT:sub-track=0$OPT:input-slave=' .. table.concat(s, '#')
 		end
 	 return subt
 	end
