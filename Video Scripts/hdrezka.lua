@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://hdrezka.tv (7/1/22)
+-- видеоскрипт для сайта https://hdrezka.tv (12/1/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- модуль: /core/playerjs.lua
@@ -55,6 +55,7 @@ local proxy = ''
 		end
 	end
 	local function rezkaDeSex(url)
+		url = url:gsub('\\/', '/')
 		url = url:match('#[^"]+')
 			if not url then
 			 return url
@@ -86,39 +87,21 @@ local proxy = ''
 	 return index
 	end
 	local function GetRezkaAdr(urls)
-		urls = urls:gsub('\\/', '/')
-		local t, i = {}, 1
-		local url = urls:match('"url":"[^"]+') or urls
-		local qlty, adr
-			for qlty, adr in url:gmatch('%[(.-)](https?://[^%s]+)') do
-				t[i] = {}
-				t[i].Address = adr
-				t[i].Name = qlty
-				t[i].qlty = tonumber(qlty:match('%d+'))
-				i = i + 1
+		local t = {}
+			for qlty, adr in urls:gmatch('%[(.-)](https?://[^%s]+)') do
+				t[#t + 1] = {}
+				t[#t].Address = adr
+				t[#t].Name = qlty
+				if qlty == '1080p Ultra' then
+					qlty = '1100'
+				end
+				t[#t].qlty = tonumber(qlty:match('%d+'))
 			end
-			if i == 1 then return end
+			if #t == 0 then return end
 		table.sort(t, function(a, b) return a.qlty < b.qlty end)
-		local z = {
-				{'1080p Ultra', '1080p'},
-				{'1080p', '720p'},
-				{'720p', '480p'},
-				{'480p', '360p'},
-				{'360p', '240p'},
-			}
-		local h = {}
 			for i = 1, #t do
 				t[i].Id = i
 				t[i].Address = t[i].Address:gsub('^https://', 'http://'):gsub(':hls:manifest%.m3u8', '')
-						.. '$OPT:NO-STIMESHIFT$OPT:demux=mp4,any$OPT:http-referrer=https://rezka.ag/' .. (subt or '')
-				for j = 1, #z do
-					if t[i].Name == z[j][1] and not h[i] then
-						t[i].Name = z[j][2]
-						h[i] = true
-					 break
-					end
-				end
-				t[i].qlty = tonumber(t[i].Name:match('%d+'))
 			end
 		m_simpleTV.User.rezka.Tab = t
 		local index = rezkaIndex(t)
