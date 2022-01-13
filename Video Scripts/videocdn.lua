@@ -1,9 +1,10 @@
--- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (13/10/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (13/1/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://32.svetacdn.in/fnXOUDB9nNSO?kp_id=5928
 -- https://32.tvmovies.in/fnXOUDB9nNSO/tv-series/92
 -- https://32.tvmovies.in/fnXOUDB9nNSO/movie/22080
+-- http://32.svetacdn.in/fnXOUDB9nNSO/movie/36905
 -- ## домен ##
 local domen = 'http://58.svetacdn.in'
 -- '' - по умолчанию
@@ -12,7 +13,6 @@ local domen = 'http://58.svetacdn.in'
 local proxy = ''
 -- '' - нет
 -- 'https://proxy-nossl.antizapret.prostovpn.org:29976' (пример)
--- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://[%w%.]*videocdn%.')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://.-/fnXOUDB9nNSO')
@@ -38,7 +38,7 @@ local proxy = ''
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = ''
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:93.0) Gecko/20100101 Firefox/93.0', proxy, false)
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:96.0) Gecko/20100101 Firefox/96.0', proxy, false)
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 12000)
 	if not m_simpleTV.User then
@@ -114,37 +114,25 @@ local proxy = ''
 			url = url:gsub('^%[', '')
 		end
 		url = url:gsub('(//[^%s]+/...)', '%1.mp4')
-		local t, i = {}, 1
+		local t = {}
 			for adr in url:gmatch('%](//[^%s]+%.mp4)') do
-				t[i] = {}
-				t[i].qlty = adr:match('/(%d+)%.mp4') or 10
-				t[i].Address = adr:gsub('^//', 'http://')
-				i = i + 1
-			end
-			if i == 1 then return end
-			for _, v in pairs(t) do
-				v.qlty = tonumber(v.qlty)
-				if v.qlty > 0 and v.qlty <= 180 then
-					v.qlty = 144
-				elseif v.qlty > 180 and v.qlty <= 300 then
-					v.qlty = 240
-				elseif v.qlty > 300 and v.qlty <= 400 then
-					v.qlty = 360
-				elseif v.qlty > 400 and v.qlty <= 500 then
-					v.qlty = 480
-				elseif v.qlty > 500 and v.qlty <= 780 then
-					v.qlty = 720
-				elseif v.qlty > 780 and v.qlty <= 1200 then
-					v.qlty = 1080
-				elseif v.qlty > 1200 and v.qlty <= 1500 then
-					v.qlty = 1444
-				elseif v.qlty > 1500 and v.qlty <= 2800 then
-					v.qlty = 2160
-				elseif v.qlty > 2800 and v.qlty <= 4500 then
-					v.qlty = 4320
+				local qlty = adr:match('/(%d+)%.mp4')
+				if qlty then
+					t[#t + 1] = {}
+					t[#t].qlty = tonumber(qlty)
+					t[#t].Address = adr:gsub('^//', 'http://')
+					t[#t].Name = qlty .. 'p'
 				end
-				v.Name = v.qlty .. 'p'
 			end
+			if #t == 0 then return end
+		local adr1080 = t[1].Address:gsub('/%d+.mp4', '/1080.mp4')
+		local rc, answer = m_simpleTV.Http.Request(session, {url = adr1080, method = 'head'})
+		if rc == 200 then
+			t[#t + 1] = {}
+			t[#t].qlty = 1080
+			t[#t].Address = adr1080
+			t[#t].Name = '1080p'
+		end
 		table.sort(t, function(a, b) return a.qlty < b.qlty end)
 		local hash, tab = {}, {}
 			for i = 1, #t do
@@ -251,7 +239,6 @@ local proxy = ''
 	inAdr = inAdr:gsub('&kinopoisk', ''):gsub('%?block=%w+', '')
 	m_simpleTV.User.Videocdn.Tabletitle = nil
 	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr:gsub('$OPT:.+', '')})
-	m_simpleTV.Http.Close(session)
 		if rc ~= 200 then return end
 	answer = htmlEntities.decode(answer)
 	answer = answer:gsub('\\\\\\/', '/')
