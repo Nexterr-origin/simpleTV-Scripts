@@ -1,5 +1,5 @@
--- видеоскрипт для плейлиста "Витрина ТВ" https://www.vitrina.tv (30/8/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для плейлиста "Витрина ТВ" https://www.vitrina.tv (17/1/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: mediavitrina_pls.lua
 -- ## открывает подобные ссылки ##
@@ -20,6 +20,7 @@
 	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:87.0) Gecko/20100101 Firefox/87.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
+	local exOpt = '$OPT:NO-STIMESHIFT'
 	local function streamsTab(answer, adr)
 		local t = {}
 			for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-\n.-)\n') do
@@ -39,7 +40,7 @@
 					if not url:match('^http') then
 						url = adr:gsub('^(.+/).-%?.-$', '%1') .. url
 					end
-					t[#t].Address = url
+					t[#t].Address = url .. exOpt
 				end
 			end
 			if #t > 0 then
@@ -54,7 +55,7 @@
 					t[#t + 1] = {}
 					t[#t].Id = bw
 					t[#t].Name = res .. 'p (' .. bw .. ' кбит/с)'
-					t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s', adr, bw)
+					t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s', adr, bw) .. exOpt
 				end
 			end
 			if #t > 0 then
@@ -66,7 +67,7 @@
 				t[#t + 1] = {}
 				t[#t].Id = bw
 				t[#t].Name = bw .. ' кбит/с'
-				t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s', adr, bw)
+				t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s', adr, bw) .. exOpt
 			end
 	 return t
 	end
@@ -114,7 +115,7 @@
 		end
 	local t = streamsTab(answer, retAdr)
 		if #t == 0 then
-			m_simpleTV.Control.CurrentAddress = retAdr
+			m_simpleTV.Control.CurrentAddress = retAdr .. exOpt
 		 return
 		end
 	table.sort(t, function(a, b) return a.Id < b.Id end)
