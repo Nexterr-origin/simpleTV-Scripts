@@ -1,8 +1,11 @@
--- видеоскрипт для сайта https://rutube.ru (3/4/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта https://rutube.ru (17/1/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- ## необходим ##
+-- видеоскрипт: mediavitrina.lua
 -- ## открывает подобные ссылки ##
 -- https://rutube.ru/video/49bde61061d4db358977418d89f0bf83/
--- ##
+-- https://rutube.ru/live/video/ef31151c1c1af2e9eb85fc213abb4ef2/
+-- https://rutube.ru/live/video/54395b96ad1a7b49966f46a6eee370a4
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://rutube%.ru/.+') then return end
 	local logo ='https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/rutube.png'
@@ -63,7 +66,14 @@
 		live = true
 	else
 		m_simpleTV.Http.Close(session)
-		showMsg('3, сторонее видео')
+			if tab.player == 'iframe' and tab.iframe_url then
+				retAdr = tab.iframe_url:gsub('^//', 'https://')
+				m_simpleTV.Control.ChangeAddress = 'No'
+				m_simpleTV.Control.CurrentAddress = retAdr
+				dofile(m_simpleTV.MainScriptDir .. 'user/video/video.lua')
+			 return
+			end
+		showMsg('3, стрим не найден')
 	 return
 	end
 	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
@@ -92,6 +102,7 @@
 	end
 	m_simpleTV.Control.CurrentTitle_UTF8 = title
 	m_simpleTV.OSD.ShowMessageT({text = title, showTime = 5000, id = 'channelName'})
+	local exOpt = '$OPT:NO-STIMESHIFT'
 	local t0 = {}
 	if live then
 		for w in answer:gmatch('EXT%-X%-STREAM%-INF.-\n.-\n') do
@@ -102,7 +113,7 @@
 				t0[#t0 + 1] = {}
 				t0[#t0].Id = name
 				t0[#t0].Name = math.floor(name / 100000) * 100 .. ' кбит/с'
-				t0[#t0].Address = adr
+				t0[#t0].Address = adr .. exOpt
 			end
 		end
 	else
@@ -114,12 +125,12 @@
 				t0[#t0 + 1] = {}
 				t0[#t0].Id = name
 				t0[#t0].Name = name .. 'p'
-				t0[#t0].Address = adr .. '$OPT:NO-STIMESHIFT'
+				t0[#t0].Address = adr .. exOpt
 			end
 		end
 	end
 		if #t0 == 0 then
-			m_simpleTV.Control.CurrentAddress = retAdr
+			m_simpleTV.Control.CurrentAddress = retAdr .. exOpt
 		 return
 		end
 	local hash, t = {}, {}
@@ -145,7 +156,7 @@
 		t[#t + 1] = {}
 		t[#t].Id = 500000000
 		t[#t].Name = '▫ адаптивное'
-		t[#t].Address = retAdr
+		t[#t].Address = retAdr .. exOpt
 		index = #t
 			for i = 1, #t do
 				if t[i].Id >= lastQuality then
