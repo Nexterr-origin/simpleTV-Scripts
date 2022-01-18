@@ -1,8 +1,8 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (10/12/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта http://www.kinopoisk.ru (18/1/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: yandex-vod.lua, kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
--- iviru.lua, videocdn.lua, hdvb-vb.lua, collaps.lua, cdnmovies.lua
+-- iviru.lua, videocdn.lua, hdvb-vb.lua, collaps.lua, cdnmovies.lua, voidboost.lua
 -- ## открывает подобные ссылки ##
 -- https://www.kinopoisk.ru/film/5928
 -- https://www.kinopoisk.ru/level/1/film/46225/sr/1/
@@ -15,7 +15,7 @@
 -- http://rating.kinopoisk.ru/7378.gif
 -- https://www.kinopoisk.ru/series/733493/
 -- ## сайт (зеркало) filmix.ac ##
-local filmixsite = 'https://filmix.life'
+local filmixsite = 'https://filmix.gay'
 -- 'https://filmix.life' (пример)
 -- ## прокси для Seasonvar ##
 local proxy = ''
@@ -28,6 +28,7 @@ local tname = {
 	-- 'КиноПоиск онлайн',
 	-- 'ivi',
 	'Videocdn',
+	'Voidboost',
 	'Videoframe',
 	'Filmix',
 	'Collaps',
@@ -36,7 +37,6 @@ local tname = {
 	'Kodik',
 	-- 'Seasonvar',
 	}
--- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://[%w%.]*kinopoisk%.ru/.+') then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
@@ -260,6 +260,10 @@ local tname = {
 			rc, answer = m_simpleTV.Http.Request(session, {url = url})
 				if rc ~= 200 then return end
 			return answer:match('"iframe_url":"([^"]+)')
+		elseif url:match('voidboost') then
+			rc, answer = m_simpleTV.Http.Request(session, {url = url})
+				if rc ~= 200 then return end
+			return url
 		end
 	 return
 	end
@@ -318,6 +322,8 @@ local tname = {
 		elseif url:match('delivembd') then
 			return url
 		elseif url:match('vb17121coramclean') then
+			return answer
+		elseif url:match('voidboost') then
 			return answer
 		end
 	 return
@@ -381,6 +387,8 @@ local tname = {
 				turl[i] = {adr = decode64('aHR0cHM6Ly9jZG5tb3ZpZXMubmV0L2FwaT90b2tlbj0wNTU5ZjA3MmYxZTA5ODJlYmZhMzRjZTIwN2Y5ZTJiOCZraW5vcG9pc2tfaWQ9') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/cdnmovie.png'}
 			elseif tname[i] == 'Hdvb' then
 				turl[i] = {adr = decode64('aHR0cHM6Ly92YjE3MTIxY29yYW1jbGVhbi5wdy9hcGkvdmlkZW9zLmpzb24/dG9rZW49Yzk5NjZiOTQ3ZGEyZjNjMjliMzBjMGUwZGNjYTZjZjQmaWRfa3A9') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
+			elseif tname[i] == 'Voidboost' then
+				turl[i] = {adr = decode64('aHR0cHM6Ly92b2lkYm9vc3QubmV0L2VtYmVkLw') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
 			end
 		end
 	end
