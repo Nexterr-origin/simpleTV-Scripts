@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://rutube.ru (17/1/22)
+-- видеоскрипт для сайта https://rutube.ru (19/1/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: mediavitrina.lua
@@ -102,7 +102,10 @@
 	end
 	m_simpleTV.Control.CurrentTitle_UTF8 = title
 	m_simpleTV.OSD.ShowMessageT({text = title, showTime = 5000, id = 'channelName'})
-	local exOpt = '$OPT:NO-STIMESHIFT'
+	local exOpt = ''
+	if not live then
+		exOpt = '$OPT:NO-STIMESHIFT'
+	end
 	local t0 = {}
 	if live then
 		for w in answer:gmatch('EXT%-X%-STREAM%-INF.-\n.-\n') do
@@ -113,7 +116,7 @@
 				t0[#t0 + 1] = {}
 				t0[#t0].Id = name
 				t0[#t0].Name = math.floor(name / 100000) * 100 .. ' кбит/с'
-				t0[#t0].Address = adr .. exOpt
+				t0[#t0].Address = adr
 			end
 		end
 	else
