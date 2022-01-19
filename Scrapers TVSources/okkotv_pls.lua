@@ -40,9 +40,6 @@ local filter= {
 			end
 		local t_pls = tvs_core.GetPlsAsTable(outm3u)
 		t_pls = ProcessFilterTableLocal(t_pls)
-			for i = 1, #t_pls do
-				t_pls[i].address = t_pls[i].address .. '$OPT:NO-STIMESHIFT'
-			end
 		local m3ustr = tvs_core.ProcessFilterTable(UpdateID, Source, t_pls)
 		local handle = io.open(m3u_file, 'w+')
 			if not handle then return nil end
