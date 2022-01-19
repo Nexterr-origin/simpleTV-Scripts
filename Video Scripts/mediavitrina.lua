@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "Витрина ТВ" https://www.vitrina.tv (17/1/22)
+-- видеоскрипт для плейлиста "Витрина ТВ" https://www.vitrina.tv (19/1/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: mediavitrina_pls.lua
@@ -20,7 +20,7 @@
 	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:87.0) Gecko/20100101 Firefox/87.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
-	local exOpt = '$OPT:NO-STIMESHIFT'
+	local exOpt = ''
 	local function streamsTab(answer, adr)
 		local t = {}
 			for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-\n.-)\n') do
@@ -124,6 +124,10 @@
 	t[#t].Id = 5000000
 	t[#t].Name = '▫ всегда высокое'
 	t[#t].Address = t[#t - 1].Address
+	t[#t + 1] = {}
+	t[#t].Id = 100000000
+	t[#t].Name = '▫ адаптивное'
+	t[#t].Address = retAdr
 	local index = #t
 		for i = 1, #t do
 			if t[i].Id >= lastQuality then
