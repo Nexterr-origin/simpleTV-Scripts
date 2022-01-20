@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (13/1/22)
+-- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (20/1/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://32.svetacdn.in/fnXOUDB9nNSO?kp_id=5928
@@ -219,7 +219,7 @@ local proxy = ''
 			t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
 		end
 		if #t > 0 then
-			local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('⚙ Качество', index - 1, t, 5000, 1 + 4 + 2)
+			local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('⚙ Качество', index - 1, t, 10000, 1 + 4 + 2)
 			if ret == 1 then
 				m_simpleTV.User.Videocdn.Index = id
 				m_simpleTV.Control.SetNewAddress(t[id].Address, m_simpleTV.Control.GetPosition())
@@ -273,13 +273,16 @@ local proxy = ''
 			end
 			if #t == 0 then return end
 		selected = selected or 0
+		if tv_series and #t > 1 then
+			table.remove(t, 1)
+		end
 		if #t > 1 then
-			local id
+			local _, id
 			if not psevdotv then
 				if m_simpleTV.User.paramScriptForSkin_buttonOk then
 					t.OkButton = {ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOk}
 				end
-				_, id = m_simpleTV.OSD.ShowSelect_UTF8('Выберете перевод - ' .. title, selected, t, 8000, 1 + 2 + 4 + 8)
+				_, id = m_simpleTV.OSD.ShowSelect_UTF8('Выберете перевод - ' .. title, selected, t, 10000, 1 + 2 + 4 + 8)
 			end
 			id = id or selected + 1
 			transl = t[id].Address
@@ -315,7 +318,7 @@ local proxy = ''
 				end
 				if j == 1 then return end
 			if j > 2 then
-				local _, id = m_simpleTV.OSD.ShowSelect_UTF8(title, 0, s, 5000, 1)
+				local _, id = m_simpleTV.OSD.ShowSelect_UTF8(title, 0, s, 10000, 1)
 				id = id or 1
 				seson = s[id].Address
 				season_title = ' (' .. s[id].Name .. ')'
@@ -367,7 +370,7 @@ local proxy = ''
 			m_simpleTV.User.Videocdn.isVideo = true
 		end
 		title = title .. season_title
-		m_simpleTV.OSD.ShowSelect_UTF8(title, 0, t, 5000, p + 64)
+		m_simpleTV.OSD.ShowSelect_UTF8(title, 0, t, 15000, p + 64)
 		inAdr = t[1].Address
 		m_simpleTV.User.Videocdn.title = title
 		title = title .. ' - ' .. m_simpleTV.User.Videocdn.Tabletitle[1].Name
@@ -402,7 +405,7 @@ local proxy = ''
 			else
 				t1.ExtButton0 = {ButtonEnable = true, ButtonName = '⚙', ButtonScript = 'Qlty_Videocdn()'}
 			end
-			m_simpleTV.OSD.ShowSelect_UTF8('Videocdn', 0, t1, 5000, 32 + 64 + 128)
+			m_simpleTV.OSD.ShowSelect_UTF8('Videocdn', 0, t1, 10000, 32 + 64 + 128)
 		end
 		m_simpleTV.User.Videocdn.isVideo = true
 	end
