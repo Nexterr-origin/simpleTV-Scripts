@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (18/1/22)
+-- видеоскрипт для сайта http://www.kinopoisk.ru (20/1/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: yandex-vod.lua, kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
@@ -15,7 +15,7 @@
 -- http://rating.kinopoisk.ru/7378.gif
 -- https://www.kinopoisk.ru/series/733493/
 -- ## сайт (зеркало) filmix.ac ##
-local filmixsite = 'https://filmix.gay'
+local filmixsite = ''
 -- 'https://filmix.life' (пример)
 -- ## прокси для Seasonvar ##
 local proxy = ''
@@ -494,7 +494,7 @@ local tname = {
 			t.message = 'Нет необходимых скриптов! Хотите скачать?'
 			t.caption = 'КиноПоиск'
 			t.buttons = 'Yes|No'
-			t.icon    = 'Warning'
+			t.icon = 'Warning'
 			t.defButton = 'Yes'
 			local but = m_simpleTV.Interface.MessageBoxT(t)
 			if but == 'Yes' then
