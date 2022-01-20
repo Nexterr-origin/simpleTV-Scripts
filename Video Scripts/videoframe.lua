@@ -1,24 +1,24 @@
--- видеоскрипт для видеобалансера "videoframe" (20/6/20)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для видеобалансера "videoframe" (20/1/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://videoframe.space/frameindex.php?kp=5928
 -- https://videoframe.at/movie/4204258p119/iframe
--- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 		if not inAdr then return end
-		if not inAdr:match('^https?://videoframe%.') and not inAdr:match('^%$videoframe') then return end
+		if not inAdr:match('^https?://videoframe%.') and not inAdr:match('^$videoframe') then return end
+	require 'json'
 	inAdr = inAdr:gsub('videoframe%.at', 'videoframe.space')
-	if inAdr:match('^%$videoframe') then
+	if inAdr:match('^$videoframe') then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, BackColorEnd = 255, PictFileName = '', TypeBackColor = 0, UseLogo = 3, Once = 1})
 	end
 	m_simpleTV.OSD.ShowMessageT({text = '', showTime = 1000, id = 'channelName'})
-	if inAdr:match('^%$videoframe') or not inAdr:match('&kinopoisk') then
+	if inAdr:match('^$videoframe') or not inAdr:match('&kinopoisk') then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, BackColorEnd = 255, PictFileName = '', TypeBackColor = 0, UseLogo = 3, Once = 1})
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = ''
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.92 Safari/537.36')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:96.0) Gecko/20100101 Firefox/96.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 16000)
 	if not m_simpleTV.User then
@@ -52,21 +52,8 @@
 		local token = answer:match('token = \'(.-)\'')
 			if not token or not typ then return end
 		local body = 'token=' .. token .. '&type=' .. typ
-		local rc, answer = m_simpleTV.Http.Request(session, {body = body, url = 'https://videoframe.space/loadvideo', method = 'post', headers = 'Referer: https://videoframe.space/\nX-REF: no-referer'})
+		local rc, answer = m_simpleTV.Http.Request(session, {body = body, url = 'https://videoframe.space/loadvideo', method = 'post', headers = 'Referer: https://videoframe.space/\nX-REF: empty-referrer\nOrigin: https://videoframe.space'})
 			if rc ~= 200 or (rc == 200 and answer == '') then return end
-		local validate = answer:match('"validate":"(.-)"')
-		if validate then
-			m_simpleTV.OSD.ShowMessageT({text = 'ожидайте 15 сек.', color = 0xffff7f50, showTime = 1000 * 15, id = 'channelName'})
-			m_simpleTV.Common.Sleep(5000)
-			m_simpleTV.Common.Sleep(5000)
-			m_simpleTV.Common.Sleep(5000)
-			rc, answer = m_simpleTV.Http.Request(session, {url = retAdr, method = 'post', headers = 'Accept: application/json, text/javascript, */*; q=0.01\nX-CSRF-TOKEN: ' .. validate .. '\nX-REF: ' .. xref .. '\nX-Requested-With: XMLHttpRequest\nReferer: ' .. refer})
-				if rc ~= 200 or (rc == 200 and not answer:match('url')) then return end
-		end
-			if answer:match('Fatal error') then return end
-		answer = answer:match('{.+}')
-			if not answer then return end
-		require 'json'
 		local tab = json.decode(answer:gsub('%[%]', '""'))
 			if not tab then return end
 		local retAdr
@@ -133,7 +120,7 @@
 		local index = m_simpleTV.User.videoframe.Index
 		t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
 		if #t > 1 then
-			local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('⚙  Качество', index - 1, t, 5000, 1 + 4 + 2)
+			local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('⚙  Качество', index - 1, t, 10000, 1 + 4 + 2)
 			if ret == 1 then
 				m_simpleTV.User.videoframe.Index = id
 				m_simpleTV.Control.SetNewAddress(t[id].Address, m_simpleTV.Control.GetPosition())
@@ -158,7 +145,7 @@
 	 return
 	end
 	inAdr = inAdr:gsub('&kinopoisk', '')
-	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr:gsub('%$videoframe', ''), headers = 'Referer: ' .. refer})
+	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr:gsub('^$videoframe', ''), headers = 'Referer: ' .. refer})
 		if rc == 404 and answer and answer:match('Sorry') then
 			m_simpleTV.Http.Close(session)
 			m_simpleTV.OSD.ShowMessageT({text = 'Контент недоступен в вашем регионе', color = 0xff99ff99, showTime = 1000 * 10, id = 'channelName'})
@@ -170,7 +157,7 @@
 			m_simpleTV.OSD.ShowMessageT({text = 'videoframe ошибка[1]-' .. rc, color = 0xff99ff99, showTime = 1000 * 5, id = 'channelName'})
 		 return
 		end
-		if inAdr:match('%$videoframe') then
+		if inAdr:match('^$videoframe') then
 			play(answer, title)
 		 return
 		end
@@ -200,7 +187,7 @@
 				i = i + 1
 			end
 		if i > 2 then
-			local _, id = m_simpleTV.OSD.ShowSelect_UTF8('Выберете перевод - ' .. title, 0, t, 5000, 1)
+			local _, id = m_simpleTV.OSD.ShowSelect_UTF8('Выберете перевод - ' .. title, 0, t, 10000, 1)
 			if not id then
 				id = 1
 			end
@@ -229,7 +216,7 @@
 				t[i].Id = i
 			end
 			if i > 2 then
-				local _, id = m_simpleTV.OSD.ShowSelect_UTF8(title .. ' - выберите сезон', 0, t, 5000, 1)
+				local _, id = m_simpleTV.OSD.ShowSelect_UTF8(title .. ' - выберите сезон', 0, t, 10000, 1)
 				if not id then id = 1 end
 				inAdr = t[id].Address
 				season_title = ' (' .. t[id].Name .. ')'
@@ -269,7 +256,7 @@
 				p = 32
 			end
 			title = title .. season_title
-			local _, id = m_simpleTV.OSD.ShowSelect_UTF8(title, 0, t, 5000, p)
+			local _, id = m_simpleTV.OSD.ShowSelect_UTF8(title, 0, t, 10000, p)
 			if not id then
 				id = 1
 			end
@@ -291,6 +278,6 @@
 		t1[1].Address = inAdr
 		t1.ExtButton0 = {ButtonEnable = true, ButtonName = '⚙', ButtonScript = 'Qlty_Videoframe()'}
 		t1.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
-		m_simpleTV.OSD.ShowSelect_UTF8('Videoframe', 0, t1, 5000, 32 + 64 + 128)
+		m_simpleTV.OSD.ShowSelect_UTF8('Videoframe', 0, t1, 10000, 32 + 64 + 128)
 	end
 	play(answer, title)
