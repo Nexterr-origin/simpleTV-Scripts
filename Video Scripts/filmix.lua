@@ -1,5 +1,5 @@
--- видеоскрипт для сайта https://filmix.ac (2/4/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта https://filmix.ac (21/1/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## авторизация ##
 -- логин, пароль установить в 'Password Manager', для id - filmix
 -- ## необходим ##
@@ -13,10 +13,9 @@
 -- https://filmix.ac/download/5409
 -- https://filmix.ac/download/35895
 -- ## зеркало ##
-local zer = 'https://filmix.life'
+local zer = ''
 -- '' - нет
 -- 'https://filmix.life' - (пример)
--- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://filmix%.')
 			and not m_simpleTV.Control.CurrentAddress:match('^%$filmixnet')
@@ -303,7 +302,7 @@ local zer = 'https://filmix.life'
 	end
 	m_simpleTV.User.filmix.title = title
 	m_simpleTV.Control.SetTitle(title)
-	local playerjs_url = answer:match('(modules/playerjs/playerjs%.js[^\'"]*)[^\'"]')
+	local playerjs_url = answer:match('(modules/playerjs/[^\'"]+)')
 		if not playerjs_url then
 			showError('playerjs not found')
 		 return
