@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "voidboost" (18/1/22)
+-- видеоскрипт для видеобалансера "voidboost" (21/1/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- модуль: /core/playerjs.lua
@@ -190,7 +190,7 @@ local proxy = ''
 		 return
 		end
 	answer = answer:gsub('<!%-%-.-%-%->', ''):gsub('/%*.-%*/', '')
-	local playerjs_url = answer:match('src="([^"]+/playerjs[^"]+)')
+	local playerjs_url = answer:match('[^"\']+/playerjs[^"\']+')
 		if not playerjs_url then
 			showError('no playerjs_url')
 		return end
@@ -205,7 +205,6 @@ local proxy = ''
 		trType = '/movie/'
 	end
 	local tr = answer:match('<select name="translator".-</select>')
-	local trId
 	if tr then
 		local t = {}
 			for w in tr:gmatch('<option data.-</option>') do
@@ -225,17 +224,17 @@ local proxy = ''
 			local _, id = m_simpleTV.OSD.ShowSelect_UTF8('Выберете перевод - ' .. title, 0, t, 5000, 1 + 2)
 			id = id or 1
 			tr = t[id].Address
-			trId = id
+			rc, answer = m_simpleTV.Http.Request(session, {url = tr})
+				if rc ~= 200 then
+					showError('5.4')
+				 return
+				end
+			inAdr = tr
+		elseif #t == 1 then
+			tr = t[1].Address
+			inAdr = tr
 		end
 	end
-	if trId and trId > 1 then
-		rc, answer = m_simpleTV.Http.Request(session, {url = tr})
-		inAdr = tr
-	end
-		if rc ~= 200 then
-			showError('6')
-		 return
-		end
 	if serial then
 		local season_title = ''
 		local ses = answer:match('<select name="season".-</select>')
@@ -270,12 +269,12 @@ local proxy = ''
 			local t1 = {}
 				for w in epi:gmatch('<option.-</option>') do
 					local name = w:match('">([^<]+)')
-					local season = w:match('value="(%d+)')
-					if name and season then
+					local epi = w:match('value="(%d+)')
+					if name and epi then
 						t1[#t1 +1] = {}
 						t1[#t1].Id = #t1
 						t1[#t1].Name = name
-						t1[#t1].Address = '$voidboost' .. inAdr .. '&e=' .. season
+						t1[#t1].Address = '$voidboost' .. inAdr .. '&e=' .. epi
 					end
 				end
 				if #t1 == 0 then
@@ -326,7 +325,6 @@ local proxy = ''
 			end
 		m_simpleTV.User.voidboost.DelayedAddress = retAdr .. (subt or '')
 		m_simpleTV.User.voidboost.title = title
-		title = title .. ' - ' .. m_simpleTV.User.voidboost.titleTab[1].Name
 		if #t1 > 1 then
 			inAdr = 'wait'
 			m_simpleTV.User.voidboost.isVideo = false
@@ -334,7 +332,7 @@ local proxy = ''
 			inAdr = retAdr .. (subt or '')
 		end
 		m_simpleTV.Control.CurrentTitle_UTF8 = title
-		m_simpleTV.OSD.ShowMessageT({text = title, color = 0xff9999ff, showTime = 1000 * 5, id = 'channelName'})
+		m_simpleTV.OSD.ShowMessageT({text = title .. ' - ' .. m_simpleTV.User.voidboost.titleTab[1].Name, color = 0xff9999ff, showTime = 1000 * 5, id = 'channelName'})
 		m_simpleTV.Control.CurrentAddress = inAdr
 	 return
 	end
