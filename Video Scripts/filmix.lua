@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://filmix.ac (21/1/22)
+-- видеоскрипт для сайта https://filmix.ac (25/1/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## авторизация ##
 -- логин, пароль установить в 'Password Manager', для id - filmix
@@ -255,12 +255,12 @@ local zer = ''
 		end
 	end
 	m_simpleTV.User.filmix.isVideo = false
-		if inAdr:match('^%$filmixnet') then
+		if inAdr:match('^$filmixnet') then
 			play(inAdr, title)
 		 return
 		end
 	inAdr = inAdr:gsub('&kinopoisk', '')
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:86.0) Gecko/20100101 Firefox/86.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:97.0) Gecko/20100101 Firefox/97.0')
 		if not session then
 			showError('5')
 		 return
@@ -285,7 +285,7 @@ local zer = ''
 		else
 			url = host .. 'engine/ajax/user_auth.php'
 		end
-		local rc, answer = m_simpleTV.Http.Request(session, {body = 'login_name=' .. url_encode(login) .. '&login_password=' .. url_encode(password) .. '&login=submit', url = url, method = 'post', headers = 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8\nX-Requested-With: XMLHttpRequest\nReferer: ' .. host})
+		local rc, answer = m_simpleTV.Http.Request(session, {body = 'login_name=' .. url_encode(login) .. '&login_password=' .. url_encode(password) .. '&login=submit', url = url, method = 'post', headers = 'Cookie: x-a-key=sinatra;\nX-Requested-With: XMLHttpRequest\nReferer: ' .. host})
 	end
 	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
 		if rc ~= 200 then
