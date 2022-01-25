@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://ufcfightpass.com (25/1/22)
+-- видеоскрипт для сайта https://ufcfightpass.com (26/1/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- логин, пароль установить в 'Password Manager', для id: ufcfightpass
 -- ## открывает подобные ссылки ##
@@ -38,6 +38,38 @@
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local headers = 'Content-Type: application/json\nRealm: dce.ufc\nx-api-key: 857a1e5d-e35e-4fdf-805b-a87b6f8364bf\nAuthorization: Bearer '
 	local apiUrl = 'https://dce-frontoffice.imggaming.com/api/v2/'
+	local function Chapters(answer)
+		local chaptersUrl = answer:match('"chaptersUrl":"([^"]+)')
+			if not chaptersUrl then return end
+		local rc, answer = m_simpleTV.Http.Request(session, {url = chaptersUrl})
+			if rc ~= 200 then return end
+		local t = {}
+			for w in answer:gmatch('%d+:%d+:.-\n.-\n') do
+					local start = w:match('%d+:%d+:%d+')
+					local name = w:match('\n(.-)\n')
+					if start and name then
+						local hour, min, sec = start:match('(%d+):(%d+):(%d+)')
+						hour = tonumber(hour)
+						min = tonumber(min)
+						sec = tonumber(sec)
+						t[#t + 1] = {}
+						t[#t].title = name
+						t[#t].seekpoint = sec + (min * 60) + (hour * 3600)
+					end
+				end
+			if #t == 0 then return end
+		if t[1].seekpoint ~= 0 then
+			table.insert(t, 1, {seekpoint = 0, title = ''})
+		end
+		local chaptersT = {}
+		chaptersT.chapters = {}
+			for i = 1, #t do
+				chaptersT.chapters[i] = {}
+				chaptersT.chapters[i].seekpoint = t[i].seekpoint * 1000
+				chaptersT.chapters[i].name = t[i].title
+			end
+		m_simpleTV.Control.SetChaptersDesc(chaptersT)
+	end
 	local function GetTokens(headers, apiUrl)
 		local error_text, pm = pcall(require, 'pm')
 			if not package.loaded.pm then return end
@@ -72,7 +104,8 @@
 			title = answer:match('"title":"(.-)","startDate"')
 		else
 			thumbnailUrl = answer:match('"thumbnailUrl":"([^"]+)')
-			title = answer:match('"title":"(.-)"}')
+			title = answer:match('RU","title":"(.-)"}') or answer:match('"title":"(.-)"}')
+			Chapters(answer)
 		end
 	 return url, title, thumbnailUrl
 	end
@@ -90,7 +123,7 @@
 	if m_simpleTV.Control.MainMode == 0 then
 		pic = pic or logo
 		m_simpleTV.Control.ChangeChannelName(title, m_simpleTV.Control.ChannelID, false)
-		pic = pic:gsub('/original/', '/346x346/')
+		pic = pic:gsub('/original/', '/346x200/')
 		m_simpleTV.Control.ChangeChannelLogo(pic, m_simpleTV.Control.ChannelID)
 	end
 	m_simpleTV.Control.CurrentTitle_UTF8 = title
