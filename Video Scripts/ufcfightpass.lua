@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://ufcfightpass.com (24/1/22)
+-- видеоскрипт для сайта https://ufcfightpass.com (25/1/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- логин, пароль установить в 'Password Manager', для id: ufcfightpass
 -- ## открывает подобные ссылки ##
@@ -57,13 +57,24 @@
 		else
 			url = '/vod/' .. id_vod
 		end
-		local rc, answer = m_simpleTV.Http.Request(session, {url = apiUrl .. 'stream' .. url, headers = headers .. token})
+		headers = headers .. token
+		local rc, answer = m_simpleTV.Http.Request(session, {url = apiUrl .. 'stream' .. url, headers = headers})
 			if rc ~= 200 then return end
 		url = answer:match('"playerUrlCallback":"([^"]+)')
 			if not url then return end
 		rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
 			if rc ~= 200 then return end
-	 return answer:match('"hlsUrl":"([^"]+)'), answer:match('"title":"(.-)"}'), answer:match('"thumbnailUrl":"([^"]+)')
+		url = answer:match('"hlsUrl":"([^"]+)')
+			if not url then return end
+		local thumbnailUrl, title
+		if id then
+			rc, answer = m_simpleTV.Http.Request(session, {url = apiUrl .. 'event/' .. id, headers = headers})
+			title = answer:match('"title":"(.-)","startDate"')
+		else
+			thumbnailUrl = answer:match('"thumbnailUrl":"([^"]+)')
+			title = answer:match('"title":"(.-)"}')
+		end
+	 return url, title, thumbnailUrl
 	end
 	local authToken = GetTokens(headers, apiUrl)
 		if not authToken then
