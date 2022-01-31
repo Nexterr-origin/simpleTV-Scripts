@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://vk.com (3/1/22)
+-- видеоскрипт для сайта http://vk.com (31/1/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: YT.lua, vimeo.lua ...
@@ -28,7 +28,8 @@
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:97.0) Gecko/20100101 Firefox/97.0')
+	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:97.0) Gecko/20100101 Firefox/97.0'
+	local session = m_simpleTV.Http.New(userAgent)
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	inAdr = inAdr:gsub('&id=', '_')
@@ -69,6 +70,7 @@
 	end
 	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 		if rc ~= 200 then return end
+	local extOpt = '$OPT:http-user-agent=' .. userAgent
 	local t = {}
 		for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-\n.-)\n') do
 			adr = w:match('\n(.+)')
@@ -79,10 +81,15 @@
 				if not adr:match('^https?://') then
 					adr = retAdr:match('.+/') .. adr
 				end
-				t[#t].Address = adr
+				t[#t].Address = adr .. extOpt
 				t[#t].Id = tonumber(name)
 			end
 		end
+	m_simpleTV.Control.CurrentTitle_UTF8 = title
+			if #t ==0 then
+				m_simpleTV.Control.CurrentAddress = retAdr .. extOpt
+			 return
+			end
 	table.sort(t, function(a, b) return a.Id < b.Id end)
 	local lastQuality = tonumber(m_simpleTV.Config.GetValue('vk_qlty') or 5000)
 	local index = #t
@@ -93,7 +100,7 @@
 		t[#t].Address = t[#t - 1].Address
 		t[#t].Id = 50000
 		t[#t].Name = '▫ адаптивное'
-		t[#t].Address = retAdr
+		t[#t].Address = retAdr .. extOpt
 		index = #t
 			for i = 1, #t do
 				if t[i].Id >= lastQuality then
@@ -113,7 +120,6 @@
 		end
 	end
 	m_simpleTV.Control.CurrentAddress = t[index].Address
-	m_simpleTV.Control.CurrentTitle_UTF8 = title
 	function vkSaveQuality(obj, id)
 		m_simpleTV.Config.SetValue('vk_qlty', id)
 	end
