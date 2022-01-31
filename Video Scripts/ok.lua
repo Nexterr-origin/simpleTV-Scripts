@@ -1,5 +1,5 @@
--- видеоскрипт для сайта https://ok.ru (20/10/20)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта https://ok.ru (31/1/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- http://ok.ru/videoembed/2636779838
 -- https://ok.ru/video/361515387611
@@ -145,6 +145,7 @@
 			retAdr = answer:match('originalUrl\\&quot;:\\&quot;(.-)\\&quot')
 			m_simpleTV.Http.Close(session)
 				if not retAdr then return end
+			retAdr = retAdr:gsub('\\\\u0026', '&')
 			if inAdr:match('PARAMS=psevdotv') then
 				retAdr = retAdr:gsub('%?.-$', '')
 				retAdr = retAdr .. '?&isPlst=true$OPT:INT-SCRIPT-PARAMS=psevdotv'
