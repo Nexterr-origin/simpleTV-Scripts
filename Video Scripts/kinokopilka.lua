@@ -1,5 +1,5 @@
--- видеоскрипт для сайта https://www.kinokopilka.pro (21/6/20)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта https://www.kinokopilka.pro (2/2/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- Acestream
 -- видеоскрипт: YT.lua
@@ -61,7 +61,7 @@ local subt = 0
 	 return str
 	end
 	local rc, answer = m_simpleTV.Http.Request(session, {url = host .. 'user_sessions', method = 'post', headers = 'Referer: ' .. inAdr, body = 'login=' .. url_encode(login) .. '&password=' .. url_encode(password)})
-		if rc ~= 200 then
+		if rc ~= 302 then
 			m_simpleTV.Http.Close(session)
 			m_simpleTV.OSD.ShowMessageT({text = 'Неправильный логин или пароль\nkinokopilka ошибка[2]-' .. rc, color = 0xff9bffff, showTime = 1000*5, id = 'channelName'})
 		 return
