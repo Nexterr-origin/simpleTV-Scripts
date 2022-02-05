@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (20/1/22)
+-- видеоскрипт для сайта http://www.kinopoisk.ru (5/2/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: yandex-vod.lua, kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
@@ -384,7 +384,7 @@ local tname = {
 			elseif tname[i] == 'Collaps' then
 				turl[i] = {adr = 'http://api.' .. os.time() .. decode64('LmRlbGl2ZW1iZC53cy9lbWJlZC9rcC8') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
 			elseif tname[i] == 'CDN Movies' then
-				turl[i] = {adr = decode64('aHR0cHM6Ly9jZG5tb3ZpZXMubmV0L2FwaT90b2tlbj0wNTU5ZjA3MmYxZTA5ODJlYmZhMzRjZTIwN2Y5ZTJiOCZraW5vcG9pc2tfaWQ9') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/cdnmovie.png'}
+				turl[i] = {adr = decode64('aHR0cHM6Ly9jZG5tb3ZpZXMubmV0L2FwaT90b2tlbj0wYWVmZDdjMWQ2ZjY0YzAzNzRjYmE4ZmRiZTZmOTE2MyZraW5vcG9pc2tfaWQ9') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/cdnmovie.png'}
 			elseif tname[i] == 'Hdvb' then
 				turl[i] = {adr = decode64('aHR0cHM6Ly92YjE3MTIxY29yYW1jbGVhbi5wdy9hcGkvdmlkZW9zLmpzb24/dG9rZW49Yzk5NjZiOTQ3ZGEyZjNjMjliMzBjMGUwZGNjYTZjZjQmaWRfa3A9') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
 			elseif tname[i] == 'Voidboost' then
