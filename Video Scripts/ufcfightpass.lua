@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://ufcfightpass.com (26/1/22)
+-- видеоскрипт для сайта https://ufcfightpass.com (6/2/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- логин, пароль установить в 'Password Manager', для id: ufcfightpass
 -- ## открывает подобные ссылки ##
@@ -101,7 +101,7 @@
 		local thumbnailUrl, title
 		if id then
 			rc, answer = m_simpleTV.Http.Request(session, {url = apiUrl .. 'event/' .. id, headers = headers})
-			title = answer:match('"title":"(.-)","startDate"')
+			title = answer:match('"title":"(.-)","')
 		else
 			thumbnailUrl = answer:match('"thumbnailUrl":"([^"]+)')
 			title = answer:match('RU","title":"(.-)"}') or answer:match('"title":"(.-)"}')
