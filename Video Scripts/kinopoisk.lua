@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (5/2/22)
+-- видеоскрипт для сайта http://www.kinopoisk.ru (8/2/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: yandex-vod.lua, kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
@@ -15,7 +15,7 @@
 -- http://rating.kinopoisk.ru/7378.gif
 -- https://www.kinopoisk.ru/series/733493/
 -- ## сайт (зеркало) filmix.ac ##
-local filmixsite = ''
+local filmixsite = 'https://filmix.ac'
 -- 'https://filmix.life' (пример)
 -- ## прокси для Seasonvar ##
 local proxy = ''
