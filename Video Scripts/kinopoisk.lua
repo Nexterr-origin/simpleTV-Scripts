@@ -58,7 +58,7 @@ local tname = {
 	htmlEntities = require 'htmlEntities'
 	m_simpleTV.Control.ChangeAddress= 'Yes'
 	m_simpleTV.Control.CurrentAddress = ''
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:90.0) Gecko/20100101 Firefox/90.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	if inAdr:match('hd%.kinopoisk%.ru') then
@@ -128,18 +128,11 @@ local tname = {
 			return answer:match('"link":"([^"]+)')
 		elseif url:match('filmix') then
 			local filmix_title
-			if eng_title and #eng_title > 2 then
-				filmix_title = eng_title
-			elseif orig_title and #orig_title > 2 then
-				filmix_title = orig_title
-			elseif title and #title > 2 then
+			if title and #title > 2 then
 				filmix_title = title
 			end
 				if not filmix_title then return end
-			if languages_imdb == 'ru' and title and #title > 2 then
-				filmix_title = title
-			end
-			local sessionFilmix = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:90.0) Gecko/20100101 Firefox/90.0')
+			local sessionFilmix = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0')
 				if not sessionFilmix then return end
 			m_simpleTV.Http.SetTimeout(sessionFilmix, 8000)
 			local ratimdbot, ratkinot, ratimdbdo, ratkindo, yearot, yeardo = '', '', '', '', '', ''
@@ -161,18 +154,9 @@ local tname = {
 			end
 			local namei = filmix_title:gsub('%?$', ''):gsub('.-`', ''):gsub('*', ''):gsub('«', '"'):gsub('»', '"')
 			local filmixurl = filmixsite .. '/search'
-			m_simpleTV.Http.SetCookies(sessionFilmix, filmixurl, 'x-a-key=sinatra;FILMIXNET=vi8ivbcrao3d1tnme0ur85vo1e;dle_user_id=548034;dle_password=ba407303b7423c85f8644befdf057b78;dle_hash=d1cb96807ea656702f2633a87c0f1d8e;', '')
-			local rc, filmixansw = m_simpleTV.Http.Request(sessionFilmix, {url = filmixurl .. '/search/' .. namei})
-				if rc ~= 200 then
-					m_simpleTV.Http.Close(sessionFilmix)
-				 return
-				end
-			local bodypar, bodypar1 = filmixansw:match('<div class="line%-block".-<input type="hidden" name="(.-)" value(=".-)".-<div')
-				if not (bodypar1 or bodypar2) then return end
-			bodypar = bodypar .. bodypar1:gsub('"', '')
 			local headers = 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8\nX-Requested-With: XMLHttpRequest\nReferer: ' .. filmixurl
-			local body = bodypar .. '&story=' .. m_simpleTV.Common.toPercentEncoding(namei) .. '&search_start=0&do=search&subaction=search&years_ot=' .. yearot .. '&years_do=' .. yeardo .. '&kpi_ot=' .. ratkinot .. '&kpi_do=' .. ratkindo .. '&imdb_ot=' .. ratimdbot .. '&imdb_do=' .. ratimdbdo .. '&sort_name=asc&undefined=asc&sort_date=&sort_favorite=' .. cat
-			rc, answer = m_simpleTV.Http.Request(sessionFilmix, {body = body, url = filmixsite .. '/engine/ajax/sphinx_search.php', method = 'post', headers = headers})
+			local body = 'scf=fx&story=' .. m_simpleTV.Common.toPercentEncoding(namei) .. '&search_start=0&do=search&subaction=search&years_ot=' .. yearot .. '&years_do=' .. yeardo .. '&kpi_ot=' .. ratkinot .. '&kpi_do=' .. ratkindo .. '&imdb_ot=' .. ratimdbot .. '&imdb_do=' .. ratimdbdo .. '&sort_name=asc&undefined=asc&sort_date=&sort_favorite=' .. cat
+			local rc, answer = m_simpleTV.Http.Request(sessionFilmix, {body = body, url = filmixsite .. '/engine/ajax/sphinx_search.php', method = 'post', headers = headers})
 			m_simpleTV.Http.Close(sessionFilmix)
 				if rc ~= 200 or (rc == 200 and (answer:match('^<h3>')
 					or not answer:match('<div class="name%-block"')))
