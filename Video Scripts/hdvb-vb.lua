@@ -1,8 +1,7 @@
--- видеоскрипт для видеобалансера "Hdvb" https://hdvb.tv (18/1/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для видеобалансера "Hdvb" https://hdvb.tv (10/2/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://vid1599090588.vb17112tiffanyhayward.pw/movie/ee643ffd63331ad268be64e6d4183eed/iframe
--- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://vid%d+.-/%a+/%x+/iframe')
 			and not m_simpleTV.Control.CurrentAddress:match('^$hdvb')
@@ -156,14 +155,19 @@
 			play(inAdr, title)
 		 return
 		end
-	inAdr = inAdr:gsub('&kinopoisk', '')
-	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr, headers = 'Referer: ' .. refer})
+	local url = inAdr:gsub('&kinopoisk.+', '')
+	local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: ' .. refer})
 		if rc ~= 200 then
 			m_simpleTV.Http.Close(session)
 			showError('2')
 		 return
 		end
-	title = m_simpleTV.Control.CurrentTitle_UTF8
+	title = inAdr:match('&kinopoisk=(.+)')
+	if title then
+		title = m_simpleTV.Common.fromPercentEncoding(title)
+	else
+		title = 'Hdvb'
+	end
 	m_simpleTV.User.hdvb.Tabletitle = nil
 	m_simpleTV.Control.CurrentTitle_UTF8 = title
 	m_simpleTV.Control.SetTitle(title)
