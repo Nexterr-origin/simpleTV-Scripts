@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "Collaps" https://collaps.org (5/1/22)
+-- видеоскрипт для видеобалансера "Collaps" https://collaps.org (10/2/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://api1603044906.kinogram.best/embed/movie/7059
@@ -190,18 +190,23 @@
 			play(inAdr, title)
 		 return
 		end
-	inAdr = inAdr:gsub('&kinopoisk', '')
-	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr, headers = 'Referer: ' .. inAdr})
+	local url = inAdr:gsub('&kinopoisk.+', '')
+	local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: ' .. inAdr})
 		if rc ~= 200 then
 			showMsg('collaps ошибка: 1', ARGB(255, 255, 102, 0))
 		 return
 		end
 	local season_title = ''
 	local seson = ''
-	title = m_simpleTV.Control.CurrentTitle_UTF8 or 'Collaps'
+	title = inAdr:match('&kinopoisk=(.+)')
+	if title then
+		title = m_simpleTV.Common.fromPercentEncoding(title)
+	else
+		title = 'Collaps'
+	end
 	m_simpleTV.User.collaps.episode = nil
 	m_simpleTV.User.collaps.transl = nil
-	local serials = answer:match('seasons:(%[.-}%]}%])')
+	local serials = answer:match('seasons:(%[.-)qualityByWidth')
 	if serials then
 		m_simpleTV.Control.SetTitle(title)
 		serials = serials:gsub('%[%]', '""')
