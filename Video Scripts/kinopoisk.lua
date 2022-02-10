@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (8/2/22)
+-- видеоскрипт для сайта http://www.kinopoisk.ru (10/2/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: yandex-vod.lua, kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
@@ -105,6 +105,9 @@ local tname = {
 		elseif url:match('cdnmovies%.net') then
 			rc, answer = m_simpleTV.Http.Request(session, {url = url})
 				if rc ~= 200 then return end
+			if not title or title == '' then
+				title = answer:match('"ru_title":"([^"]+)')
+			end
 			return answer:match('"iframe_src":"([^"]+)')
 		elseif url:match('ivi%.ru') then
 			rc, answer = m_simpleTV.Http.Request(session, {url = url .. m_simpleTV.Common.toPercentEncoding(title) ..'&from=0&to=5&app_version=870&paid_type=AVOD'})
@@ -511,10 +514,8 @@ local tname = {
 	m_simpleTV.Control.SetTitle(title)
 	m_simpleTV.Http.Close(session)
 	m_simpleTV.Control.ExecuteAction(37)
-	m_simpleTV.Control.ChangeAddress = 'No'
 	retAdr = retAdr:gsub('\\/', '/')
 	retAdr = retAdr:gsub('^//', 'http://')
-	retAdr = retAdr .. '&kinopoisk'
-	m_simpleTV.Control.CurrentAddress = retAdr
-	dofile(m_simpleTV.MainScriptDir_UTF8 .. 'user/video/video.lua')
+	retAdr = retAdr .. '&kinopoisk=' .. m_simpleTV.Common.toPercentEncoding(title)
+	m_simpleTV.Control.SetNewAddressT({address = retAdr})
 -- debug_in_file(retAdr .. '\n')
