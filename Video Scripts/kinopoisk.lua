@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (10/2/22)
+-- видеоскрипт для сайта http://www.kinopoisk.ru (11/2/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: yandex-vod.lua, kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
@@ -83,7 +83,7 @@ local tname = {
 	 return htmlEntities.decode(str)
 	end
 	local function answerZonaMovie()
-		local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cDovL3pzb2xyMy56b25hc2VhcmNoLmNvbS9zb2xyL21vdmllL3NlbGVjdC8/d3Q9anNvbiZmbD1uYW1lX29yaWdpbmFsLHllYXIsc2VyaWFsLHJhdGluZ19raW5vcG9pc2ssbmFtZV9ydXMscmF0aW5nX2ltZGIsbW9iaV91cmwsbGFuZ3VhZ2VzX2ltZGIsbmFtZV9lbmcsYWJ1c2UsbW9iaV9saW5rX2lkLGRlc2NyaXB0aW9uJnE9aWQ6') .. kpid})
+		local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cDovL3pzb2xyLnpvbmFzZWFyY2guY29tL3NvbHIvbW92aWUvc2VsZWN0Lz93dD1qc29uJmZsPW5hbWVfb3JpZ2luYWwseWVhcixzZXJpYWwscmF0aW5nX2tpbm9wb2lzayxuYW1lX3J1cyxyYXRpbmdfaW1kYixtb2JpX3VybCxsYW5ndWFnZXNfaW1kYixuYW1lX2VuZyxhYnVzZSxtb2JpX2xpbmtfaWQsZGVzY3JpcHRpb24mcT1pZDo') .. kpid})
 			if rc ~= 200 then return end
 			if not answer:match('"year"') or not answer:match('^{') then return end
 	 return	answer
