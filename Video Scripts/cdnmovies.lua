@@ -1,9 +1,8 @@
--- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (7/11/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (10/2/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- http://moonwalk.cam/movie/53295
 -- http://moonwalk.cam/serial/5311
--- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://moonwalk%.cam')
 			and not m_simpleTV.Control.CurrentAddress:match('^$cdnmovies')
@@ -222,8 +221,8 @@
 		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:94.0) Gecko/20100101 Firefox/94.0')
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 8000)
-		inAdr = inAdr:gsub('&kinopoisk', '')
-		local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr, headers = 'Referer: https://cdnmovies.net/'})
+		local url = inAdr:gsub('&kinopoisk.+', '')
+		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: https://cdnmovies.net/'})
 		m_simpleTV.Http.Close(session)
 			if rc ~= 200 then
 			 return 'это видео удалено'
@@ -278,7 +277,12 @@
 			showMsg(tab or 'нет данных')
 		 return
 		end
-	local title = m_simpleTV.Control.CurrentTitle_UTF8
+	local title = inAdr:match('&kinopoisk=(.+)')
+	if title then
+		title = m_simpleTV.Common.fromPercentEncoding(title)
+	else
+		title = 'CDN Movies'
+	end
 	m_simpleTV.User.cdnmovies.title = title
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Control.ChangeChannelName(title, m_simpleTV.Control.ChannelID, false)
