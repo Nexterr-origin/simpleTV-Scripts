@@ -1,9 +1,8 @@
--- видеоскрипт для видеобазы "kodik" http://kodik.cc (21/9/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для видеобазы "kodik" http://kodik.cc (10/2/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://hdrise.com/video/31756/445f20d7950d3df08f7574311e82521e/720p
 -- http://kodik.cc/serial/37405/ab75ddfb810d744aae16eb202f3a5330/720
--- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 		if not inAdr then return end
@@ -257,8 +256,8 @@
 		 return
 		end
 	m_simpleTV.User.kodik.url = nil
-	inAdr = inAdr:gsub('&kinopoisk', '')
-	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr, headers = 'Referer: ' .. refer})
+	local url = inAdr:gsub('&kinopoisk.+', '')
+	local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: ' .. refer})
 		if rc ~= 200 then
 			m_simpleTV.Http.Close(session)
 		 return
@@ -267,7 +266,12 @@
 	local seson = ''
 	m_simpleTV.User.kodik.Tabletitle = nil
 	m_simpleTV.User.kodik.isVideo = false
-	title = m_simpleTV.Control.CurrentTitle_UTF8 or 'kodik'
+	title = inAdr:match('&kinopoisk=(.+)')
+	if title then
+		title = m_simpleTV.Common.fromPercentEncoding(title)
+	else
+		title = 'Kodik'
+	end
 	local transl = answer:match('%-translations%-box".-</div>')
 	if transl and not psevdotv then
 		local t, i = {}, 1
