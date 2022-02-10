@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://filmix.ac (25/1/22)
+-- видеоскрипт для сайта https://filmix.ac (10/2/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## авторизация ##
 -- логин, пароль установить в 'Password Manager', для id - filmix
@@ -259,7 +259,7 @@ local zer = ''
 			play(inAdr, title)
 		 return
 		end
-	inAdr = inAdr:gsub('&kinopoisk', '')
+	inAdr = inAdr:gsub('&kinopoisk.+', '')
 	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:97.0) Gecko/20100101 Firefox/97.0')
 		if not session then
 			showError('5')
