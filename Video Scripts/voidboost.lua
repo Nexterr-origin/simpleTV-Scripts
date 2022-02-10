@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "voidboost" (22/1/22)
+-- видеоскрипт для видеобалансера "voidboost" (10/2/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- модуль: /core/playerjs.lua
@@ -115,6 +115,87 @@
 		end
 		m_simpleTV.Control.ExecuteAction(36, 0)
 	end
+	local function timeMs(str)
+		local h, m, s, ms = str:match('(%d+)%:(%d+)%:(%d+).(%d+)')
+	 return (tonumber(h)*60*60 + tonumber(m)*60 + tonumber(s))*1000
+	end
+	local function thumb(thumbUrl)
+			if m_simpleTV.Control.MainMode ~= 0 then return end
+			if not thumbUrl
+				or thumbUrl == ''
+			then
+			 return
+			end
+		thumbUrl = 'https://voidboost.net' .. thumbUrl
+		local rc, answer = m_simpleTV.Http.Request(session, {url = thumbUrl})
+			if rc ~= 200 then return end
+		local samplingFrequency, thumbWidth, thumbHeight = answer:match('%-%-%> (%d+%:%d+%:%d+.%d+)\n.-0%,0%,(%d+)%,(%d+)\n')
+			if not (samplingFrequency and thumbWidth and thumbHeight) then
+			 return
+			end
+		samplingFrequency = timeMs(samplingFrequency)
+		local t, i = {}, 1
+			for adr in answer:gmatch('https[^#]+') do
+				if i == 26 or i == 1 then
+					t[#t +1] = {}
+					t[#t].url = adr
+					i = 1
+				end
+				i = i + 1
+			end
+			if #t == 0 then return end
+		m_simpleTV.User.voidboost.ThumbsInfo = {}
+		m_simpleTV.User.voidboost.ThumbsInfo.samplingFrequency = samplingFrequency
+		m_simpleTV.User.voidboost.ThumbsInfo.thumbsPerImage = 25
+		m_simpleTV.User.voidboost.ThumbsInfo.thumbWidth = thumbWidth
+		m_simpleTV.User.voidboost.ThumbsInfo.thumbHeight = thumbHeight
+		m_simpleTV.User.voidboost.ThumbsInfo.urlPattern = t
+		if not m_simpleTV.User.voidboost.PositionThumbsHandler then
+			local handlerInfo = {}
+			handlerInfo.luaFunction = 'PositionThumbs_voidboost'
+			handlerInfo.regexString = 'voidboost\.*'
+			handlerInfo.sizeFactor = 0.21
+			handlerInfo.backColor = ARGB(255, 0, 0, 0)
+			handlerInfo.textColor = ARGB(240, 127, 255, 0)
+			handlerInfo.glowParams = 'glow="7" samples="5" extent="4" color="0xB0000000"'
+			handlerInfo.marginBottom = 0
+			handlerInfo.showPreviewWhileSeek = true
+			handlerInfo.clearImgCacheOnStop = false
+			handlerInfo.minImageWidth = 80
+			handlerInfo.minImageHeight = 45
+			m_simpleTV.User.voidboost.PositionThumbsHandler = m_simpleTV.PositionThumbs.AddHandler(handlerInfo)
+		end
+	end
+	function PositionThumbs_voidboost(queryType, address, forTime)
+		if queryType == 'testAddress'
+			and m_simpleTV.User.voidboost.ThumbsInfo
+		then
+		 return false
+		end
+		if queryType == 'getThumbs' then
+				if not m_simpleTV.User.voidboost.ThumbsInfo then
+				 return false
+				end
+			local imgLen = m_simpleTV.User.voidboost.ThumbsInfo.samplingFrequency * m_simpleTV.User.voidboost.ThumbsInfo.thumbsPerImage
+			local index = math.floor(forTime / imgLen)
+			local t = {}
+			t.playAddress = address
+			t.url = m_simpleTV.User.voidboost.ThumbsInfo.urlPattern[index+1].url
+			t.httpParams = {}
+			t.httpParams.extHeader = 'referer:' .. address
+			t.elementWidth = m_simpleTV.User.voidboost.ThumbsInfo.thumbWidth
+			t.elementHeight = m_simpleTV.User.voidboost.ThumbsInfo.thumbHeight
+			t.startTime = index * imgLen
+			t.length = imgLen
+			t.elementsPerImage = m_simpleTV.User.voidboost.ThumbsInfo.thumbsPerImage
+			t.marginLeft = 0
+			t.marginRight = 3
+			t.marginTop = 0
+			t.marginBottom = 0
+			m_simpleTV.PositionThumbs.AppendThumb(t)
+		 return true
+		end
+	end
 	function Qlty_voidboost()
 		m_simpleTV.Control.ExecuteAction(36, 0)
 		local t = m_simpleTV.User.voidboost.Tab
@@ -144,7 +225,6 @@
 		end
 	end
 	local function play(answer, title)
-		local subt = voidboostISubt(answer)
 		local retAdr = voidboostDeSex(answer)
 			if not retAdr or retAdr == '' then
 				showError('2.01')
@@ -155,6 +235,9 @@
 				showError('3')
 			 return
 			end
+		local subt = voidboostISubt(answer)
+		local thumbUrl = answer:match('thumbnails\':%s*\'([^\']+)')
+		thumb(thumbUrl)
 		m_simpleTV.Control.CurrentTitle_UTF8 = title
 		m_simpleTV.OSD.ShowMessageT({text = title, color = 0xff9999ff, showTime = 1000 * 5, id = 'channelName'})
 		retAdr = retAdr .. (subt or '')
@@ -175,8 +258,10 @@
 		end
 	m_simpleTV.User.voidboost.isVideo = nil
 	m_simpleTV.User.voidboost.titleTab = nil
+	m_simpleTV.User.voidboost.ThumbsInfo = nil
 	local host = inAdr:match('^https?://[^/]+')
-	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
+	local url = inAdr:gsub('&kinopoisk.+', '')
+	local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 		if rc ~= 200 then
 			showError('4')
 		 return
@@ -187,7 +272,12 @@
 			showError('no playerjs_url')
 		return end
 	m_simpleTV.User.voidboost.playerjs_url = playerjs_url
-	local title = m_simpleTV.Control.CurrentTitle_UTF8
+	title = inAdr:match('&kinopoisk=(.+)')
+	if title then
+		title = m_simpleTV.Common.fromPercentEncoding(title)
+	else
+		title = 'Voidboost'
+	end
 	m_simpleTV.Control.SetTitle(title)
 	local serial = answer:match('name="season"')
 	local trType
@@ -305,7 +395,6 @@
 					showError('7')
 				 return
 				end
-			local subt = voidboostISubt(answer)
 			local retAdr = voidboostDeSex(answer)
 				if not retAdr or retAdr == '' then
 					showError('7.1')
@@ -316,6 +405,9 @@
 					showError('7.2')
 				 return
 				end
+			local subt = voidboostISubt(answer)
+			local thumbUrl = answer:match('thumbnails\':%s*\'([^\']+)')
+			thumb(thumbUrl)
 			m_simpleTV.User.voidboost.DelayedAddress = retAdr .. (subt or '') .. '$OPT:POSITIONTOCONTINUE=0'
 			m_simpleTV.User.voidboost.title = title
 			if #t1 > 1 then
