@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (20/1/22)
+-- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (10/2/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://32.svetacdn.in/fnXOUDB9nNSO?kp_id=5928
@@ -236,18 +236,20 @@ local proxy = ''
 			play(inAdr, title)
 		 return
 		end
-	inAdr = inAdr:gsub('&kinopoisk', ''):gsub('%?block=%w+', '')
+	local url = inAdr:gsub('&kinopoisk.+', ''):gsub('%?block=%w+', ''):gsub('$OPT:.+', '')
 	m_simpleTV.User.Videocdn.Tabletitle = nil
-	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr:gsub('$OPT:.+', '')})
+	local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 		if rc ~= 200 then return end
 	answer = htmlEntities.decode(answer)
 	answer = answer:gsub('\\\\\\/', '/')
 	answer = answer:gsub('\\"', '"')
 	answer = unescape3(answer)
 	answer = answer:gsub('\\', '')
-	title = answer:match('<title>([^<]+)') or answer:match('id="title" value="([^"]+)')
-	if not title or title == '' then
-		title = m_simpleTV.Control.CurrentTitle_UTF8
+	title = inAdr:match('&kinopoisk=(.+)')
+	if title then
+		title = m_simpleTV.Common.fromPercentEncoding(title)
+	else
+		title = 'Videocdn'
 	end
 	m_simpleTV.Control.SetTitle(title)
 	local tv_series = answer:match('value="tv_series"')
