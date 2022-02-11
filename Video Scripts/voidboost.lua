@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "voidboost" (10/2/22)
+-- видеоскрипт для видеобалансера "voidboost" (11/2/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- модуль: /core/playerjs.lua
@@ -24,7 +24,7 @@
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:96.0) Gecko/20100101 Firefox/96.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:97.0) Gecko/20100101 Firefox/97.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	if not m_simpleTV.User then
@@ -33,7 +33,6 @@
 	if not m_simpleTV.User.voidboost then
 		m_simpleTV.User.voidboost = {}
 	end
-	m_simpleTV.User.voidboost.DelayedAddress = nil
 	local title
 	if m_simpleTV.User.voidboost.titleTab then
 		local index = m_simpleTV.Control.GetMultiAddressIndex()
@@ -180,9 +179,8 @@
 			local index = math.floor(forTime / imgLen)
 			local t = {}
 			t.playAddress = address
-			t.url = m_simpleTV.User.voidboost.ThumbsInfo.urlPattern[index+1].url
+			t.url = m_simpleTV.User.voidboost.ThumbsInfo.urlPattern[index + 1].url
 			t.httpParams = {}
-			t.httpParams.extHeader = 'referer:' .. address
 			t.elementWidth = m_simpleTV.User.voidboost.ThumbsInfo.thumbWidth
 			t.elementHeight = m_simpleTV.User.voidboost.ThumbsInfo.thumbHeight
 			t.startTime = index * imgLen
@@ -259,6 +257,7 @@
 	m_simpleTV.User.voidboost.isVideo = nil
 	m_simpleTV.User.voidboost.titleTab = nil
 	m_simpleTV.User.voidboost.ThumbsInfo = nil
+	m_simpleTV.User.voidboost.DelayedAddress = nil
 	local host = inAdr:match('^https?://[^/]+')
 	local url = inAdr:gsub('&kinopoisk.+', '')
 	local rc, answer = m_simpleTV.Http.Request(session, {url = url})
