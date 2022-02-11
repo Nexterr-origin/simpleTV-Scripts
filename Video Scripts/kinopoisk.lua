@@ -517,5 +517,5 @@ local tname = {
 	retAdr = retAdr:gsub('\\/', '/')
 	retAdr = retAdr:gsub('^//', 'http://')
 	retAdr = retAdr .. '&kinopoisk=' .. m_simpleTV.Common.toPercentEncoding(title)
-	m_simpleTV.Control.SetNewAddressT({address = retAdr})
+	m_simpleTV.Control.SetNewAddressT({address = retAdr, position = 0})
 -- debug_in_file(retAdr .. '\n')
