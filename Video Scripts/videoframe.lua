@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "videoframe" (20/1/22)
+-- видеоскрипт для видеобалансера "videoframe" (11/2/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://videoframe.space/frameindex.php?kp=5928
@@ -144,8 +144,8 @@
 -- debug_in_file(retAdr .. '\n')
 	 return
 	end
-	inAdr = inAdr:gsub('&kinopoisk', '')
-	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr:gsub('^$videoframe', ''), headers = 'Referer: ' .. refer})
+	local url = inAdr:gsub('&kinopoisk.+', ''):gsub('^$videoframe', '')
+	local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: ' .. refer})
 		if rc == 404 and answer and answer:match('Sorry') then
 			m_simpleTV.Http.Close(session)
 			m_simpleTV.OSD.ShowMessageT({text = 'Контент недоступен в вашем регионе', color = 0xff99ff99, showTime = 1000 * 10, id = 'channelName'})
