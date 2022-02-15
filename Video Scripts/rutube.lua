@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://rutube.ru (19/1/22)
+-- видеоскрипт для сайта https://rutube.ru (15/2/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: mediavitrina.lua
@@ -53,6 +53,14 @@
 		 return
 		end
 	local retAdr, live
+		if tab.player == 'iframe' and tab.iframe_url then
+			m_simpleTV.Http.Close(session)
+			retAdr = tab.iframe_url:gsub('^//', 'https://')
+			m_simpleTV.Control.ChangeAddress = 'No'
+			m_simpleTV.Control.CurrentAddress = retAdr
+			dofile(m_simpleTV.MainScriptDir .. 'user/video/video.lua')
+		 return
+		end
 	if tab.video_balancer
 		and tab.video_balancer.m3u8
 	then
@@ -65,14 +73,6 @@
 		retAdr = tab.live_streams.hls[1].url
 		live = true
 	else
-		m_simpleTV.Http.Close(session)
-			if tab.player == 'iframe' and tab.iframe_url then
-				retAdr = tab.iframe_url:gsub('^//', 'https://')
-				m_simpleTV.Control.ChangeAddress = 'No'
-				m_simpleTV.Control.CurrentAddress = retAdr
-				dofile(m_simpleTV.MainScriptDir .. 'user/video/video.lua')
-			 return
-			end
 		showMsg('3, стрим не найден')
 	 return
 	end
