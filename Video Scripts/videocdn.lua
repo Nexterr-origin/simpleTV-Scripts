@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (10/2/22)
+-- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (15/2/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://32.svetacdn.in/fnXOUDB9nNSO?kp_id=5928
@@ -257,27 +257,30 @@ local proxy = ''
 	local tr = answer:match('<div class="translations".-</div>')
 	if tr then
 		tr = tr:gsub('<template class="__cf_email__" data%-cfemail="%x+">%[email.-%]</template>', 'MUZOBOZ@')
-		local t, i = {}, 1
-		local selected, adr, name
+		local t = {}
+		local selected
 			for w in tr:gmatch('<option.-</option>') do
-				adr = w:match('value="([^"]+)')
-				name = w:match('>([^<]+)')
+				local adr = w:match('value="([^"]+)')
+				local name = w:match('>([^<]+)')
 				if adr and name and not name:match('^%s*@%s*$') then
-					t[i] = {}
-					t[i].Id = i
-					t[i].Name = name:gsub('<template.-template>', 'неизвестно'):gsub('&amp;', '&')
-					t[i].Address = adr
-					if w:match('"selected"') then
-						selected = i - 1
+					t[#t + 1] = {}
+					t[#t].Name = name:gsub('<template.-template>', 'неизвестно'):gsub('&amp;', '&')
+					t[#t].Address = adr
+					if not selected and w:match('"selected"') then
+						selected = #t - 1
 					end
-					i = i + 1
 				end
 			end
 			if #t == 0 then return end
-		selected = selected or 0
+		if not selected or selected < 0 then
+			selected = 0
+		end
 		if tv_series and #t > 1 then
 			table.remove(t, 1)
 		end
+			for i = 1, #t do
+				t[i].Id = i
+			end
 		if #t > 1 then
 			local _, id
 			if not psevdotv then
