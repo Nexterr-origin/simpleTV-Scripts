@@ -113,7 +113,6 @@ local proxy = ''
 		else
 			url = url:gsub('^%[', '')
 		end
-		url = url:gsub('(//[^%s]+/...)', '%1.mp4')
 		local t = {}
 			for adr in url:gmatch('%](//[^%s]+%.mp4)') do
 				local qlty = adr:match('/(%d+)%.mp4')
@@ -141,15 +140,15 @@ local proxy = ''
 					hash[t[i].qlty] = true
 				end
 			end
-		for i = 1, #tab do
-			tab[i].Id = i
-			tab[i].Address = tab[i].Address .. '$OPT:NO-STIMESHIFT$OPT:meta-description=https://github.com/Nexterr-origin/simpleTV-Scripts'
-			if psevdotv then
-				local videoTitle = title:gsub('.-:', '')
-				local k = tab[i].qlty
-				tab[i].Address = tab[i].Address .. '$OPT:NO-SEEKABLE$OPT:sub-source=marq$OPT:marq-opacity=70$OPT:marq-size=' .. (0.03 * k) .. '$OPT:marq-position=6$OPT:marq-x=' .. (0.02 * k) .. '$OPT:marq-y=' .. (0.01 * k) .. '$OPT:marq-marquee=' .. m_simpleTV.Common.UTF8ToMultiByte(videoTitle)
+			for i = 1, #tab do
+				tab[i].Id = i
+				tab[i].Address = tab[i].Address .. '$OPT:NO-STIMESHIFT$OPT:meta-description=https://github.com/Nexterr-origin/simpleTV-Scripts'
+				if psevdotv then
+					local videoTitle = title:gsub('.-:', '')
+					local k = tab[i].qlty
+					tab[i].Address = tab[i].Address .. '$OPT:NO-SEEKABLE$OPT:sub-source=marq$OPT:marq-opacity=70$OPT:marq-size=' .. (0.03 * k) .. '$OPT:marq-position=6$OPT:marq-x=' .. (0.02 * k) .. '$OPT:marq-y=' .. (0.01 * k) .. '$OPT:marq-marquee=' .. m_simpleTV.Common.UTF8ToMultiByte(videoTitle)
+				end
 			end
-		end
 		m_simpleTV.User.Videocdn.Table = tab
 		local index = GetMaxResolutionIndex(tab)
 		m_simpleTV.User.Videocdn.Index = index
@@ -266,7 +265,7 @@ local proxy = ''
 					t[#t + 1] = {}
 					t[#t].Name = name:gsub('<template.-template>', 'неизвестно'):gsub('&amp;', '&')
 					t[#t].Address = adr
-					if not selected and w:match('"selected"') then
+					if w:match('"selected"') then
 						selected = #t - 1
 					end
 				end
