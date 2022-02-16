@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "voidboost" (11/2/22)
+-- видеоскрипт для видеобалансера "voidboost" (16/2/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- модуль: /core/playerjs.lua
@@ -32,6 +32,9 @@
 	end
 	if not m_simpleTV.User.voidboost then
 		m_simpleTV.User.voidboost = {}
+	end
+	if not inAdr:match('^$voidboost') then
+		m_simpleTV.User.voidboost.startAdr = inAdr
 	end
 	local title
 	if m_simpleTV.User.voidboost.titleTab then
@@ -238,7 +241,7 @@
 		thumb(thumbUrl)
 		m_simpleTV.Control.CurrentTitle_UTF8 = title
 		m_simpleTV.OSD.ShowMessageT({text = title, color = 0xff9999ff, showTime = 1000 * 5, id = 'channelName'})
-		retAdr = retAdr .. (subt or '')
+		retAdr = retAdr .. (subt or '') .. '$OPT:demux=avdemux'
 		if inAdr:match('^$voidboost') then
 			retAdr = retAdr .. '$OPT:POSITIONTOCONTINUE=0'
 		end
@@ -371,10 +374,10 @@
 			if m_simpleTV.User.paramScriptForSkin_buttonOk then
 				t1.OkButton = {ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOk}
 			end
-			if m_simpleTV.User.paramScriptForSkin_buttonClose then
-				t1.ExtButton1 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonClose, ButtonScript = 'OnMultiAddressCancel_voidboost()'}
+			if m_simpleTV.User.paramScriptForSkin_buttonPlst then
+				t1.ExtButton1 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonPlst, ButtonScript = 'm_simpleTV.Control.SetNewAddressT({address = m_simpleTV.User.voidboost.startAdr, position = 0})'}
 			else
-				t1.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'OnMultiAddressCancel_voidboost()'}
+				t1.ExtButton1 = {ButtonEnable = true, ButtonName = '📋', ButtonScript = 'OnMultiAddressCancel_voidboost()'}
 			end
 			t1.ExtParams = {}
 			t1.ExtParams.PlayMode = 1
@@ -413,7 +416,7 @@
 				retAdr = 'wait'
 				m_simpleTV.User.voidboost.isVideo = false
 			else
-				retAdr = retAdr .. (subt or '') .. '$OPT:POSITIONTOCONTINUE=0'
+				retAdr = retAdr .. (subt or '') .. '$OPT:demux=avdemux$OPT:POSITIONTOCONTINUE=0'
 			end
 			m_simpleTV.Control.CurrentTitle_UTF8 = title
 			m_simpleTV.OSD.ShowMessageT({text = title .. ' - ' .. m_simpleTV.User.voidboost.titleTab[1].Name, color = 0xff9999ff, showTime = 1000 * 5, id = 'channelName'})
@@ -433,10 +436,10 @@
 		if m_simpleTV.User.paramScriptForSkin_buttonOk then
 			t.OkButton = {ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOk}
 		end
-		if m_simpleTV.User.paramScriptForSkin_buttonClose then
-			t.ExtButton1 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonClose, ButtonScript = 'OnMultiAddressCancel_voidboost()'}
+		if m_simpleTV.User.paramScriptForSkin_buttonPlst then
+			t.ExtButton1 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonPlst, ButtonScript = 'm_simpleTV.Control.SetNewAddressT({address = m_simpleTV.User.voidboost.startAdr, position = 0})'}
 		else
-			t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'OnMultiAddressCancel_voidboost()'}
+			t.ExtButton1 = {ButtonEnable = true, ButtonName = '📋', ButtonScript = 'm_simpleTV.Control.SetNewAddressT({address = m_simpleTV.User.voidboost.startAdr, position = 0})'}
 		end
 		if m_simpleTV.User.paramScriptForSkin_buttonOk then
 			t.OkButton = {ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOk}
