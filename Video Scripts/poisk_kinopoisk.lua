@@ -27,7 +27,7 @@
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, BackColorEnd = 255, PictFileName = 'https://lh3.googleusercontent.com/OIwpSMus0b6KSGPTjYGnyw7XlHw1Xj0_4gL48j3OufbAbdv2M7Abo3KhJAVadErdVZkyND8FPQ=w640-h400-e365', TypeBackColor = 0, UseLogo = 3, Once = 1})
 	end
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3809.87 Safari/537.36')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 12000)
 	local function xren(s)
@@ -228,7 +228,7 @@
 				hash[t[i].Address] = true
 			end
 		end
-	table.sort(res, function(a, b) return a.year < b.year end)
+	table.sort(res, function(a, b) return a.year > b.year end)
 	for i = 1, #res do
 		res[i].Id = i
 	end
