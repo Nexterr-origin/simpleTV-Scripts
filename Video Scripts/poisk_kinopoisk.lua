@@ -1,5 +1,5 @@
--- видеоскрипт для поиска видео по видеобазе "Kodik", "Hdvb", "Bazon" (18/10/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для поиска видео по видеобазе "Kodik", "Hdvb", "Bazon" (16/2/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: kinopoisk.lua
 -- ## искать через команду меню "Открыть URL (Ctrl+N)" ##
@@ -10,7 +10,6 @@
 --  *судЬя   ДреДд
 -- *13-й район
 -- **840294
--- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 		if not inAdr then return end
@@ -243,18 +242,14 @@
 	end
 	res.ExtButton1 = {ButtonEnable = true, ButtonName = '✕'}
 	res.ExtParams = {FilterType = FilterType, AutoNumberFormat = AutoNumberFormat}
-	local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('🔎 поиск: ' .. retAdr, 0, res, 30000, 1 + 4 + 8 + 2)
+	local title = retAdr
+	local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('🔎 поиск: ' .. title, 0, res, 30000, 1 + 2 + 4 + 8)
 		if ret == 3 or not id then
 			m_simpleTV.Control.ExecuteAction(37)
 			m_simpleTV.Control.ExecuteAction(11)
 		 return
 		end
-	if ret == 1 then
-		retAdr = 'https://www.kinopoisk.ru/film/' .. res[id].Address
-		m_simpleTV.Control.CurrentTitle_UTF8 = res[id].Name
-	end
-	m_simpleTV.Control.ChangeAddress = 'No'
-	m_simpleTV.Control.ExecuteAction(37)
+	retAdr = 'https://www.kinopoisk.ru/film/' .. res[id].Address
 	m_simpleTV.Control.CurrentAddress = retAdr
-	dofile(m_simpleTV.MainScriptDir .. 'user/video/video.lua')
+	m_simpleTV.Control.PlayAddressT({address = retAdr})
 -- debug_in_file(retAdr .. '\n')
