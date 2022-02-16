@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (11/2/22)
+-- видеоскрипт для сайта http://www.kinopoisk.ru (16/2/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: yandex-vod.lua, kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
@@ -27,8 +27,8 @@ local tname = {
 -- отключить: поставить в начале строки --
 	-- 'КиноПоиск онлайн',
 	-- 'ivi',
-	'Videocdn',
 	'Voidboost',
+	'Videocdn',
 	'Videoframe',
 	'Filmix',
 	'Collaps',
