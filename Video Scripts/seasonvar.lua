@@ -1,5 +1,5 @@
--- видеоскрипт для сайта http://seasonvar.ru (21/1/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта http://seasonvar.ru (17/2/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- логин, пароль установить в 'Password Manager', для id - seasonvar
 -- ## необходим ##
 -- видеоскрипт: pladform.lua, YT.lua, ovvatv.lua, megogo.lua
@@ -9,7 +9,6 @@
 local proxy = ''
 -- '' - нет
 -- 'http://proxy-nossl.antizapret.prostovpn.org:29976' (пример)
--- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('https?://seasonvar%.')
 			and not m_simpleTV.Control.CurrentAddress:match('^$seasonvar')
@@ -31,11 +30,11 @@ local proxy = ''
 	local host = inAdr:match('(https?://.-.)/')
 	if inAdr:match('&kinopoisk') then
 		kp = true
-		inAdr = inAdr:gsub('&kinopoisk', '')
+		inAdr = inAdr:gsub('&kinopoisk.+', '')
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = ''
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:85.0) Gecko/20100101 Firefox/85.0', proxy, false)
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:97.0) Gecko/20100101 Firefox/97.0', proxy, false)
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 12000)
 	if not m_simpleTV.User then
@@ -44,9 +43,7 @@ local proxy = ''
 	if not m_simpleTV.User.Seasonvar then
 		m_simpleTV.User.Seasonvar = {}
 	end
-	--VSG
 	m_simpleTV.User.Seasonvar.DelayedAddress = nil
-	--END VSG
 	local title
 	if m_simpleTV.User.Seasonvar.Tabletitle then
 		local index = m_simpleTV.Control.GetMultiAddressIndex()
@@ -203,9 +200,8 @@ local proxy = ''
 		end
 	 return retAdr, title
 	end
-	--VSG
 	function Seasonvar_OnMultiAddressOk(Object,id)
-		if id == 0 then
+		if id == 1 then
 			Seasonvar_OnMultiAddressCancel(Object)
 		else
 			m_simpleTV.User.Seasonvar.DelayedAddress = nil
@@ -220,7 +216,6 @@ local proxy = ''
 			m_simpleTV.User.Seasonvar.DelayedAddress = nil
 		end
 	end
-	--end VSG
 	function SaveSeasonvarPlaylist()
 		if m_simpleTV.User.Seasonvar.Tabletitle and m_simpleTV.User.Seasonvar.title then
 			local lfs = require 'lfs'
