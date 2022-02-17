@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "voidboost" (16/2/22)
+-- видеоскрипт для видеобалансера "voidboost" (17/2/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- модуль: /core/playerjs.lua
@@ -36,6 +36,7 @@
 	if not inAdr:match('^$voidboost') then
 		m_simpleTV.User.voidboost.startAdr = inAdr
 	end
+	m_simpleTV.User.voidboost.ThumbsInfo = nil
 	local title
 	if m_simpleTV.User.voidboost.titleTab then
 		local index = m_simpleTV.Control.GetMultiAddressIndex()
@@ -99,23 +100,6 @@
 			subt = '$OPT:sub-track=0$OPT:input-slave=' .. table.concat(s, '#')
 		end
 	 return subt
-	end
-	function OnMultiAddressOk_voidboost(Object, id)
-		if id == 0 then
-			OnMultiAddressCancel_voidboost(Object)
-		else
-			m_simpleTV.User.voidboost.DelayedAddress = nil
-		end
-	end
-	function OnMultiAddressCancel_voidboost(Object)
-		if m_simpleTV.User.voidboost.DelayedAddress then
-			local state = m_simpleTV.Control.GetState()
-			if state == 0 then
-				m_simpleTV.Control.SetNewAddress(m_simpleTV.User.voidboost.DelayedAddress)
-			end
-			m_simpleTV.User.voidboost.DelayedAddress = nil
-		end
-		m_simpleTV.Control.ExecuteAction(36, 0)
 	end
 	local function timeMs(str)
 		local h, m, s, ms = str:match('(%d+)%:(%d+)%:(%d+).(%d+)')
@@ -211,15 +195,6 @@
 			t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
 		end
 		local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('⚙ Качество', index - 1, t, 10000, 1 + 4 + 2)
-		if m_simpleTV.User.voidboost.isVideo == false then
-			if m_simpleTV.User.voidboost.DelayedAddress then
-				m_simpleTV.Control.ExecuteAction(108)
-			else
-				m_simpleTV.Control.ExecuteAction(37)
-			end
-		else
-			m_simpleTV.Control.ExecuteAction(37)
-		end
 		if ret == 1 then
 			m_simpleTV.Control.SetNewAddress(t[id].Address, m_simpleTV.Control.GetPosition())
 			m_simpleTV.Config.SetValue('voidboost_qlty', t[id].qlty)
@@ -257,10 +232,7 @@
 			play(answer, title)
 		 return
 		end
-	m_simpleTV.User.voidboost.isVideo = nil
 	m_simpleTV.User.voidboost.titleTab = nil
-	m_simpleTV.User.voidboost.ThumbsInfo = nil
-	m_simpleTV.User.voidboost.DelayedAddress = nil
 	local host = inAdr:match('^https?://[^/]+')
 	local url = inAdr:gsub('&kinopoisk.+', '')
 	local rc, answer = m_simpleTV.Http.Request(session, {url = url})
@@ -381,9 +353,6 @@
 			end
 			t1.ExtParams = {}
 			t1.ExtParams.PlayMode = 1
-			t1.ExtParams.LuaOnCancelFunName = 'OnMultiAddressCancel_voidboost'
-			t1.ExtParams.LuaOnOkFunName = 'OnMultiAddressOk_voidboost'
-			t1.ExtParams.LuaOnTimeoutFunName = 'OnMultiAddressCancel_voidboost'
 			local pl
 			if #t1 > 1 then
 				pl = 0
@@ -410,14 +379,8 @@
 			local subt = voidboostISubt(answer)
 			local thumbUrl = answer:match('thumbnails\':%s*\'([^\']+)')
 			thumb(thumbUrl)
-			m_simpleTV.User.voidboost.DelayedAddress = retAdr .. (subt or '') .. '$OPT:POSITIONTOCONTINUE=0'
 			m_simpleTV.User.voidboost.title = title
-			if #t1 > 1 then
-				retAdr = 'wait'
-				m_simpleTV.User.voidboost.isVideo = false
-			else
-				retAdr = retAdr .. (subt or '') .. '$OPT:demux=avdemux$OPT:POSITIONTOCONTINUE=0'
-			end
+			retAdr = retAdr .. (subt or '') .. '$OPT:demux=avdemux$OPT:POSITIONTOCONTINUE=0'
 			m_simpleTV.Control.CurrentTitle_UTF8 = title
 			m_simpleTV.OSD.ShowMessageT({text = title .. ' - ' .. m_simpleTV.User.voidboost.titleTab[1].Name, color = 0xff9999ff, showTime = 1000 * 5, id = 'channelName'})
 			m_simpleTV.Control.CurrentAddress = retAdr
