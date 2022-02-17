@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (16/2/22)
+-- видеоскрипт для сайта http://www.kinopoisk.ru (17/2/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: yandex-vod.lua, kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
@@ -237,8 +237,8 @@ local tname = {
 			rc, answer = m_simpleTV.Http.Request(session, {url = url})
 				if rc ~= 200 then return end
 			return answer:match('"path":"([^"]+)')
-		elseif url:match('delivembd') then
-			rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: api.delivembd.ws/\nOrigin: api.delivembd.ws'})
+		elseif url:match('synchroncode') then
+			rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: api.synchroncode.com/\nOrigin: api.synchroncode.com'})
 				if rc ~= 200 then return end
 				if answer:match('embedHost') then
 				 return url
@@ -306,7 +306,7 @@ local tname = {
 				end
 			id = id or 1
 			return svar[id].Address
-		elseif url:match('delivembd') then
+		elseif url:match('synchroncode') then
 			return url
 		elseif url:match('vb17121coramclean') then
 			return answer
@@ -369,7 +369,7 @@ local tname = {
 			elseif tname[i] == 'Videocdn' then
 				turl[i] = {adr = decode64('aHR0cHM6Ly84MjA5LnN2ZXRhY2RuLmluL1BYazJRR2J2RVZtUz9rcF9pZD0') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
 			elseif tname[i] == 'Collaps' then
-				turl[i] = {adr = 'http://api.' .. os.time() .. decode64('LmRlbGl2ZW1iZC53cy9lbWJlZC9rcC8') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
+				turl[i] = {adr = 'http://api' .. os.time() .. decode64('LnN5bmNocm9uY29kZS5jb20vZW1iZWQva3Av') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
 			elseif tname[i] == 'CDN Movies' then
 				turl[i] = {adr = decode64('aHR0cHM6Ly9jZG5tb3ZpZXMubmV0L2FwaT90b2tlbj0wYWVmZDdjMWQ2ZjY0YzAzNzRjYmE4ZmRiZTZmOTE2MyZraW5vcG9pc2tfaWQ9') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/cdnmovie.png'}
 			elseif tname[i] == 'Hdvb' then
