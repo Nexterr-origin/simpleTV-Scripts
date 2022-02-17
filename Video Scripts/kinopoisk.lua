@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (17/2/22)
+-- видеоскрипт для сайта http://www.kinopoisk.ru (18/2/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
@@ -14,13 +14,9 @@
 -- https://hd.kinopoisk.ru/film/456c0edc4049d31da56036a9ae1484f4
 -- http://rating.kinopoisk.ru/7378.gif
 -- https://www.kinopoisk.ru/series/733493/
--- ## сайт (зеркало) filmix.ac ##
+-- ## сайт / зеркало filmix.ac ##
 local filmixsite = 'https://filmix.ac'
 -- 'https://filmix.life' (пример)
--- ## прокси для Seasonvar ##
-local proxy = ''
--- '' - нет
--- 'https://proxy-nossl.antizapret.prostovpn.org:29976' (пример)
 -- ## источники ##
 local tname = {
 -- сортировать: поменять порядок строк
@@ -53,10 +49,9 @@ local tname = {
 		m_simpleTV.User = {}
 	end
 	require 'json'
-	require 'lfs'
 	htmlEntities = require 'htmlEntities'
 	m_simpleTV.Control.ChangeAddress= 'Yes'
-	m_simpleTV.Control.CurrentAddress = ''
+	m_simpleTV.Control.CurrentAddress = 'error'
 	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
@@ -75,28 +70,38 @@ local tname = {
 	inAdr = inAdr:gsub('/watch/.+', ''):gsub('/watch%?.+', ''):gsub('/sr/.+', '')
 	local kpid = inAdr:match('.+%-(%d+)') or inAdr:match('/film//?(%d+)') or inAdr:match('%d+')
 		if not kpid then return end
-	local turl, svar, t, rett, Rt = {}, {}, {}, {}, {}
-	local rc, answer, retAdr, title, orig_title, year, kp_r, imdb_r, zonaAbuse, zonaUrl, zonaSerial, zonaId, zonaDesc, logourl, eng_title, languages_imdb
+	local turl, svar, t, rett = {}, {}, {}, {}
 	local usvar, i, u = 1, 1, 1
+	local serial, year, title, desc, rating_kp, rating_imdb, rc, answer, retAdr, altTitle
 	local function unescape_html(str)
 	 return htmlEntities.decode(str)
 	end
-	local function answerZonaMovie()
-		local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cDovL3pzb2xyLnpvbmFzZWFyY2guY29tL3NvbHIvbW92aWUvc2VsZWN0Lz93dD1qc29uJmZsPW5hbWVfb3JpZ2luYWwseWVhcixzZXJpYWwscmF0aW5nX2tpbm9wb2lzayxuYW1lX3J1cyxyYXRpbmdfaW1kYixtb2JpX3VybCxsYW5ndWFnZXNfaW1kYixuYW1lX2VuZyxhYnVzZSxtb2JpX2xpbmtfaWQsZGVzY3JpcHRpb24mcT1pZDo') .. kpid})
+	local function getInfo(kpid)
+		local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9iYXpvbi5jYy9hcGkvc2VhcmNoP3Rva2VuPWMxMThlYjVmOGQzNjU2NWIyYjA4YjUzNDJkYTk3Zjc5JmtwPQ') .. kpid})
 			if rc ~= 200 then return end
-			if not answer:match('"year"') or not answer:match('^{') then return end
-	 return	answer
+		answer = answer:gsub('(%[%])', '""'):gsub(string.char(239, 187, 191), '')
+		local tab = json.decode(answer)
+			if not tab or not tab.results or not tab.results[1] or not tab.results[1].info or not tab.results[1].info or not tab.results[1].info.rating then return end
+		local serial = tab.results[1].serial or 10
+		local year = tab.results[1].info.year or 0
+		local title = tab.results[1].info.rus
+		local desc = tab.results[1].info.description or ''
+		local rating_kp = tab.results[1].info.rating.rating_kp or 0
+		local rating_imdb = tab.results[1].info.rating.rating_imdb or 0
+	 return	tonumber(serial), tonumber(year), title, desc, tonumber(rating_kp), tonumber(rating_imdb)
 	end
-	local function answerdget(url)
+	local function requestUrl(url)
 		if url:match('cdnmovies%.net') then
 			rc, answer = m_simpleTV.Http.Request(session, {url = url})
 				if rc ~= 200 then return end
-			if not title or title == '' then
-				title = answer:match('"ru_title":"([^"]+)')
+			if not title then
+				altTitle = answer:match('"ru_title":"([^"]+)')
 			end
 			return answer:match('"iframe_src":"([^"]+)')
 		elseif url:match('ivi%.ru') then
-			rc, answer = m_simpleTV.Http.Request(session, {url = url .. m_simpleTV.Common.toPercentEncoding(title) ..'&from=0&to=5&app_version=870&paid_type=AVOD'})
+				local iviTitle = title or altTitle
+				if not iviTitle then return end
+			rc, answer = m_simpleTV.Http.Request(session, {url = url .. m_simpleTV.Common.toPercentEncoding(iviTitle) ..'&from=0&to=5&app_version=870&paid_type=AVOD'})
 				if rc ~= 200 or (rc == 200 and not answer:match('^{')) then return end
 			local tab = json.decode(answer:gsub('%[%]', '""'))
 				if not tab or not tab.result then return end
@@ -111,7 +116,7 @@ local tname = {
 					i = i + 1
 				end
 			return Adrivi
-			elseif url:match('svetacdn') then
+		elseif url:match('svetacdn') then
 				rc, answer = m_simpleTV.Http.Request(session, {url = url})
 					if rc ~= 200 then return end
 			return url
@@ -120,34 +125,33 @@ local tname = {
 				if rc ~= 200 then return end
 			return answer:match('"link":"([^"]+)')
 		elseif url:match('filmix') then
-			local filmix_title
-			if title and #title > 2 then
-				filmix_title = title
+				if not title then return end
+			local cat
+			if serial == 1 then
+				cat = '&serials=on'
+			elseif serial == 0 then
+				cat = '&film=on'
+			else
+			 return
 			end
-				if not filmix_title then return end
 			local sessionFilmix = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0')
 				if not sessionFilmix then return end
 			m_simpleTV.Http.SetTimeout(sessionFilmix, 8000)
 			local ratimdbot, ratkinot, ratimdbdo, ratkindo, yearot, yeardo = '', '', '', '', '', ''
-			if imdb_r > 0 then
-				ratimdbot = imdb_r - 1
-				ratimdbdo = imdb_r + 1
+			if rating_imdb > 0 then
+				ratimdbot = rating_imdb - 1
+				ratimdbdo = rating_imdb + 1
 			end
-			if kp_r > 0 then
-				ratkinot = kp_r - 1
-				ratkindo = kp_r + 1
-			end
-			local cat = '&film=on'
-			if zonaSerial then
-				cat = '&serials=on'
+			if rating_kp > 0 then
+				ratkinot = rating_kp - 1
+				ratkindo = rating_kp + 1
 			end
 			if year > 0 then
 				yearot = year - 1
 				yeardo = year + 1
 			end
-			local namei = filmix_title:gsub('%?$', ''):gsub('.-`', ''):gsub('*', ''):gsub('«', '"'):gsub('»', '"')
-			local filmixurl = filmixsite .. '/search'
-			local headers = 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8\nX-Requested-With: XMLHttpRequest\nReferer: ' .. filmixurl
+			local namei = title:gsub('%?$', ''):gsub('.-`', ''):gsub('*', ''):gsub('«', '"'):gsub('»', '"')
+			local headers = 'X-Requested-With: XMLHttpRequest\nCookie: x-a-key=sinatra;\nReferer: ' .. filmixsite .. '/search'
 			local body = 'scf=fx&story=' .. m_simpleTV.Common.toPercentEncoding(namei) .. '&search_start=0&do=search&subaction=search&years_ot=' .. yearot .. '&years_do=' .. yeardo .. '&kpi_ot=' .. ratkinot .. '&kpi_do=' .. ratkindo .. '&imdb_ot=' .. ratimdbot .. '&imdb_do=' .. ratimdbdo .. '&sort_name=asc&undefined=asc&sort_date=&sort_favorite=' .. cat
 			local rc, answer = m_simpleTV.Http.Request(sessionFilmix, {body = body, url = filmixsite .. '/engine/ajax/sphinx_search.php', method = 'post', headers = headers})
 			m_simpleTV.Http.Close(sessionFilmix)
@@ -158,33 +162,20 @@ local tname = {
 				end
 			return answer
 		elseif url:match('seasonvar%.ru') then
-				if not zonaSerial then return end
-			local svarnamei = orig_title:gsub('[!?]', ' '):gsub('ё', 'е')
-			local sessionsvar
-			if proxy ~= '' then
-				sessionsvar = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:84.0) Gecko/20100101 Firefox/84.0', proxy, false)
-					if not sessionsvar then return end
-			end
-			rc, answer = m_simpleTV.Http.Request((sessionsvar or session), {url = url .. m_simpleTV.Common.toPercentEncoding(svarnamei)})
+				if not title then return end
+				if serial ~= 1 then return end
+			local svarnamei = title:gsub('[!?]', ' '):gsub('ё', 'е')
+			rc, answer = m_simpleTV.Http.Request((session), {url = url .. m_simpleTV.Common.toPercentEncoding(svarnamei)})
 				if rc ~= 200 or (rc == 200 and (answer:match('"query":""') or answer:match('"data":null'))) then
-					if sessionsvar then
-						m_simpleTV.Http.Close(sessionsvar)
-					end
 				 return
 				end
 				if answer:match('"data":%[""%]') or answer:match('"data":%["",""%]') then
 					svarnamei = title:gsub('[!?]', ' '):gsub('ё', 'е')
 					rc, answer = m_simpleTV.Http.Request((sessionsvar or session), {url = url .. m_simpleTV.Common.toPercentEncoding(svarnamei)})
 						if rc ~= 200 or (rc == 200 and (answer:match('"query":""') or answer:match('"data":%[""%]') or answer:match('"data":%["",""%]'))) then
-							if sessionsvar then
-								m_simpleTV.Http.Close(sessionsvar)
-							end
 						 return
 						end
 				end
-			if sessionsvar then
-				m_simpleTV.Http.Close(sessionsvar)
-			end
 				if not answer:match('^{') then return end
 			local t = json.decode(answer:gsub('%[%]', '""'):gsub('\\', '\\\\'):gsub('\\"', '\\\\"'):gsub('\\/', '/'))
 				if not t then return end
@@ -204,11 +195,11 @@ local tname = {
 				for _, v in pairs(a) do
 					rkpsv = tonumber(v.rkpsv)
 					svarkptch = 0.1
-					if kp_r > 0 then
+					if rating_kp > 0 then
 						if svarname == 0 then
-							if (rkpsv >= (kp_r - svarkptch) and rkpsv <= (kp_r + svarkptch)) and not a[i].Name:match('<span style') and (a[i].Name:match('/%s*' .. svarnamei .. '$') or a[i].Name:match('/%s*' .. svarnamei .. '%s')) then v.Id = usvar svar[usvar] = v usvar = usvar + 1 end
+							if (rkpsv >= (rating_kp - svarkptch) and rkpsv <= (rating_kp + svarkptch)) and not a[i].Name:match('<span style') and (a[i].Name:match('/%s*' .. svarnamei .. '$') or a[i].Name:match('/%s*' .. svarnamei .. '%s')) then v.Id = usvar svar[usvar] = v usvar = usvar + 1 end
 						else
-							if (rkpsv >= (kp_r - svarkptch) and rkpsv <= (kp_r + svarkptch)) and not a[i].Name:match('<span style') and a[i].Name:match(svarnamei) then v.Id = usvar svar[usvar] = v usvar = usvar + 1 end
+							if (rkpsv >= (rating_kp - svarkptch) and rkpsv <= (rating_kp + svarkptch)) and not a[i].Name:match('<span style') and a[i].Name:match(svarnamei) then v.Id = usvar svar[usvar] = v usvar = usvar + 1 end
 						end
 					else
 						if svarname == 0 then
@@ -228,7 +219,7 @@ local tname = {
 				if rc ~= 200 then return end
 			return answer:match('"path":"([^"]+)')
 		elseif url:match('synchroncode') then
-			rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: api.synchroncode.com/\nOrigin: api.synchroncode.com'})
+			rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: api.synchroncode.com'})
 				if rc ~= 200 then return end
 				if answer:match('embedHost') then
 				 return url
@@ -254,6 +245,12 @@ local tname = {
 		elseif url:match('cdnmovies%.net') then
 			return answer
 		elseif url:match('kodikapi%.com') then
+			return answer
+		elseif url:match('synchroncode') then
+			return url
+		elseif url:match('vb17121coramclean') then
+			return answer
+		elseif url:match('voidboost') then
 			return answer
 		elseif url:match('filmix') then
 			local i, f = 1, {}
@@ -294,31 +291,11 @@ local tname = {
 				end
 			id = id or 1
 			return svar[id].Address
-		elseif url:match('synchroncode') then
-			return url
-		elseif url:match('vb17121coramclean') then
-			return answer
-		elseif url:match('voidboost') then
-			return answer
 		end
 	 return
 	end
-	local function checkScrtpts()
-		local t = {
-					'luaScr/user/video/hdvb-vb.lua',
-					-- 'luaScr/user/video/kodik.lua',
-					'luaScr/user/video/videocdn.lua',
-					'luaScr/user/video/videoframe.lua',
-				}
-		local mainPath = m_simpleTV.Common.GetMainPath(2)
-			for i = 1, #t do
-				local size = lfs.attributes(mainPath .. t[i], 'size')
-					if not size then return end
-			end
-	 return true
-	end
 	local function getlogo()
-		local session2 = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:84.0) Gecko/20100101 Firefox/84.0', nil, true)
+		local session2 = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:97.0) Gecko/20100101 Firefox/97.0', nil, true)
 			if not session2 then return end
 		m_simpleTV.Http.SetTimeout(session2, 8000)
 		local url = 'https://st.kp.yandex.net/images/film_iphone/iphone360_' .. kpid .. '.jpg'
@@ -363,18 +340,21 @@ local tname = {
 			end
 		end
 	end
+	local function round(num)
+	 return tonumber(string.format('%.' .. (1 or 0) .. 'f', num))
+	end
 	local function getReting()
-			local function round(num)
-			 return tonumber(string.format('%.' .. (1 or 0) .. 'f', num))
+			if not rating_kp or not rating_imdb then
+			 return ''
 			end
 		local kp, im
 		local star = ''
 		local slsh = ''
-		if kp_r > 0 then
-			kp = 'КП: ' .. round(kp_r)
+		if rating_kp > 0 then
+			kp = 'КП: ' .. round(rating_kp)
 		end
-		if imdb_r > 0 then
-			im = 'IMDb: ' .. round(imdb_r)
+		if rating_imdb > 0 then
+			im = 'IMDb: ' .. round(rating_imdb)
 		end
 			if not kp and not im then
 			 return ''
@@ -384,47 +364,14 @@ local tname = {
 		end
 	 return ' ★ ' .. (kp or '') .. slsh .. (im or '')
 	end
-	local function getRkinopoisk()
-		local answer = answerZonaMovie()
-			if not answer then
-				title = ''
-				orig_title = ''
-				year = 0
-				kp_r = 0
-				imdb_r = 0
-			 return
-			end
-		local tab = json.decode(answer:gsub('%[%]', '""'))
-			if not tab or not tab.response then return end
-		zonaUrl = tab.response.docs[1].mobi_url
-		zonaId = tab.response.docs[1].mobi_link_id
-		zonaSerial = tab.response.docs[1].serial
-		zonaAbuse = tab.response.docs[1].abuse
-		zonaDesc = tab.response.docs[1].description
-		local name_rus = tab.response.docs[1].name_rus
-		local name_eng = tab.response.docs[1].name_eng
-		local name_original = tab.response.docs[1].name_original
-		languages_imdb = tab.response.docs[1].languages_imdb or ''
-		title = name_rus or name_eng or name_original or ''
-		eng_title = name_eng
-		m_simpleTV.Control.SetTitle(title)
-		m_simpleTV.OSD.ShowMessageT({text = title, color = 0xffffaa00, showTime = 1000 * 20, id = 'channelName'})
-		orig_title = name_original or title or ''
-		local zonaYear = tab.response.docs[1].year or ''
-		zonaYear = tostring(zonaYear)
-		year = tonumber(zonaYear:match('%d+') or '0')
-		kp_r = tonumber(tab.response.docs[1].rating_kinopoisk or '0')
-		imdb_r = tonumber(tab.response.docs[1].rating_imdb or '0')
-	 return ''
-	end
 	local function menu()
 		for i = 1, #tname do
 			t[i] = {}
 			t[i].Name = tname[i]
-			t[i].answer = answerdget(turl[i].adr)
+			t[i].answer = requestUrl(turl[i].adr)
 			t[i].Address = turl[i].adr
-			if zonaDesc and zonaDesc ~= '' and title ~= '' then
-				t[i].InfoPanelTitle = zonaDesc
+			if desc and desc ~= '' and title and year then
+				t[i].InfoPanelTitle = desc
 				t[i].InfoPanelName = title .. ' (' .. year .. ')'
 				t[i].InfoPanelLogo = logourl or 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/yandex-vod.png'
 			else
@@ -459,21 +406,8 @@ local tname = {
 			selectmenu()
 		end
 	end
+	serial, year, title, desc, rating_kp, rating_imdb = getInfo(kpid)
 	getlogo()
-		if not checkScrtpts() then
-			local t = {}
-			t.message = 'Нет необходимых скриптов! Хотите скачать?'
-			t.caption = 'КиноПоиск'
-			t.buttons = 'Yes|No'
-			t.icon = 'Warning'
-			t.defButton = 'Yes'
-			local but = m_simpleTV.Interface.MessageBoxT(t)
-			if but == 'Yes' then
-				m_simpleTV.Interface.OpenLink('https://github.com/Nexterr-origin/simpleTV-Scripts/tree/main/Video%20Scripts')
-			end
-		 return
-		end
-	getRkinopoisk()
 	setMenu()
 	menu()
 		if #rett == 0 then
@@ -483,6 +417,9 @@ local tname = {
 			m_simpleTV.OSD.ShowMessageT({text = 'Видео не найдено\nkinopoisk ошибка[2]', color = 0xff99ff99, showTime = 1000 * 5, id = 'channelName'})
 		 return
 		end
+	title = title or altTitle or 'КиноПоиск'
+	m_simpleTV.Control.CurrentTitle_UTF8 = title
+	m_simpleTV.Control.SetTitle(title)
 	selectmenu()
 		if not retAdr or retAdr == 0 then
 			m_simpleTV.Control.ExecuteAction(37)
@@ -491,11 +428,6 @@ local tname = {
 			if not retAdr then m_simpleTV.OSD.ShowMessageT({text = 'Видео не найдено\nkinopoisk ошибка[3]', color = 0xff99ff99, showTime = 1000 * 5, id = 'channelName'}) end
 		 return
 		end
-	if title == '' then
-		title = 'Кинопоиск'
-	end
-	m_simpleTV.Control.CurrentTitle_UTF8 = title
-	m_simpleTV.Control.SetTitle(title)
 	m_simpleTV.Http.Close(session)
 	m_simpleTV.Control.ExecuteAction(37)
 	retAdr = retAdr:gsub('\\/', '/')
