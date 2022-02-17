@@ -37,6 +37,7 @@
 		m_simpleTV.User.voidboost.startAdr = inAdr
 	end
 	m_simpleTV.User.voidboost.ThumbsInfo = nil
+	m_simpleTV.User.voidboost.DelayedAddress = nil
 	local title
 	if m_simpleTV.User.voidboost.titleTab then
 		local index = m_simpleTV.Control.GetMultiAddressIndex()
@@ -223,6 +224,22 @@
 		m_simpleTV.Control.CurrentAddress = retAdr
 -- debug_in_file(retAdr .. '\n')
 	end
+	function OnMultiAddressOk_voidboost(Object, id)
+		if id == 1 then
+			OnMultiAddressCancel_voidboost(Object)
+		else
+			m_simpleTV.User.voidboost.DelayedAddress = nil
+		end
+	end
+	function OnMultiAddressCancel_voidboost(Object)
+		if m_simpleTV.User.voidboost.DelayedAddress then
+			if m_simpleTV.Control.GetState() == 0 then
+				m_simpleTV.Control.SetNewAddressT({address = m_simpleTV.User.voidboost.DelayedAddress})
+			end
+			m_simpleTV.User.YT.DelayedAddress = nil
+		end
+		m_simpleTV.Control.ExecuteAction(36, 0)
+	end
 		if inAdr:match('^$voidboost') then
 			local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr:gsub('$voidboost', '')})
 				if rc ~= 200 then
@@ -269,7 +286,7 @@
 				if name and token then
 					t[#t + 1] = {}
 					t[#t].Id = #t
-					t[#t].Name = name
+					t[#t].Name = name:gsub('amp;', '')
 					t[#t].Address = host .. trType .. token .. '/iframe?h=voidboost.net'
 				end
 			end
@@ -353,14 +370,10 @@
 			end
 			t1.ExtParams = {}
 			t1.ExtParams.PlayMode = 1
-			local pl
-			if #t1 > 1 then
-				pl = 0
-			else
-				pl = 32
-			end
+			t1.ExtParams.LuaOnCancelFunName = 'OnMultiAddressCancel_voidboost'
+			t1.ExtParams.LuaOnOkFunName = 'OnMultiAddressOk_voidboost'
+			t1.ExtParams.LuaOnTimeoutFunName = 'OnMultiAddressCancel_voidboost'
 			title = title .. season_title
-			m_simpleTV.OSD.ShowSelect_UTF8(title, 0, t1, 10000, 2 + 64 + pl)
 			local rc, answer = m_simpleTV.Http.Request(session, {url = t1[1].Address:gsub('$voidboost', '')})
 				if rc ~= 200 then
 					showError('7')
@@ -381,8 +394,18 @@
 			thumb(thumbUrl)
 			m_simpleTV.User.voidboost.title = title
 			retAdr = retAdr .. (subt or '') .. '$OPT:demux=avdemux$OPT:POSITIONTOCONTINUE=0'
-			m_simpleTV.Control.CurrentTitle_UTF8 = title
-			m_simpleTV.OSD.ShowMessageT({text = title .. ' - ' .. m_simpleTV.User.voidboost.titleTab[1].Name, color = 0xff9999ff, showTime = 1000 * 5, id = 'channelName'})
+			local pl
+			if #t1 == 1 then
+				pl = 32
+			else
+				m_simpleTV.User.voidboost.DelayedAddress = retAdr
+				retAdr = 'wait'
+				pl = 0
+			end
+			m_simpleTV.OSD.ShowSelect_UTF8(title, 0, t1, 10000, 2 + 64 + pl)
+			title = title .. ' - ' .. m_simpleTV.User.voidboost.titleTab[1].Name
+			m_simpleTV.Control.SetTitle(title)
+			m_simpleTV.OSD.ShowMessageT({text = title, color = 0xff9999ff, showTime = 1000 * 5, id = 'channelName'})
 			m_simpleTV.Control.CurrentAddress = retAdr
 		 return
 		end
