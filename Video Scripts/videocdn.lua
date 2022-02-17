@@ -1,14 +1,10 @@
--- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (15/2/22)
+-- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (17/2/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://32.svetacdn.in/fnXOUDB9nNSO?kp_id=5928
 -- https://32.tvmovies.in/fnXOUDB9nNSO/tv-series/92
 -- https://32.tvmovies.in/fnXOUDB9nNSO/movie/22080
 -- http://32.svetacdn.in/fnXOUDB9nNSO/movie/36905
--- ## домен ##
-local domen = 'http://58.svetacdn.in'
--- '' - по умолчанию
--- 'http://58.svetacdn.in' (пример)
 -- ## прокси ##
 local proxy = ''
 -- '' - нет
@@ -22,9 +18,6 @@ local proxy = ''
 		 return
 		end
 	local inAdr = m_simpleTV.Control.CurrentAddress
-	if domen ~= '' then
-		inAdr = inAdr:gsub('^https?://.-/', domen .. '/')
-	end
 	htmlEntities = require 'htmlEntities'
 	m_simpleTV.OSD.ShowMessageT({text = '', showTime = 1000, id = 'channelName'})
 	if inAdr:match('^$videocdn') or not inAdr:match('&kinopoisk') then
