@@ -1,5 +1,5 @@
--- скрапер TVS для загрузки плейлиста "ДомаТвНет" с сайта http://tv.domatv.net (17/8/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- скрапер TVS для загрузки плейлиста "ДомаТвНет" с сайта http://tv.domatv.net (17/2/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: domatv.lua
 -- ## переименовать каналы ##
@@ -43,15 +43,11 @@ local filter = {
 	function GetVersion()
 	 return 2, 'UTF-8'
 	end
-	local function showMsg(str, color)
-		local t = {text = str, showTime = 1000 * 5, color = color, id = 'channelName'}
-		m_simpleTV.OSD.ShowMessageT(t)
-	end
 	local function LoadFromSite()
-		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:85.0) Gecko/20100101 Firefox/85.0')
+		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:97.0) Gecko/20100101 Firefox/97.0')
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 8000)
-		local url = 'http://ru.domatv.net/211-tnv-planeta.html'
+		local url = 'http://tv.domatv.net/211-tnv-planeta.html'
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 		m_simpleTV.Http.Close(session)
 			if rc ~= 200 then return end
@@ -76,11 +72,7 @@ local filter = {
 			if not TVSources_var.tmp.source[UpdateID] then return end
 		local Source = TVSources_var.tmp.source[UpdateID]
 		local t_pls = LoadFromSite()
-			if not t_pls then
-				showMsg(Source.name .. ' ошибка загрузки плейлиста', ARGB(255, 255, 102, 0))
-			 return
-			end
-		showMsg(Source.name .. ' (' .. #t_pls .. ')', ARGB(255, 153, 255, 153))
+			if not t_pls then return end
 		t_pls = ProcessFilterTableLocal(t_pls)
 		local m3ustr = tvs_core.ProcessFilterTable(UpdateID, Source, t_pls)
 		local handle = io.open(m3u_file, 'w+')
