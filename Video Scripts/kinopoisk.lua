@@ -1,7 +1,7 @@
 -- видеоскрипт для сайта http://www.kinopoisk.ru (17/2/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
--- видеоскрипт: yandex-vod.lua, kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
+-- видеоскрипт: kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
 -- iviru.lua, videocdn.lua, hdvb-vb.lua, collaps.lua, cdnmovies.lua, voidboost.lua
 -- ## открывает подобные ссылки ##
 -- https://www.kinopoisk.ru/film/5928
@@ -25,8 +25,6 @@ local proxy = ''
 local tname = {
 -- сортировать: поменять порядок строк
 -- отключить: поставить в начале строки --
-	-- 'КиноПоиск онлайн',
-	-- 'ivi',
 	'Voidboost',
 	'Videocdn',
 	'Videoframe',
@@ -35,7 +33,8 @@ local tname = {
 	'Hdvb',
 	'CDN Movies',
 	'Kodik',
-	-- 'Seasonvar',
+	'ivi',
+	'Seasonvar',
 	}
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://[%w%.]*kinopoisk%.ru/.+') then return end
@@ -89,20 +88,7 @@ local tname = {
 	 return	answer
 	end
 	local function answerdget(url)
-		if url:match('widget%.kinopoisk%.ru') then
-			rc, answer = m_simpleTV.Http.Request(session, {url = url})
-				if rc ~= 200 then return end
-			local filmId = answer:match('"filmId":"([^"]+)')
-				if not filmId then return end
-			rc, answer = m_simpleTV.Http.Request(session, {url = 'https://frontend.vh.yandex.ru/v23/player/' .. filmId .. '.json?locale=ru'})
-				if rc ~= 200 then return end
-				if not answer:match('"stream_type":"HLS","url":"%a') then return end
-			return url
-		elseif url:match('svetacdn') then
-			rc, answer = m_simpleTV.Http.Request(session, {url = url})
-				if rc ~= 200 then return end
-			return url
-		elseif url:match('cdnmovies%.net') then
+		if url:match('cdnmovies%.net') then
 			rc, answer = m_simpleTV.Http.Request(session, {url = url})
 				if rc ~= 200 then return end
 			if not title or title == '' then
@@ -125,6 +111,10 @@ local tname = {
 					i = i + 1
 				end
 			return Adrivi
+			elseif url:match('svetacdn') then
+				rc, answer = m_simpleTV.Http.Request(session, {url = url})
+					if rc ~= 200 then return end
+			return url
 		elseif url:match('kodikapi%.com') then
 			rc, answer = m_simpleTV.Http.Request(session, {url = url})
 				if rc ~= 200 then return end
@@ -265,8 +255,6 @@ local tname = {
 			return answer
 		elseif url:match('kodikapi%.com') then
 			return answer
-		elseif url:match('widget%.kinopoisk%.ru') then
-			return answer
 		elseif url:match('filmix') then
 			local i, f = 1, {}
 			for ww in answer:gmatch('<div class="name%-block">(.-)</div>') do
@@ -356,10 +344,6 @@ local tname = {
 				turl[i] = {adr = decode64('aHR0cHM6Ly9pZnJhbWUudmlkZW8vYXBpL3YyL3NlYXJjaD9rcD0') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
 			elseif tname[i] == 'Kodik' then
 				turl[i] = {adr = decode64('aHR0cDovL2tvZGlrYXBpLmNvbS9nZXQtcGxheWVyP3Rva2VuPTQ0N2QxNzllODc1ZWZlNDQyMTdmMjBkMWVlMjE0NmJlJmtpbm9wb2lza0lEPQ') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
-			elseif tname[i] == 'КиноПоиск онлайн' then
-				turl[i] = {adr = decode64('aHR0cHM6Ly9vdHQtd2lkZ2V0Lmtpbm9wb2lzay5ydS9raW5vcG9pc2suanNvbj9lcGlzb2RlPSZzZWFzb249JmZyb209a3AmaXNNb2JpbGU9MCZrcElkPQ==') .. kpid, tTitle = 'Фильмы и сериалы КиноПоиск HD', tLogo = 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/yandex-vod.png'}
-			elseif tname[i] == 'ZonaMobi' then
-				turl[i] = {adr = decode64('em9uYXNlYXJjaC5jb20vc29sci9tb3ZpZQ=='), tTitle = 'Фильмы и сериалы с Zona.mobi', tLogo = 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/zona.png'}
 			elseif tname[i] == 'Filmix' then
 				turl[i] = {adr = filmixsite .. decode64('L2VuZ2luZS9hamF4L3NwaGlueF9zZWFyY2gucGhw'), tTitle = 'Фильмы и сериалы с filmix.ac', tLogo = logo_k}
 			elseif tname[i] == 'Seasonvar' then
@@ -367,7 +351,7 @@ local tname = {
 			elseif tname[i] == 'ivi' then
 				turl[i] = {adr = decode64('aHR0cHM6Ly9hcGkuaXZpLnJ1L21vYmlsZWFwaS9zZWFyY2gvdjUvP2ZpZWxkcz1rcF9pZCxpZCxkcm1fb25seSZmYWtlPTAmcXVlcnk9'), tTitle = 'Фильмы и сериалы с ivi.ru', tLogo = 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/ivi.png'}
 			elseif tname[i] == 'Videocdn' then
-				turl[i] = {adr = decode64('aHR0cHM6Ly84MjA5LnN2ZXRhY2RuLmluL1BYazJRR2J2RVZtUz9rcF9pZD0') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
+				turl[i] = {adr = decode64('aHR0cHM6Ly83NzQxLnN2ZXRhY2RuLmluL1BYazJRR2J2RVZtUz9rcF9pZD0') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
 			elseif tname[i] == 'Collaps' then
 				turl[i] = {adr = 'http://api' .. os.time() .. decode64('LnN5bmNocm9uY29kZS5jb20vZW1iZWQva3Av') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
 			elseif tname[i] == 'CDN Movies' then
