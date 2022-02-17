@@ -1,14 +1,12 @@
--- видеоскрипт для сайта http://www.ivi.ru (7/3/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта http://www.ivi.ru (17/2/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://www.ivi.ru/watch/svaty_4
 -- https://www.ivi.ru/watch/126896
 -- https://www.ivi.ru/kinopoisk=136465
 -- https://www.ivi.ru/watch/sklifosovskij_2
 -- https://www.ivi.ru/watch/eralash/season46
--- ##
 local qlty = 0 -- качество: 0 - максимал.; 1 - Низкое; 2 - Высокое; 3 - Отличное; 4 - HD 720
--- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 		if not inAdr then return end
@@ -18,7 +16,6 @@ local qlty = 0 -- качество: 0 - максимал.; 1 - Низкое; 2 -
 	if not inAdr:match('&kinopoisk') then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
 	end
-	inAdr = inAdr:gsub('&kinopoisk', '')
 	local function showError(str)
 		m_simpleTV.OSD.ShowMessageT({text = 'ivi ошибка: ' .. str, showTime = 5000, color = 0xffff6600, id = 'channelName'})
 	end
@@ -116,16 +113,20 @@ local qlty = 0 -- качество: 0 - максимал.; 1 - Низкое; 2 -
 		end
 	 return retAdr
 	end
-	local retAdr = inAdr
-	retAdr = retAdr:gsub('$OPT.-$', '')
-	local videoid = retAdr:match('/id=(%d+)')
+	inAdr = inAdr:gsub('$OPT.-$', '')
+	local videoid = inAdr:match('/id=(%d+)')
 	local title
 	if not videoid then
-		local compilation = retAdr:match('/kinopoisk=(%d+)')
+		local compilation = inAdr:match('/kinopoisk=(%d+)')
 		local ses, nameses = '', ''
-		title = m_simpleTV.Control.CurrentTitle_UTF8 or 'ivi'
+		title = inAdr:match('&kinopoisk=(.+)')
+		if title then
+			title = m_simpleTV.Common.fromPercentEncoding(title)
+		else
+			title = 'ivi'
+		end
 		if not compilation then
-			local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
+			local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr:gsub('&kinopoisk.+', '')})
 				if rc ~= 200 then
 					m_simpleTV.Http.Close(session)
 					showError('1')
@@ -212,7 +213,7 @@ local qlty = 0 -- качество: 0 - максимал.; 1 - Низкое; 2 -
 			videoid = t1[1].Address
 		end
 	end
-	retAdr = GetiviAddress(videoid)
+	local retAdr = GetiviAddress(videoid)
 	m_simpleTV.Http.Close(session)
 		if not retAdr then
 			m_simpleTV.Control.CurrentAddress = 'https://s3.ap-south-1.amazonaws.com/ttv-videos/InVideo___This_is_where_ypprender_1554571391885.mp4'
