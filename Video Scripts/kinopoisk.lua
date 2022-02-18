@@ -76,10 +76,33 @@ local tname = {
 	local function unescape_html(str)
 	 return htmlEntities.decode(str)
 	end
-	local function getInfo(kpid)
+	local function getInfo_zona(kpid)
+		local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cDovL3pzb2xyLnpvbmFzZWFyY2guY29tL3NvbHIvbW92aWUvc2VsZWN0Lz93dD1qc29uJmZsPXllYXIsc2VyaWFsLHJhdGluZ19raW5vcG9pc2ssbmFtZV9ydXMscmF0aW5nX2ltZGIsZGVzY3JpcHRpb24mcT1pZDo') .. kpid})
+			if rc ~= 200 then return end
+			if not answer:match('^{') then return end
+		answer = answer:gsub('%[%]', '""'):gsub(string.char(239, 187, 191), '')
+		local tab = json.decode(answer)
+			if not tab or not tab.response or not tab.response.docs or not tab.response.docs[1] then return end
+		local serial = tab.response.docs[1].serial
+		local year = tab.response.docs[1].year or 0
+		local title = tab.response.docs[1].name_rus
+		local desc = tab.response.docs[1].description or ''
+		local rating_kp = tab.response.docs[1].rating_kinopoisk or 0
+		local rating_imdb = tab.response.docs[1].rating_imdb or 0
+		serial = tostring(serial)
+		if serial == 'true' then
+			serial = 1
+		elseif serial == 'false' then
+			serial = 0
+		else
+			serial = 10
+		end
+	 return	tonumber(serial), tonumber(year), title, desc, tonumber(rating_kp), tonumber(rating_imdb)
+	end
+	local function getInfo_bazon(kpid)
 		local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9iYXpvbi5jYy9hcGkvc2VhcmNoP3Rva2VuPWMxMThlYjVmOGQzNjU2NWIyYjA4YjUzNDJkYTk3Zjc5JmtwPQ') .. kpid})
 			if rc ~= 200 then return end
-		answer = answer:gsub('(%[%])', '""'):gsub(string.char(239, 187, 191), '')
+		answer = answer:gsub('%[%]', '""'):gsub(string.char(239, 187, 191), '')
 		local tab = json.decode(answer)
 			if not tab or not tab.results or not tab.results[1] or not tab.results[1].info or not tab.results[1].info or not tab.results[1].info.rating then return end
 		local serial = tab.results[1].serial or 10
@@ -406,7 +429,10 @@ local tname = {
 			selectmenu()
 		end
 	end
-	serial, year, title, desc, rating_kp, rating_imdb = getInfo(kpid)
+	serial, year, title, desc, rating_kp, rating_imdb = getInfo_zona(kpid)
+	if not title then
+		serial, year, title, desc, rating_kp, rating_imdb = getInfo_bazon(kpid)
+	end
 	getlogo()
 	setMenu()
 	menu()
