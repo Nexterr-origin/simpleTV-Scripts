@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (10/2/22)
+-- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (18/2/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- http://moonwalk.cam/movie/53295
@@ -53,7 +53,7 @@
 				t[i] = {}
 				t[i].Id = i
 				t[i].qlty = tonumber(qlty)
-				t[i].Address = adr .. '$OPT:NO-STIMESHIFT$OPT:demux=mp4,any'
+				t[i].Address = adr:gsub('%.m3u8', '.mp4') .. '$OPT:NO-STIMESHIFT'
 				t[i].Name = qlty .. 'p'
 				i = i + 1
 			end
@@ -151,7 +151,7 @@
 		local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('сезон: ' .. title, - 1, t, 10000, 1 + 2 + 4 + 8)
 			if ret == 3 then
 				if transl() then
-					serials()
+					serials_cdnmovies()
 				end
 			 return
 			end
@@ -193,7 +193,7 @@
 		m_simpleTV.User.cdnmovies.DelayedAddress = retAdr
 		local title = m_simpleTV.User.cdnmovies.title .. m_simpleTV.User.cdnmovies.seasonName
 		m_simpleTV.Control.SetTitle(title)
-		t.ExtButton1 = {ButtonEnable = true, ButtonName = '🢀', ButtonScript = 'serials()'}
+		t.ExtButton1 = {ButtonEnable = true, ButtonName = '🢀', ButtonScript = 'serials_cdnmovies()'}
 		t.ExtButton0 = {ButtonEnable = true, ButtonName = '⚙', ButtonScript = 'qlty_cdnmovies()'}
 		t.ExtParams = {}
 		t.ExtParams.LuaOnCancelFunName = 'OnMultiAddressCancel_cdnmovies'
@@ -232,7 +232,7 @@
 		answer = answer:gsub('%[%]', '""')
 	 return json.decode(answer), answer:match('folder')
 	end
-	function serials()
+	function serials_cdnmovies()
 		if seasons() then
 			episodes()
 		end
@@ -291,7 +291,7 @@
 	m_simpleTV.User.cdnmovies.tr = nil
 	if transl() then
 		if ser then
-			serials()
+			serials_cdnmovies()
 		else
 			if m_simpleTV.Control.MainMode == 0 then
 				m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
