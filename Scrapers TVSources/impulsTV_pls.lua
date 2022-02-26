@@ -93,7 +93,7 @@ local filter = {
 					i = i + 1
 				end
 			end
-				if i == 1 then return end
+				if i < 20 then return end
 			m_simpleTV.Config.SetValue('impulsTV_authkey', authkey)
 	 return t
 	end
