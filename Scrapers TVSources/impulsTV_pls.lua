@@ -83,7 +83,8 @@ local filter = {
 			for w in answer:gmatch('<is_hidden>.-</name>') do
 				local name = w:match('<name>([^<]+)')
 				local cid = w:match('<id>([^<]+)')
-				if name and cid then
+				local has_subscription = w:match('<has_subscription>1')
+				if name and cid and has_subscription then
 					t[i] = {}
 					t[i].name = name
 					local days = w:match('<max_archive_duration>(%d+)') or 0
