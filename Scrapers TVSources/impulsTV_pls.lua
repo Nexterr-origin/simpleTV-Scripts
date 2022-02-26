@@ -1,5 +1,5 @@
--- скрапер TVS для загрузки плейлиста "impulsTV" http://impulstv.ru (29/9/20)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- скрапер TVS для загрузки плейлиста "impulsTV" http://impulstv.ru (26/2/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## авторизация ##
 -- логин, пароль установить в дополнении 'Password Manager', для id - impulstv
 -- ## необходим ##
@@ -8,7 +8,7 @@
 -- ## прокси (для пробного периода, т.к. ограничение на количество регистраций по IP адресу) ##
 local proxy = ''
 -- '' -- нет
--- 'http://83.96.237.121:80' -- (пример)
+-- 'http://169.57.1.85:8123' -- (пример)
 -- ## переименовать каналы ##
 local filter = {
 	{'Кино 24', 'KINO 24'},
@@ -64,8 +64,8 @@ local filter = {
 		local session = m_simpleTV.Http.New(userAgent)
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 16000)
-		url = decode64('aHR0cDovL2ltcHVsc3R2Lm1pY3JvLmltL2FwaS90dm1pZGRsZXdhcmUvYXBpL2xvZ2luLz9kZXZpY2VfdWlkPTAmZGV2aWNlX21vZGVsPU1vZGVsJTIwQSZkZXZpY2Vfc2VyaWFsPTAmZGV2aWNlPW1hZyZjbGllbnRfaWQ9NzcmYXBpX2tleT1tUzBYMDNjQTFuZ21rVzNLSjJTeERITTQ4dFlQZUczcW95UmJQY2xCWlhwaTIwTUlQSXBDU1hYSXd3QmlPS0dyJnNlc3Nfa2V5PTAmbGFuZz1ydSZhdXRoa2V5PSZhYm9uZW1lbnQ9') .. login .. '&password=' .. pass
-		rc, answer = m_simpleTV.Http.Request(session, {url = url})
+		local url = decode64('aHR0cDovL2ltcHVsc3R2Lm1pY3JvLmltL2FwaS90dm1pZGRsZXdhcmUvYXBpL2xvZ2luLz9kZXZpY2VfdWlkPTAmZGV2aWNlX21vZGVsPU1vZGVsJTIwQSZkZXZpY2Vfc2VyaWFsPTAmZGV2aWNlPW1hZyZjbGllbnRfaWQ9NzcmYXBpX2tleT1tUzBYMDNjQTFuZ21rVzNLSjJTeERITTQ4dFlQZUczcW95UmJQY2xCWlhwaTIwTUlQSXBDU1hYSXd3QmlPS0dyJnNlc3Nfa2V5PTAmbGFuZz1ydSZhdXRoa2V5PSZhYm9uZW1lbnQ9') .. login .. '&password=' .. pass
+		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 			if rc ~= 200 then
 				m_simpleTV.Http.Close(session)
 			 return
