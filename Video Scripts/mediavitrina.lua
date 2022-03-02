@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "Витрина ТВ" https://www.vitrina.tv (19/1/22)
+-- видеоскрипт для плейлиста "Витрина ТВ" https://www.vitrina.tv (2/3/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: mediavitrina_pls.lua
@@ -80,7 +80,7 @@
 	local url = answer:match('http[^\'"<>]+as_array%.json')
 		if not url then
 			m_simpleTV.Http.Close(session)
-			showErr(1)
+			showErr(1.1)
 		 return
 		end
 	local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9tZWRpYS5tZWRpYXZpdHJpbmEucnUvZ2V0X3Rva2Vu')})
@@ -95,7 +95,7 @@
 		 return
 		end
 	url = url .. '?token=' .. token
-	url = url:gsub('\\/', '/')
+	url = url:gsub('\\/', '/'):gsub('/v3/', '/v1/')
 	rc, answer = m_simpleTV.Http.Request(session, {url = url})
 		if rc ~= 200 then
 			m_simpleTV.Http.Close(session)
