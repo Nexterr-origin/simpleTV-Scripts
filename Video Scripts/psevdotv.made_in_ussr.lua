@@ -1,11 +1,10 @@
--- видеоскрипт "made in ussr" [псевдо тв] https://megogo.net (7/3/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт "made in ussr" [псевдо тв] https://megogo.net (3/3/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: psevdotv_pls.lua
 -- видоскрипт: megogo.lua
 -- ## открывает ссылку ##
 -- https://psevdotv.made_in_ussr
--- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://psevdotv%.made_in_ussr') then return end
 	if m_simpleTV.Control.MainMode == 0 then
@@ -19,7 +18,7 @@
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:81.0) Gecko/20100101 Firefox/81.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0')
 		if not session then
 			showError('0')
 		 return
@@ -38,11 +37,16 @@
 		end
 	answer = answer .. '\n'
 	local tab, i = {}, 1
-		for adr in answer:gmatch('#EXTINF:.-\n(.-)%c') do
-			tab[i] = {}
-			tab[i].Id = i
-			tab[i].Address = adr .. '$OPT:INT-SCRIPT-PARAMS=psevdotv'
-			i = i + 1
+		for w in answer:gmatch('#EXTINF:(.-\n.-)%c') do
+			local title = w:match(',(.-)\n')
+			local adr = w:match('\n(.+)')
+			if adr and title then
+				tab[i] = {}
+				tab[i].Id = i
+				tab[i].Address = adr .. '$OPT:INT-SCRIPT-PARAMS=psevdotv'
+				tab[i].Name = title
+				i = i + 1
+			end
 		end
 		if i == 1 then
 			showError('2')
