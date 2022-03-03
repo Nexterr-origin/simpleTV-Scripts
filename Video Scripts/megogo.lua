@@ -1,8 +1,9 @@
--- видеоскрипт для сайта http://megogo.net (20/10/20)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта http://megogo.net (3/3/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
--- https://megogo.net/ru/view/2290531-den-vyborov.html
--- ##
+-- https://megogo.net/ru/view/1360191-kavkazskaya-plennica-ili-novye-priklyucheniya-shurika.html
+-- https://megogo.net/ru/view/15891905-ne-seychas.html
+-- https://megogo.net/ru/view/13820845-anton-cherednichenko.html
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 		if not inAdr then return end
@@ -17,10 +18,10 @@
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = ''
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML,like Gecko) Chrome/80.0.3785.143 Safari/537.36')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
-	local host = inAdr:match('(https:?//.-)/')
+	local host = inAdr:match('https:?//[^/]+')
 	if not m_simpleTV.User then
 		m_simpleTV.User = {}
 	end
@@ -122,7 +123,7 @@
 	end
 	local retAdr = inAdr
 	local title
-	if not inAdr:match('$megogo') then
+	if not inAdr:match('$megogo') and not inAdr:match('PARAMS=psevdotv') then
 		local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
 			if rc ~= 200 then
 				m_simpleTV.Http.Close(session)
@@ -135,7 +136,6 @@
 		local epi = answer:match('"episodes-count"') or answer:match('<li class="filter2i') or answer:match('<ul class="nav seasons%-list">')
 		local nameepi
 		if epi then
-				if inAdr:match('PARAMS=psevdotv') then return end
 			local t, i = {}, 1
 			for w in answer:gmatch('<li class="nav%-item(.-)</li>') do
 				local Adr = w:match('href="(.-)"')
@@ -213,10 +213,15 @@
 			end
 		end
 	end
+	if inAdr:match('PARAMS=psevdotv') then
+		retAdr = inAdr:match('/(%d+)') or ''
+	end
 	retAdr = GetAddress(retAdr)
 		if not retAdr then
 			m_simpleTV.Http.Close(session)
-			m_simpleTV.OSD.ShowMessageT({text = 'видео доступно только в браузере\nmegogo ошибка[1]', color = 0xff9999ff, showTime = 1000 * 5, id = 'channelName'})
+			if not inAdr:match('PARAMS=psevdotv') then
+				m_simpleTV.OSD.ShowMessageT({text = 'видео доступно только в браузере\nmegogo ошибка[1]', color = 0xff9999ff, showTime = 1000 * 5, id = 'channelName'})
+			end
 		 return
 		end
 	retAdr = GetMegogoAddress(retAdr)
@@ -224,10 +229,11 @@
 		if not retAdr then return end
 	if inAdr:match('PARAMS=psevdotv') then
 		local t = m_simpleTV.Control.GetCurrentChannelInfo()
-		if t and t.MultiHeader then
-			title = t.MultiHeader .. ': ' .. title
+		if t and t.MultiHeader and t.MultiName then
+			title = t.MultiHeader .. ': ' .. t.MultiName
 		end
 		retAdr = retAdr .. '$OPT:NO-SEEKABLE'
+		title = title or ''
 		m_simpleTV.Control.SetTitle(title)
 		m_simpleTV.OSD.ShowMessageT({text = title, showTime = 1000 * 5, id = 'channelName'})
 	else
