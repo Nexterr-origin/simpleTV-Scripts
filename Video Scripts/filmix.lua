@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://filmix.ac (10/2/22)
+-- видеоскрипт для сайта https://filmix.ac (4/3/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## авторизация ##
 -- логин, пароль установить в 'Password Manager', для id - filmix
@@ -372,7 +372,7 @@ local zer = ''
 			answer = m_simpleTV.Common.multiByteToUTF8(answer)
 		end
 		local tab = json.decode(answer:gsub('%[%]', '""'))
-			if not tab then
+			if not tab or #tab == 0 then
 				showError('15')
 			 return
 			end
