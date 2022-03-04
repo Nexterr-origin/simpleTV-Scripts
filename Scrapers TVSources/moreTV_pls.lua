@@ -1,5 +1,5 @@
--- скрапер TVS для загрузки плейлиста "moreTV" https://more.tv (7/3/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- скрапер TVS для загрузки плейлиста "moreTV" https://more.tv (4/3/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: mediavitrina.lua
 -- ## переименовать каналы ##
@@ -31,7 +31,6 @@ local filter = {
 	{'Россия-К', 'Россия К'},
 	{'СТС Kids', 'СТС Kids HD'},
 	}
--- ##
 	module('moreTV_pls', package.seeall)
 	local my_src_name = 'moreTV'
 	local function ProcessFilterTableLocal(t)
@@ -52,12 +51,8 @@ local filter = {
 	function GetVersion()
 	 return 2, 'UTF-8'
 	end
-	local function showMsg(str, color)
-		local t = {text = str, color = color, showTime = 1000 * 5, id = 'channelName'}
-		m_simpleTV.OSD.ShowMessageT(t)
-	end
 	local function LoadFromSite()
-		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:82.0) Gecko/20100101 Firefox/82.0')
+		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:97.0) Gecko/20100101 Firefox/97.0')
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 8000)
 		local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9tb3JlLnR2L2FwaS93ZWIvY2hhbm5lbHM')})
@@ -66,22 +61,18 @@ local filter = {
 		answer = answer:gsub(':%s*%[%]', ':""')
 		answer = answer:gsub('%[%]', ' ')
 		require 'json'
-		local tab = json.decode(answer)
+		local err, tab = pcall(json.decode, answer)
 			if not tab or not tab.data then return end
 		local t, i = {}, 1
-		local j	= 1
-		local adr
-			while tab.data[j] do
-				adr = tab.data[j].vitrinaSamsungTizenSDK
+			while tab.data[i] do
+				local adr = tab.data[i].vitrinaSamsungTizenSDK
 				if adr then
-					t[i] = {}
-					t[i].name = tab.data[j].title
-					t[i].address = adr
-					i = i + 1
+					t[#t + 1] = {}
+					t[#t].name = tab.data[i].title
+					t[#t].address = adr
 				end
-				j = j + 1
+				i = i + 1
 			end
-			if i == 1 then return end
 	 return t
 	end
 	function GetList(UpdateID, m3u_file)
@@ -90,11 +81,7 @@ local filter = {
 			if not TVSources_var.tmp.source[UpdateID] then return end
 		local Source = TVSources_var.tmp.source[UpdateID]
 		local t_pls = LoadFromSite()
-			if not t_pls then
-				showMsg(Source.name .. ' ошибка загрузки плейлиста', ARGB(255, 255, 102, 0))
-			 return
-			end
-		showMsg(Source.name .. ' (' .. #t_pls .. ')', ARGB(255, 153, 255, 153))
+			if not t_pls or #t_pls == 0 then return end
 		t_pls = ProcessFilterTableLocal(t_pls)
 		local m3ustr = tvs_core.ProcessFilterTable(UpdateID, Source, t_pls)
 		local handle = io.open(m3u_file, 'w+')
