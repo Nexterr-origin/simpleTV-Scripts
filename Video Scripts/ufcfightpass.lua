@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://ufcfightpass.com (6/2/22)
+-- видеоскрипт для сайта https://ufcfightpass.com (7/3/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- логин, пароль установить в 'Password Manager', для id: ufcfightpass
 -- ## открывает подобные ссылки ##
@@ -121,12 +121,14 @@
 		end
 	title = title or 'UFC Fight Pass'
 	if m_simpleTV.Control.MainMode == 0 then
+		if m_simpleTV.Control.ChannelID == 268435455 then
+			m_simpleTV.Control.ChangeChannelName(title, m_simpleTV.Control.ChannelID, false)
+			m_simpleTV.Control.CurrentTitle_UTF8 = title
+		end
 		pic = pic or logo
-		m_simpleTV.Control.ChangeChannelName(title, m_simpleTV.Control.ChannelID, false)
 		pic = pic:gsub('/original/', '/346x200/')
-		m_simpleTV.Control.ChangeChannelLogo(pic, m_simpleTV.Control.ChannelID)
+		m_simpleTV.Control.ChangeChannelLogo(pic, m_simpleTV.Control.ChannelID, CHANGE_IF_NOT_EQUAL)
 	end
-	m_simpleTV.Control.CurrentTitle_UTF8 = title
 	local extOpt = '$OPT:INT-SCRIPT-PARAMS=ufcfightpass' .. inAdr .. '$OPT:adaptive-use-avdemux$OPT:http-user-agent=' .. userAgent
 	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 		if rc ~= 200 then
