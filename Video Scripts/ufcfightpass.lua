@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://ufcfightpass.com (7/3/22)
+-- видеоскрипт для сайта https://ufcfightpass.com (8/3/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- логин, пароль установить в 'Password Manager', для id: ufcfightpass
 -- ## открывает подобные ссылки ##
@@ -111,11 +111,13 @@
 	end
 	local authToken = GetTokens(headers, apiUrl)
 		if not authToken then
+			m_simpleTV.Http.Close(session)
 			showMsg('необходима авторизация')
 		 return
 		end
 	local retAdr, title, pic = GetAddress(id, id_vod, authToken, headers, apiUrl)
 		if not retAdr then
+			m_simpleTV.Http.Close(session)
 			showMsg('нет адреса трансляции/видео')
 		 return
 		end
@@ -131,6 +133,7 @@
 	end
 	local extOpt = '$OPT:INT-SCRIPT-PARAMS=ufcfightpass' .. inAdr .. '$OPT:adaptive-use-avdemux$OPT:http-user-agent=' .. userAgent
 	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
+	m_simpleTV.Http.Close(session)
 		if rc ~= 200 then
 			m_simpleTV.Control.CurrentAddress = retAdr .. extOpt
 		 return
