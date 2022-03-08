@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://filmix.ac (4/3/22)
+-- видеоскрипт для сайта https://filmix.ac (8/3/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## авторизация ##
 -- логин, пароль установить в 'Password Manager', для id - filmix
@@ -141,36 +141,17 @@ local zer = ''
 	end
 	local function GetQualityFromAddress(Adr)
 		local t, i = {}, 1
-		for qlty, adr in Adr:gmatch('%[(%d+)[^%]]+%]([^,]*)') do
-			t[i] = {}
-			t[i].qlty = qlty
-			t[i].Address = adr
-			i = i + 1
-		end
-			for _, v in pairs(t) do
-				v.qlty = v.qlty:gsub('^2$', '1440'):gsub('^4$', '2160')
-				v.qlty = tonumber(v.qlty)
-				if v.qlty > 0 and v.qlty <= 180 then
-					v.qlty = 144
-				elseif v.qlty > 180 and v.qlty <= 300 then
-					v.qlty = 240
-				elseif v.qlty > 300 and v.qlty <= 400 then
-					v.qlty = 360
-				elseif v.qlty > 400 and v.qlty <= 500 then
-					v.qlty = 480
-				elseif v.qlty > 500 and v.qlty <= 780 then
-					v.qlty = 720
-				elseif v.qlty > 780 and v.qlty <= 1200 then
-					v.qlty = 1080
-				elseif v.qlty > 1200 and v.qlty <= 1500 then
-					v.qlty = 1444
-				elseif v.qlty > 1500 and v.qlty <= 2800 then
-					v.qlty = 2160
-				elseif v.qlty > 2800 and v.qlty <= 4500 then
-					v.qlty = 4320
-				end
-				v.Name = v.qlty .. 'p'
+		for name, adr in Adr:gmatch('%[([^%]]+)%]([^,]+)') do
+			if name and adr then
+				t[i] = {}
+				t[i].Address = adr
+				t[i].Name = name
+				local qlty= name:gsub('^2$', '1440'):gsub('^4$', '2160'):gsub('1080p Ultra+', '1100')
+				qlty = qlty:match('%d+') or 0
+				t[i].qlty = tonumber(qlty)
+				i = i + 1
 			end
+		end
 			if i == 1 then return end
 		table.sort(t, function(a, b) return a.qlty < b.qlty end)
 		for i = 1, #t do
@@ -280,7 +261,7 @@ local zer = ''
 	end
 	if login and password then
 		local url
-		if host:match('filmix%.life') then
+		if host:match('filmix%.life') or host:match('filmix%.tech') then
 			url = host
 		else
 			url = host .. 'engine/ajax/user_auth.php'
