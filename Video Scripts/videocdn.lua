@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (17/2/22)
+-- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (8/3/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://32.svetacdn.in/fnXOUDB9nNSO?kp_id=5928
@@ -106,6 +106,7 @@ local proxy = ''
 		else
 			url = url:gsub('^%[', '')
 		end
+		url = url:gsub('%.m3u8', '.mp4')
 		local t = {}
 			for adr in url:gmatch('%](//[^%s]+%.mp4)') do
 				local qlty = adr:match('/(%d+)%.mp4')
