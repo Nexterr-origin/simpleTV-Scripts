@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://filmix.ac (8/3/22)
+-- видеоскрипт для сайта https://filmix.ac (9/3/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## авторизация ##
 -- логин, пароль установить в 'Password Manager', для id - filmix
@@ -140,19 +140,18 @@ local zer = ''
 	 return index
 	end
 	local function GetQualityFromAddress(Adr)
-		local t, i = {}, 1
-		for name, adr in Adr:gmatch('%[([^%]]+)%]([^,]+)') do
-			if name and adr then
-				t[i] = {}
-				t[i].Address = adr
-				t[i].Name = name
-				local qlty= name:gsub('^2$', '1440'):gsub('^4$', '2160'):gsub('1080p Ultra+', '1100')
-				qlty = qlty:match('%d+') or 0
-				t[i].qlty = tonumber(qlty)
-				i = i + 1
+		local t = {}
+			for name, adr in Adr:gmatch('%[([^%]]+)%]([^,]+)') do
+				if name and adr then
+					t[#t + 1] = {}
+					t[#t].Address = adr
+					t[#t].Name = name
+					local qlty= name:gsub('^4K', '2160'):gsub('1080p Ultra+', '1200')
+					qlty = qlty:match('%d+') or #t
+					t[#t].qlty = tonumber(qlty)
+				end
 			end
-		end
-			if i == 1 then return end
+			if #t == 0 then return end
 		table.sort(t, function(a, b) return a.qlty < b.qlty end)
 		for i = 1, #t do
 			t[i].Id = i
