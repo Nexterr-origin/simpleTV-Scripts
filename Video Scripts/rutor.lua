@@ -1,5 +1,5 @@
--- видеоскрипт для сайта http://rutor.info (10/3/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта http://rutor.info (9/3/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- Acestream
 -- ## открывает подобные ссылки ##
@@ -9,12 +9,12 @@
 local proxy = ''
 -- '' - нет
 -- 'https://proxy-nossl.antizapret.prostovpn.org:29976' (пример)
--- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://rutor%.is/.+')
-			and not m_simpleTV.Control.CurrentAddress:match('^https?://rutor%.info/.+')
-			and not m_simpleTV.Control.CurrentAddress:match('^https?://6tor%.net/.+')
-			and not m_simpleTV.Control.CurrentAddress:match('^https?://mega%-pro%.xyz/.+')
+			and not m_simpleTV.Control.CurrentAddress:match(
+			'^https?://rutor%.info/.+')
+			and not m_simpleTV.Control.CurrentAddress:match(   '^https?://6tor%.net/.+')
+			and not m_simpleTV.Control.CurrentAddress:match('^https?://zerkalo%-tor%.org/.+')
 			and not m_simpleTV.Control.CurrentAddress:match('torrent_rutor_')
 		then
 		 return
