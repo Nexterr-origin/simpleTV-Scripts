@@ -1,9 +1,7 @@
--- скрапер TVS для загрузки плейлиста "Псевдо ТВ" (26/5/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- скрапер TVS для загрузки плейлиста "Псевдо ТВ" (15/3/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
--- видоскрипт: psevdotv.made_in_ussr.lua, psevdotv.film_ussr.lua
--- psevdotv.bond_007.lua, psevdotv.jackie_chan.lua
--- ##
+-- видоскрипт: psevdotv.film_ussr.lua, psevdotv.bond_007.lua, psevdotv.jackie_chan.lua
 	module('psevdotv_pls', package.seeall)
 	local my_src_name = 'Псевдо ТВ'
 	function GetSettings()
@@ -15,11 +13,9 @@
 	local function outm3u()
 	 return [[
 #EXTM3U
-#EXTINF:-1 group-title="Фильмы" tvg-logo="https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/made_in_ussr.png" video-title="Фильмы" video-desk="https://megogo.net",Made in USSR ☭🎞️
-https://psevdotv.made_in_ussr
 #EXTINF:-1 group-title="Фильмы" tvg-logo="https://lh4.googleusercontent.com/proxy/QeqL1b6TeDDb4ksmwf6XyIMsofrP90HCHe1GL_NpKzEX_X4fZD0ioar3kMdG6RI0xIopJaBn97iudZ-JXKFYXDLj4Q" video-title="Фильмы" video-desk="http://www.ivi.ru",Фильмы СССР ☭🎞️
 https://psevdotv.film_ussr
-#EXTINF:-1 group-title="Фильмы" tvg-logo="https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/jackie_chan.png" video-title="Фильмы" video-desk="https://videocdn.tv | https://megogo.net",Джеки Чан ТВ 👊🎞️
+#EXTINF:-1 group-title="Фильмы" tvg-logo="https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/jackie_chan.png" video-title="Фильмы" video-desk="https://videocdn.tv",Джеки Чан ТВ 👊🎞️
 https://psevdotv.jackie_chan
 #EXTINF:-1 group-title="Фильмы" tvg-logo="https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/bond_007.png" video-title="Фильмы" video-desk="https://videocdn.tv",Бонд 007 🔫🎞️
 https://psevdotv.bond_007
