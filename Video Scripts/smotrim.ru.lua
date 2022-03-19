@@ -1,16 +1,16 @@
--- видеоскрипт для сайта https://smotrim.ru (15/11/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта https://smotrim.ru (19/3/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## Необходим ##
 -- видеоскприпт: mediavitrina.lua
 -- ## открывает подобные ссылки ##
--- https://smotrim.ru/video/118601
+-- https://smotrim.ru/video/2393207
 -- https://smotrim.ru/article/2512070
 -- https://smotrim.ru/live/channel/2961
 -- https://smotrim.ru/live/vitrina/254
 -- https://smotrim.ru/live/channel/248 -- радио
 -- https://smotrim.ru/live/61647
 -- https://smotrim.ru/podcast/45
--- ##
+-- https://smotrim.ru/live/52035
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://smotrim%.ru')
 			and not m_simpleTV.Control.CurrentAddress:match('^smotrim_podcast=')
@@ -31,7 +31,7 @@
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:95.0) Gecko/20100101 Firefox/95.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:95.0) Gecko/20100101 Firefox/95.0', nil, true)
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local function showErr(str)
@@ -251,12 +251,22 @@
 	local extOpt = '$OPT:no-spu'
 	local duration = answer:match('"duration":(%d+)')
 	Thumbs(answer)
+	m_simpleTV.Http.SetRedirectAllow(session, false)
 	rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
+	if rc == 301 then
+		local raw = m_simpleTV.Http.GetRawHeader(session)
+			if not raw then return end
+		local adr = raw:match('Location: (.-)\n')
+			if not adr then return end
+		local host0 = retAdr:match('https?://[^/]+')
+		retAdr = host0 .. adr
+		rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
+			if rc ~= 200 then return end
+	elseif rc ~= 200 then
+		showErr(7)
+	 return
+	end
 	m_simpleTV.Http.Close(session)
-		if rc ~= 200 then
-			showErr(7)
-		 return
-		end
 	local host = retAdr:match('.+%.smil/') or retAdr:match('.+/')
 	local host2 = retAdr:match('https?://[^/]+')
 	local t, i = {}, 1
