@@ -1,7 +1,9 @@
--- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (18/2/22)
+-- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (22/3/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- ## необходим ##
+-- модуль: /core/playerjs.lua
 -- ## открывает подобные ссылки ##
--- http://moonwalk.cam/movie/53295
+-- http://moonwalk.cam/movie/4514
 -- http://moonwalk.cam/serial/5311
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://moonwalk%.cam')
@@ -16,6 +18,7 @@
 		end
 	end
 	require 'json'
+	require 'playerjs'
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
 	if not m_simpleTV.User then
@@ -218,7 +221,7 @@
 		play(adr, title)
 	end
 	local function getData()
-		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:94.0) Gecko/20100101 Firefox/94.0')
+		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:98.0) Gecko/20100101 Firefox/98.0')
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 8000)
 		local url = inAdr:gsub('&kinopoisk.+', '')
@@ -227,10 +230,19 @@
 			if rc ~= 200 then
 			 return 'это видео удалено'
 			end
-		answer = answer:match('file:\'([^\']+)')
-			if not answer then return end
-		answer = answer:gsub('%[%]', '""')
-	 return json.decode(answer), answer:match('folder')
+		local file = answer:match('file:\'([^\']+)')
+			if not file then return end
+		local playerjs_url = answer:match('script src="([^"]+)')
+			if not playerjs_url then return end
+		local host = url:match('^https?://[^/]+')
+		playerjs_url = host .. playerjs_url
+		local file = playerjs.decode(file, playerjs_url)
+			if not file or file == '' then return end
+		file = m_simpleTV.Common.multiByteToUTF8(file)
+		file = file:gsub('%[%]', '""')
+		local err, tab = pcall(json.decode, file)
+		local ser = file:match('folder')
+	 return tab, ser
 	end
 	function serials_cdnmovies()
 		if seasons() then
@@ -273,8 +285,8 @@
 		 return
 		end
 	local tab, ser = getData()
-		if not tab or type(tab) ~= 'table' then
-			showMsg(tab or 'нет данных')
+		if type(tab) ~= 'table' then
+			showMsg('нет данных')
 		 return
 		end
 	local title = inAdr:match('&kinopoisk=(.+)')
