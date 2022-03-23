@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "voidboost" (17/2/22)
+-- видеоскрипт для видеобалансера "voidboost" (23/3/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- модуль: /core/playerjs.lua
@@ -366,7 +366,7 @@
 			if m_simpleTV.User.paramScriptForSkin_buttonPlst then
 				t1.ExtButton1 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonPlst, ButtonScript = 'm_simpleTV.Control.SetNewAddressT({address = m_simpleTV.User.voidboost.startAdr, position = 0})'}
 			else
-				t1.ExtButton1 = {ButtonEnable = true, ButtonName = '📋', ButtonScript = 'OnMultiAddressCancel_voidboost()'}
+				t1.ExtButton1 = {ButtonEnable = true, ButtonName = '📋', ButtonScript = 'm_simpleTV.Control.SetNewAddressT({address = m_simpleTV.User.voidboost.startAdr, position = 0})'}
 			end
 			t1.ExtParams = {}
 			t1.ExtParams.PlayMode = 1
