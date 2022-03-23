@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (22/3/22)
+-- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (23/3/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- модуль: /core/playerjs.lua
@@ -28,6 +28,7 @@
 		m_simpleTV.User.cdnmovies = {}
 	end
 	m_simpleTV.User.cdnmovies.DelayedAddress = nil
+	m_simpleTV.User.cdnmovies.startAdr = inAdr
 	local function showMsg(str)
 		local t = {text = 'CDN Movies ошибка: ' .. str, showTime = 1000 * 8, color = ARGB(255, 255, 102, 0), id = 'channelName'}
 		m_simpleTV.OSD.ShowMessageT(t)
@@ -101,12 +102,12 @@
 				t[i].Name = name
 				if not selected then
 					if not selected_dubl
-						and name:match('дублир')
+						and (name:match('дублир') and not name:match('%[..%]'))
 					then
 						selected_dubl = i
 					end
 					if not selected_pro
-						and name:match('фессион')
+						and (name:match('фессион') and not name:match('%[..%]'))
 					then
 						selected_pro = i
 					end
@@ -114,6 +115,9 @@
 			end
 		selected = selected or selected_dubl or selected_pro or #t
 		t.ExtButton0 = {ButtonEnable = true, ButtonName = '🎞️'}
+		if m_simpleTV.User.paramScriptForSkin_buttonOk then
+			t.OkButton = {ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOk}
+		end
 		local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('перевод: ' .. m_simpleTV.User.cdnmovies.title, selected - 1, t, 10000, 1 + 2 + 4 + 8)
 			if ret == 2 then
 				m_simpleTV.Control.Restart(-2.0, true)
@@ -150,7 +154,14 @@
 				i = i + 1
 			end
 			if #t == 0 then return end
-		t.ExtButton1 = {ButtonEnable = true, ButtonName = '🢀'}
+		if m_simpleTV.User.paramScriptForSkin_buttonOk then
+			t.OkButton = {ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOk}
+		end
+		if m_simpleTV.User.paramScriptForSkin_buttonPrev then
+			t.ExtButton1 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonPrev}
+		else
+			t.ExtButton1 = {ButtonEnable = true, ButtonName = '🢀'}
+		end
 		local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('сезон: ' .. title, - 1, t, 10000, 1 + 2 + 4 + 8)
 			if ret == 3 then
 				if transl() then
@@ -196,8 +207,19 @@
 		m_simpleTV.User.cdnmovies.DelayedAddress = retAdr
 		local title = m_simpleTV.User.cdnmovies.title .. m_simpleTV.User.cdnmovies.seasonName
 		m_simpleTV.Control.SetTitle(title)
-		t.ExtButton1 = {ButtonEnable = true, ButtonName = '🢀', ButtonScript = 'serials_cdnmovies()'}
-		t.ExtButton0 = {ButtonEnable = true, ButtonName = '⚙', ButtonScript = 'qlty_cdnmovies()'}
+		if m_simpleTV.User.paramScriptForSkin_buttonOptions then
+			t.ExtButton0 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOptions, ButtonScript = 'qlty_cdnmovies()'}
+		else
+			t.ExtButton0 = {ButtonEnable = true, ButtonName = '⚙', ButtonScript = 'qlty_cdnmovies()'}
+		end
+		if m_simpleTV.User.paramScriptForSkin_buttonOk then
+			t.OkButton = {ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOk}
+		end
+		if m_simpleTV.User.paramScriptForSkin_buttonPrev then
+			t.ExtButton1 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonPrev, ButtonScript = 'serials_cdnmovies()'}
+		else
+			t.ExtButton1 = {ButtonEnable = true, ButtonName = '🢀', ButtonScript = 'serials_cdnmovies()'}
+		end
 		t.ExtParams = {}
 		t.ExtParams.LuaOnCancelFunName = 'OnMultiAddressCancel_cdnmovies'
 		t.ExtParams.StopOnError = 1
@@ -215,8 +237,14 @@
 		t[1] = {}
 		t[1].Id = 1
 		t[1].Name = title
-		t.ExtButton0 = {ButtonEnable = true, ButtonName = '⚙', ButtonScript = 'qlty_cdnmovies()'}
-		t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
+		if m_simpleTV.User.paramScriptForSkin_buttonOptions then
+			t.ExtButton0 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOptions, ButtonScript = 'qlty_cdnmovies()'}
+		else
+			t.ExtButton0 = {ButtonEnable = true, ButtonName = '⚙', ButtonScript = 'qlty_cdnmovies()'}
+		end
+		if m_simpleTV.User.paramScriptForSkin_buttonOk then
+			t.OkButton = {ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOk}
+		end
 		m_simpleTV.OSD.ShowSelect_UTF8('CDN Movies', 0, t, 10000, 64 + 32 + 128)
 		play(adr, title)
 	end
@@ -254,7 +282,14 @@
 			if not t then return end
 		m_simpleTV.Control.ExecuteAction(37)
 		local index = getIndex(t)
-		t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
+		if m_simpleTV.User.paramScriptForSkin_buttonOk then
+			t.OkButton = {ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOk}
+		end
+		if m_simpleTV.User.paramScriptForSkin_buttonClose then
+			t.ExtButton1 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonClose, ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
+		else
+			t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
+		end
 		local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('⚙ Качество', index - 1, t, 10000, 1 + 2 + 4)
 		if ret == 1 then
 			m_simpleTV.Control.SetNewAddressT({address = t[id].Address, position = m_simpleTV.Control.GetPosition()})
