@@ -1,8 +1,8 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (15/3/22)
+-- видеоскрипт для сайта http://www.kinopoisk.ru (25/3/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
--- iviru.lua, videocdn.lua, hdvb-vb.lua, collaps.lua, cdnmovies.lua, voidboost.lua
+-- iviru.lua, videocdn.lua, hdvb.lua, collaps.lua, cdnmovies.lua, voidboost.lua
 -- ## открывает подобные ссылки ##
 -- https://www.kinopoisk.ru/film/5928
 -- https://www.kinopoisk.ru/level/1/film/46225/sr/1/
@@ -26,7 +26,7 @@ local tname = {
 	'Videoframe',
 	'Filmix',
 	'Collaps',
-	-- 'Hdvb',
+	'Hdvb',
 	'CDN Movies',
 	'Kodik',
 	'ivi',
