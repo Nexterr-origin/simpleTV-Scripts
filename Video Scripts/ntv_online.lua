@@ -1,27 +1,41 @@
--- видеоскрипт для сайта http://www.ntv.ru (26/12/18)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта http://www.ntv.ru (26/3/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает ссылки ##
--- http://ntv.ru/air
--- http://ntv.ru/air/ntvstyle
--- http://www.ntv.ru/air/ntvlaw
--- https://www.ntv.ru/air/ntvseries/
--- ##
+-- https://www.ntv.ru/air
+-- https://www.ntv.ru/air/ntvseries
+-- https://www.ntv.ru/air/ntvlaw
+-- https://www.ntv.ru/air/ntvstyle
+-- https://www.ntv.ru/air/ntvhit
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('https?://[w.]*ntv%.ru/air') then return end
+		if not m_simpleTV.Control.CurrentAddress:match('https?://www%.ntv%.ru/air') then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = '', UseLogo = 0, Once = 1})
 	end
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.79 Safari/537.36')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:98.0) Gecko/20100101 Firefox/98.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
-	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
+	local rc, answer = m_simpleTV.Http.Request(session, {url = 'https://www.ntv.ru/air'})
 		if rc ~= 200 then return end
-	local retAdr = answer:match('camHlsURL = \'(.-)\'') or answer:match('hlsURL = \'(.-)\'')
+	answer = answer:gsub('%s', '')
+	local retAdr
+	if inAdr:match('ntvseries') then
+		retAdr = answer:match('serialHlsURL=[\'"]([^\'?"]+)')
+	elseif inAdr:match('ntvlaw') then
+		retAdr = answer:match('pravoHlsURL=[\'"]([^\'?"]+)')
+	elseif inAdr:match('ntvstyle') then
+		retAdr = answer:match('styleHlsURL=[\'"]([^\'"]+)')
+	elseif inAdr:match('ntvhit') then
+		retAdr = answer:match('hitHlsURL=[\'"]([^\'?"]+)')
+	else
+		retAdr = answer:match('hdHlsURL=[\'"]([^\'?"]+)')
+	end
 		if not retAdr then return end
-	retAdr = retAdr:gsub('^//', 'http://')
+	retAdr = retAdr:gsub('^(.-/)airstream(%d%d).-(/.-)$', '%1/smil:ntvair%2.smil%3')
+	retAdr = retAdr:gsub('hd_ntvair001', 'smil:ntvair001_hd')
+	retAdr = retAdr:gsub('^//', 'https://')
 	rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 	m_simpleTV.Http.Close(session)
 		if rc ~= 200 then return end
