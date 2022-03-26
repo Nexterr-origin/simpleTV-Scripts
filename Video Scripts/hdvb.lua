@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "Hdvb" https://hdvb.tv (26/3/22)
+-- видеоскрипт для видеобалансера "Hdvb" https://hdvb.tv (27/3/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://vid1647324294.vb17121coramclean.pw/movie/c77fd8d3ec03509000778d9af49f8d86/iframe
@@ -24,7 +24,10 @@
 	if not m_simpleTV.User.hdvb then
 		m_simpleTV.User.hdvb = {}
 	end
-	m_simpleTV.User.hdvb.startAdr = inAdr
+	if not inAdr:match('^$hdvb') then
+		m_simpleTV.User.hdvb.startAdr = inAdr
+	end
+	m_simpleTV.User.hdvb.DelayedAddress = nil
 	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:98.0) Gecko/20100101 Firefox/98.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
@@ -113,14 +116,17 @@
 		m_simpleTV.User.hdvb.Index = index
 	 return t[index].Address
 	end
+	local function getStream(adr)
+		adr = getAddress(adr)
+			if not adr then	return end
+	 return getAdrTab(adr)
+	end
 	local function play(adr, title)
-		local retAdr = getAddress(adr)
+		local retAdr = getStream(adr)
 			if not retAdr then
 				m_simpleTV.Control.CurrentAddress = 'http://wonky.lostcut.net/vids/error_getlink.avi'
 			 return
 			end
-		local retAdr = getAdrTab(retAdr)
-			if not retAdr then return end
 -- debug_in_file(retAdr .. '\n')
 		m_simpleTV.Control.SetTitle(title)
 		m_simpleTV.OSD.ShowMessageT({text = title, showTime = 1000 * 5, id = 'channelName'})
@@ -158,13 +164,12 @@
 				i = i + 1
 			end
 			if #t == 0 then return end
-		local retAdr = getAddress(t[1].Address)
+		local retAdr = getStream(t[1].Address)
 			if not retAdr then
 				m_simpleTV.Control.CurrentAddress = 'http://wonky.lostcut.net/vids/error_getlink.avi'
 			 return
 			end
-		retAdr = getAdrTab(retAdr)
-			if not retAdr then return end
+		m_simpleTV.User.hdvb.DelayedAddress = retAdr
 		local title = m_simpleTV.User.hdvb.title .. m_simpleTV.User.hdvb.seasonName
 		m_simpleTV.Control.SetTitle(title)
 		if m_simpleTV.User.paramScriptForSkin_buttonOptions then
@@ -175,19 +180,21 @@
 		if m_simpleTV.User.paramScriptForSkin_buttonOk then
 			t.OkButton = {ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOk}
 		end
-		if m_simpleTV.User.paramScriptForSkin_buttonClose then
-			t.ExtButton1 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonClose, ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
+		if m_simpleTV.User.paramScriptForSkin_buttonPlst then
+			t.ExtButton1 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonPlst, ButtonScript = 'm_simpleTV.Control.SetNewAddressT({address = m_simpleTV.User.hdvb.startAdr, position = 0})'}
 		else
-			t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
+			t.ExtButton1 = {ButtonEnable = true, ButtonName = '📋', ButtonScript = 'm_simpleTV.Control.SetNewAddressT({address = m_simpleTV.User.hdvb.startAdr, position = 0})'}
 		end
-
 		t.ExtParams = {}
+		t.ExtParams.LuaOnCancelFunName = 'OnMultiAddressCancel_hdvb'
+		t.ExtParams.LuaOnOkFunName = 'OnMultiAddressOk_hdvb'
+		t.ExtParams.LuaOnTimeoutFunName = 'OnMultiAddressCancel_hdvb'
 		t.ExtParams.StopOnError = 1
 		t.ExtParams.StopAfterPlay = 1
 		t.ExtParams.PlayMode = 1
 		m_simpleTV.OSD.ShowSelect_UTF8(title, 0, t, 10000, 2 + 64)
-		m_simpleTV.Control.CurrentAddress = retAdr
-		m_simpleTV.OSD.ShowMessageT({text = title .. ': ' .. t[1].Name, showTime = 5000, id = 'channelName'})
+		m_simpleTV.Control.CurrentAddress = 'wait'
+		m_simpleTV.User.hdvb.episodeTitle = title .. ': ' .. t[1].Name
 	end
 	local function movie()
 		local title = m_simpleTV.User.hdvb.title
@@ -238,6 +245,24 @@
 			tab = answer
 		end
 	 return tab
+	end
+	function OnMultiAddressOk_hdvb(Object, id)
+		if id == 1 then
+			OnMultiAddressCancel_hdvb(Object)
+		else
+			m_simpleTV.User.hdvb.DelayedAddress = nil
+		end
+	end
+	function OnMultiAddressCancel_hdvb(Object)
+		if m_simpleTV.User.hdvb.DelayedAddress then
+			if m_simpleTV.Control.GetState() == 0 then
+				m_simpleTV.Control.SetNewAddressT({address = m_simpleTV.User.hdvb.DelayedAddress, position = 0})
+				local title = m_simpleTV.User.hdvb.episodeTitle
+				m_simpleTV.Control.SetTitle(title)
+				m_simpleTV.OSD.ShowMessageT({text = title, showTime = 1000 * 5, id = 'channelName'})
+			end
+			m_simpleTV.User.hdvb.DelayedAddress = nil
+		end
 	end
 	function serials_hdvb()
 		if seasons() then
