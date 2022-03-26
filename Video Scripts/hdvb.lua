@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "Hdvb" https://hdvb.tv (25/3/22)
+-- видеоскрипт для видеобалансера "Hdvb" https://hdvb.tv (26/3/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://vid1647324294.vb17121coramclean.pw/movie/c77fd8d3ec03509000778d9af49f8d86/iframe
@@ -10,59 +10,63 @@
 		 return
 		end
 	local inAdr = m_simpleTV.Control.CurrentAddress
-	m_simpleTV.OSD.ShowMessageT({text = '', showTime = 1000, id = 'channelName'})
-	if inAdr:match('^$hdvb') or not inAdr:match('&kinopoisk') then
+	if not inAdr:match('&kinopoisk') then
 		if m_simpleTV.Control.MainMode == 0 then
-			m_simpleTV.Interface.SetBackground({BackColor = 0, BackColorEnd = 255, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
+			m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
 		end
-	end
-	local function showMsg(str)
-		local t = {text = 'hdvb ошибка: ' .. str, color = ARGB(255, 255, 102, 0), showTime = 5000, id = 'channelName'}
-		m_simpleTV.OSD.ShowMessageT(t)
 	end
 	require 'json'
 	m_simpleTV.Control.ChangeAddress = 'Yes'
-	m_simpleTV.Control.CurrentAddress = ''
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:98.0) Gecko/20100101 Firefox/98.0')
-		if not session then return end
-	m_simpleTV.Http.SetTimeout(session, 12000)
+	m_simpleTV.Control.CurrentAddress = 'error'
 	if not m_simpleTV.User then
 		m_simpleTV.User = {}
 	end
 	if not m_simpleTV.User.hdvb then
 		m_simpleTV.User.hdvb = {}
 	end
-	if not m_simpleTV.User.hdvb.qlty then
-		m_simpleTV.User.hdvb.qlty = tonumber(m_simpleTV.Config.GetValue('hdvb_qlty') or '10000')
+	m_simpleTV.User.hdvb.startAdr = inAdr
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:98.0) Gecko/20100101 Firefox/98.0')
+		if not session then return end
+	m_simpleTV.Http.SetTimeout(session, 8000)
+	local function showMsg(str)
+		local t = {text = 'Hdvb ошибка: ' .. str, showTime = 1000 * 8, color = ARGB(255, 255, 102, 0), id = 'channelName'}
+		m_simpleTV.OSD.ShowMessageT(t)
 	end
-	local headers = 'Referer: http://filmhd1080.net/'
-	local title
-	if m_simpleTV.User.hdvb.Tabletitle then
-		local index = m_simpleTV.Control.GetMultiAddressIndex()
-		if index then
-			title = m_simpleTV.User.hdvb.title .. ' - ' .. m_simpleTV.User.hdvb.Tabletitle[index].Name
-		end
-	end
-	local function GetAddress(Adr)
-			if Adr:match('^http') then
-			 return Adr
+	local function getAddress(adr)
+			if adr:match('^http') then
+			 return adr
 			end
-		Adr = host .. '/playlist/' .. file .. '.txt'
-		rc, answer = m_simpleTV.Http.Request(session, {url = Adr, headers = m_simpleTV.User.hdvb.headers, method = 'post'})
-			if rc ~= 200 then return end
+		adr = adr:gsub('^$hdvb', '')
+		adr = adr:gsub('^~', '/playlist/')
+		adr = m_simpleTV.User.hdvb.host .. adr .. '.txt'
+		local rc, answer = m_simpleTV.Http.Request(session, {url = adr, headers = m_simpleTV.User.hdvb.headers, method = 'post'})
 	 return answer
 	end
-	local function GetMaxResolutionIndex(t)
-		local index
-		for u = 1, #t do
-				if t[u].qlty and m_simpleTV.User.hdvb.qlty < t[u].qlty then break end
-			index = u
+	local function getIndex(t)
+		local lastQuality = tonumber(m_simpleTV.Config.GetValue('hdvb_qlty') or 5000)
+		local index = #t
+			for i = 1, #t do
+				if t[i].qlty >= lastQuality then
+					index = i
+				 break
+				end
+			end
+		if index > 1 then
+			if t[index].qlty > lastQuality then
+				index = index - 1
+			end
 		end
-	 return index or 1
+	 return index
 	end
-	local function GetQualityFromAddress(url)
+	local function getAdrTab(url)
+			if not url then return end
+		url = url:gsub('^$hdvb', '')
 		url = url:gsub('^//', 'https://')
-		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
+		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:98.0) Gecko/20100101 Firefox/98.0')
+			if not session then return end
+		m_simpleTV.Http.SetTimeout(session, 8000)
+		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
+		m_simpleTV.Http.Close(session)
 			if rc ~= 200 then return end
 		local base = url:match('.+/')
 		local t, i = {}, 1
@@ -104,92 +108,194 @@
 		for i = 1, #t do
 			t[i].Id = i
 		end
-		m_simpleTV.User.hdvb.Table = t
-		local index = GetMaxResolutionIndex(t)
+		m_simpleTV.User.hdvb.Tab = t
+		local index = getIndex(t)
 		m_simpleTV.User.hdvb.Index = index
 	 return t[index].Address
 	end
-	local function play(Adr, title)
-		local retAdr = GetAddress(Adr:gsub('^$hdvb', ''))
+	local function play(adr, title)
+		local retAdr = getAddress(adr)
 			if not retAdr then
-				showMsg('8')
-				m_simpleTV.Http.Close(session)
+				m_simpleTV.Control.CurrentAddress = 'http://wonky.lostcut.net/vids/error_getlink.avi'
 			 return
 			end
-		retAdr = GetQualityFromAddress(retAdr)
-			if not retAdr then
-				showMsg('9')
-				m_simpleTV.Http.Close(session)
-			 return
-			end
-		m_simpleTV.Http.Close(session)
-		m_simpleTV.Control.SetTitle(title)
-		m_simpleTV.OSD.ShowMessageT({text = title, color = ARGB(255, 153, 153, 255), showTime = 5000, id = 'channelName'})
-		m_simpleTV.Control.CurrentAddress = retAdr or 'http://wonky.lostcut.net/vids/error_getlink.avi'
+		local retAdr = getAdrTab(retAdr)
+			if not retAdr then return end
 -- debug_in_file(retAdr .. '\n')
+		m_simpleTV.Control.SetTitle(title)
+		m_simpleTV.OSD.ShowMessageT({text = title, showTime = 1000 * 5, id = 'channelName'})
+		m_simpleTV.Control.CurrentAddress = retAdr
 	end
-	function Qlty_hdvb()
-		local t = m_simpleTV.User.hdvb.Table
-			if not t then return end
-		local index = m_simpleTV.User.hdvb.Index
-		t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
-		if #t > 0 then
-			local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('⚙ Качество', index - 1, t, 5000, 1 + 4)
-			if ret == 1 then
-				m_simpleTV.User.hdvb.Index = id
-				m_simpleTV.Control.SetNewAddress(t[id].Address, m_simpleTV.Control.GetPosition())
-				m_simpleTV.Config.SetValue('hdvb_qlty', t[id].qlty)
-				m_simpleTV.User.hdvb.qlty = t[id].qlty
+	local function seasons()
+		local tab = m_simpleTV.User.hdvb.tab
+		local title = m_simpleTV.User.hdvb.title
+		local t, i = {}, 1
+			while tab[i] do
+				t[i] = {}
+				t[i].Id = i
+				t[i].Name = tab[i].title
+				i = i + 1
 			end
+			if #t == 0 then return end
+		if m_simpleTV.User.paramScriptForSkin_buttonOk then
+			t.OkButton = {ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOk}
+		end
+		local _, id = m_simpleTV.OSD.ShowSelect_UTF8('сезон: ' .. title, 0, t, 10000, 1 + 2 + 4 + 8)
+		id = id or 1
+		m_simpleTV.User.hdvb.season = id
+		m_simpleTV.User.hdvb.seasonName = ' (' .. t[id].Name .. ')'
+	 return true
+	end
+	local function episodes()
+		local tab = m_simpleTV.User.hdvb.tab
+		local season = m_simpleTV.User.hdvb.season
+		local t, i = {}, 1
+			while tab[season].folder[i] do
+				t[i] = {}
+				t[i].Id = i
+				t[i].Name = tab[season].folder[i].title .. ' (' .. tab[season].folder[i].folder[1].title .. ')'
+				t[i].Address = '$hdvb' .. tab[season].folder[i].folder[1].file
+				i = i + 1
+			end
+			if #t == 0 then return end
+		local retAdr = getAddress(t[1].Address)
+			if not retAdr then
+				m_simpleTV.Control.CurrentAddress = 'http://wonky.lostcut.net/vids/error_getlink.avi'
+			 return
+			end
+		retAdr = getAdrTab(retAdr)
+			if not retAdr then return end
+		local title = m_simpleTV.User.hdvb.title .. m_simpleTV.User.hdvb.seasonName
+		m_simpleTV.Control.SetTitle(title)
+		if m_simpleTV.User.paramScriptForSkin_buttonOptions then
+			t.ExtButton0 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOptions, ButtonScript = 'qlty_hdvb()'}
+		else
+			t.ExtButton0 = {ButtonEnable = true, ButtonName = '⚙', ButtonScript = 'qlty_hdvb()'}
+		end
+		if m_simpleTV.User.paramScriptForSkin_buttonOk then
+			t.OkButton = {ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOk}
+		end
+		if m_simpleTV.User.paramScriptForSkin_buttonClose then
+			t.ExtButton1 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonClose, ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
+		else
+			t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
+		end
+
+		t.ExtParams = {}
+		t.ExtParams.StopOnError = 1
+		t.ExtParams.StopAfterPlay = 1
+		t.ExtParams.PlayMode = 1
+		m_simpleTV.OSD.ShowSelect_UTF8(title, 0, t, 10000, 2 + 64)
+		m_simpleTV.Control.CurrentAddress = retAdr
+		m_simpleTV.OSD.ShowMessageT({text = title .. ': ' .. t[1].Name, showTime = 5000, id = 'channelName'})
+	end
+	local function movie()
+		local title = m_simpleTV.User.hdvb.title
+		local adr = m_simpleTV.User.hdvb.tab
+		local t = {}
+		t[1] = {}
+		t[1].Id = 1
+		t[1].Name = title
+		if m_simpleTV.User.paramScriptForSkin_buttonOptions then
+			t.ExtButton0 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOptions, ButtonScript = 'qlty_hdvb()'}
+		else
+			t.ExtButton0 = {ButtonEnable = true, ButtonName = '⚙', ButtonScript = 'qlty_hdvb()'}
+		end
+		if m_simpleTV.User.paramScriptForSkin_buttonOk then
+			t.OkButton = {ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOk}
+		end
+		if m_simpleTV.User.paramScriptForSkin_buttonClose then
+			t.ExtButton1 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonClose, ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
+		else
+			t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
+		end
+		m_simpleTV.OSD.ShowSelect_UTF8('Hdvb', 0, t, 10000, 64 + 32 + 128)
+		play(adr, title)
+	end
+	local function getData()
+		local url = inAdr:gsub('&kinopoisk.+', '')
+		local headers = 'Referer: http://filmhd1080.net/'
+		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
+			if rc ~= 200 then return end
+		answer = answer:gsub('\\/', '/')
+		local file = answer:match('"file":"([^"]+)')
+		local key = answer:match('"key":"([^"]+)')
+			if not file or not key then return end
+		m_simpleTV.User.hdvb.host = url:match('^https?://[^/]+')
+		file = file:gsub('^~', '/playlist/')
+		url = m_simpleTV.User.hdvb.host .. file
+		if not url:match('%.txt') then
+			url = url .. '.txt'
+		end
+		m_simpleTV.User.hdvb.headers = headers .. '\nX-CSRF-TOKEN: ' .. key
+		rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = m_simpleTV.User.hdvb.headers, method = 'post'})
+			if rc ~= 200 then return end
+		answer = answer:gsub('%[%]', '""')
+		answer = answer:gsub('\\', '\\\\')
+		answer = unescape3(answer)
+		local err, tab = pcall(json.decode, answer)
+		if err == false then
+			tab = answer
+		end
+	 return tab
+	end
+	function serials_hdvb()
+		if seasons() then
+			episodes()
+		end
+	end
+	function qlty_hdvb()
+		local t = m_simpleTV.User.hdvb.Tab
+			if not t then return end
+		m_simpleTV.Control.ExecuteAction(37)
+		local index = getIndex(t)
+		if m_simpleTV.User.paramScriptForSkin_buttonOk then
+			t.OkButton = {ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOk}
+		end
+		if m_simpleTV.User.paramScriptForSkin_buttonClose then
+			t.ExtButton1 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonClose, ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
+		else
+			t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
+		end
+		local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('⚙ Качество', index - 1, t, 10000, 1 + 2 + 4)
+		if ret == 1 then
+			m_simpleTV.Control.SetNewAddressT({address = t[id].Address, position = m_simpleTV.Control.GetPosition()})
+			m_simpleTV.Config.SetValue('hdvb_qlty', t[id].qlty)
 		end
 	end
 		if inAdr:match('^$hdvb') then
+			local title = ''
+			local t = m_simpleTV.Control.GetCurrentChannelInfo()
+			if t
+				and t.MultiHeader
+				and t.MultiName
+			then
+				title = t.MultiHeader .. ': ' .. t.MultiName
+			end
 			play(inAdr, title)
 		 return
 		end
-	local url = inAdr:gsub('&kinopoisk.+', '')
-	local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
-		if rc ~= 200 then
-			m_simpleTV.Http.Close(session)
-			showMsg('2')
+	local tab = getData()
+		if not tab then
+			showMsg('нет данных')
 		 return
 		end
-	title = inAdr:match('&kinopoisk=(.+)')
-	m_simpleTV.User.hdvb.host = inAdr:match('^https?://[^/]+')
+	local title = inAdr:match('&kinopoisk=(.+)')
 	if title then
 		title = m_simpleTV.Common.fromPercentEncoding(title)
 	else
 		title = 'Hdvb'
 	end
-	m_simpleTV.User.hdvb.Tabletitle = nil
-	m_simpleTV.Control.CurrentTitle_UTF8 = title
-	m_simpleTV.Control.SetTitle(title)
-	answer = answer:gsub('\\/', '/')
-	local file = answer:match('"file":"([^"]+)')
-	local key = answer:match('"key":"([^"]+)')
-		if not file or not key then return end
-	inAdr = file:gsub('^~', '/playlist/')
-	url = m_simpleTV.User.hdvb.host .. inAdr
-	if not url:match('%.txt') then
-		url = url .. '.txt'
+	m_simpleTV.User.hdvb.title = title
+	if m_simpleTV.Control.MainMode == 0 then
+		m_simpleTV.Control.ChangeChannelName(title, m_simpleTV.Control.ChannelID, false)
 	end
-	m_simpleTV.User.hdvb.headers = headers .. '\nX-CSRF-TOKEN: ' .. key
-	rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = m_simpleTV.User.hdvb.headers, method = 'post'})
-		if rc ~= 200 then return end
-	local seasons = answer:match('^%s*[%[{]+')
-	if seasons then
--- debug_in_file(retAdr .. '\n')
-m_simpleTV.OSD.ShowMessageT({text = 'TODO', color = ARGB(255, 153, 153, 255), showTime = 5000, id = 'channelName'})
-	 return
+	m_simpleTV.User.hdvb.tab = tab
+	if type(tab) == 'table' then
+		serials_hdvb()
 	else
-		inAdr = answer
-		local t1 = {}
-		t1[1] = {}
-		t1[1].Id = 1
-		t1[1].Name = title
-		t1[1].Address = inAdr
-		t1.ExtButton0 = {ButtonEnable = true, ButtonName = '⚙', ButtonScript = 'Qlty_hdvb()'}
-		t1.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
-		m_simpleTV.OSD.ShowSelect_UTF8('Hdvb', 0, t1, 10000, 64 + 32 + 128)
+		if m_simpleTV.Control.MainMode == 0 then
+			m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
+		end
+		movie()
 	end
-	play(inAdr, title)
