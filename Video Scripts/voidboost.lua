@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "voidboost" (26/3/22)
+-- видеоскрипт для видеобалансера "voidboost" (28/3/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- модуль: /core/playerjs.lua
@@ -236,6 +236,7 @@
 			if m_simpleTV.Control.GetState() == 0 then
 				m_simpleTV.Control.SetNewAddressT({address = m_simpleTV.User.voidboost.DelayedAddress})
 			end
+			m_simpleTV.User.cdnmovies.DelayedAddress = nil
 		end
 		m_simpleTV.Control.ExecuteAction(36, 0)
 	end
