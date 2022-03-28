@@ -1,21 +1,25 @@
--- видеоскрипт для сайта https://www.dailymotion.com (16/7/20)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта https://www.dailymotion.com (28/3/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://www.dailymotion.com/video/x55kod7_ring-tv-live-3_sport
 -- http://www.dailymotion.com/embed/video/x51y5j8?logo=0&related=0&info=0&autoPlay=1
 -- http://www.dailymotion.com/video/x3m6nld
+-- https://geo.dailymotion.com/player.html?video=x89eyek&mute=true
 -- ## прокси ##
-local proxy = 'http://proxy-nossl.antizapret.prostovpn.org:29976'
+local proxy = ''
 -- '' - нет
 -- например 'http://proxy-nossl.antizapret.prostovpn.org:29976'
--- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('^https?://www%.dailymotion%.com') then return end
+		if not m_simpleTV.Control.CurrentAddress:match('^https?://geo%.dailymotion%.com/.+')
+			and not m_simpleTV.Control.CurrentAddress:match('^https?://www%.dailymotion%.com/.+')
+		then
+		 return
+		end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.Control.ChangeAddress = 'Yes'
-	m_simpleTV.Control.CurrentAddress = ''
+	m_simpleTV.Control.CurrentAddress = 'error'
 	local logo = 'https://static1.dmcdn.net/neon/prod/img/logo-white.49be20dee5b3f7e3c2a50580c545d6b1.svg'
-	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.79 Safari/537.36'
+	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:98.0) Gecko/20100101 Firefox/98.0'
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = logo, UseLogo = 1, Once = 1})
 	end
@@ -23,7 +27,7 @@ local proxy = 'http://proxy-nossl.antizapret.prostovpn.org:29976'
 		m_simpleTV.OSD.ShowMessageT({text = 'dailymotion ошибка: ' .. str, showTime = 8000, color = 0xffff6600, id = 'channelName'})
 	end
 	inAdr = inAdr:gsub('http://', 'https://')
-	local id = inAdr:match('/video/(%w+)')
+	local id = inAdr:match('[/?]video[/=](%w+)')
 		if not id then
 			showError('1')
 		 return
@@ -201,10 +205,6 @@ local proxy = 'http://proxy-nossl.antizapret.prostovpn.org:29976'
 		t[#t].Id = 5000
 		t[#t].Name = '▫ всегда высокое'
 		t[#t].Address = t[#t - 1].Address
-		-- t[#t + 1] = {} -- путин капут!
-		-- t[#t].Id = 10000
-		-- t[#t].Name = '▫ адаптивное'
-		-- t[#t].Address = retAdr .. extOpt
 		index = #t
 			for i = 1, #t do
 				if t[i].Id >= lastQuality then
