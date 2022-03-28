@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (23/3/22)
+-- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (29/3/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- модуль: /core/playerjs.lua
@@ -222,6 +222,8 @@
 		end
 		t.ExtParams = {}
 		t.ExtParams.LuaOnCancelFunName = 'OnMultiAddressCancel_cdnmovies'
+		t.ExtParams.LuaOnOkFunName = 'OnMultiAddressOk_cdnmovies'
+		t.ExtParams.LuaOnTimeoutFunName = 'OnMultiAddressCancel_cdnmovies'
 		t.ExtParams.StopOnError = 1
 		t.ExtParams.StopAfterPlay = 1
 		t.ExtParams.PlayMode = 1
@@ -263,7 +265,9 @@
 		local playerjs_url = answer:match('script src="([^"]+)')
 			if not playerjs_url then return end
 		local host = url:match('^https?://[^/]+')
-		playerjs_url = host .. playerjs_url
+		if not playerjs_url:match('^https?://') then
+			playerjs_url = host .. playerjs_url
+		end
 		local file = playerjs.decode(file, playerjs_url)
 			if not file or file == '' then return end
 		file = m_simpleTV.Common.multiByteToUTF8(file)
@@ -294,6 +298,13 @@
 		if ret == 1 then
 			m_simpleTV.Control.SetNewAddressT({address = t[id].Address, position = m_simpleTV.Control.GetPosition()})
 			m_simpleTV.Config.SetValue('cdnmovies_qlty', t[id].qlty)
+		end
+	end
+	function OnMultiAddressOk_cdnmovies(Object, id)
+		if id == 1 then
+			OnMultiAddressCancel_cdnmovies(Object)
+		else
+			m_simpleTV.User.cdnmovies.DelayedAddress = nil
 		end
 	end
 	function OnMultiAddressCancel_cdnmovies(Object)
