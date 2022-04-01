@@ -1,12 +1,10 @@
--- видеоскрипт для плейлиста "Yandex" https://yandex.ru (5/5/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для плейлиста "Yandex" https://yandex.ru (1/4/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: yandex_pls.lua
 -- расширение дополнения httptimeshift: yandex-timesift_ext.lua
 -- ## открывает подобные ссылки ##
--- https://strm.yandex.ru/kal/bigasia/bigasia0.m3u8
--- https://strm.yandex.ru/kal/ohotnik/ohotnik0_169_480p.json/index-v1-a1.m3u8
--- ##
+-- https://strm.yandex.ru/kal/rtg/rtg0.m3u8
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('https?://strm%.yandex%.ru/k') then return end
 		if m_simpleTV.Control.CurrentAddress:match('PARAMS=yandex_tv')
@@ -20,41 +18,39 @@
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
 	end
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:82.0) Gecko/20100101 Firefox/82.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:98.0) Gecko/20100101 Firefox/98.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
-	local extOpt = '$OPT:INT-SCRIPT-PARAMS=yandex_tv$OPT:no-gnutls-system-trust'
+	local extOpt = '$OPT:INT-SCRIPT-PARAMS=yandex_tv'
 	local url = inAdr:gsub('_%d+_%d+p%.json.-$', '.m3u8')
 	url = url:gsub('%$OPT:.-$', '')
 	url = url:gsub('%?.-$', '')
 	local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 	m_simpleTV.Http.Close(session)
 		if rc ~= 200 then return end
-	local host = url:match('.+/')
-	if answer:match('%.json') then
-		host = url:match('https?://[^/]+')
-	end
-	answer = answer .. '\n'
-	local t, i = {}, 1
-	local name, adr
-		for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-%.m3u8.-)\n') do
-			adr = w:match('\n(.+)')
-				if not adr then break end
-			if not adr:match('redundant') then
-				name = w:match('RESOLUTION=%d+x(%d+)')
-				adr = adr:gsub('[%?&]+.-$', '')
-				t[i] = {}
-				t[i].Name = name .. 'p'
-				t[i].Address = host .. adr .. extOpt
-				t[i].Id = tonumber(name)
-				i = i + 1
+	local t0 = {}
+		for w in answer:gmatch('#EXT%-X%-STREAM.-\n.-\n') do
+			local qlty = w:match('RESOLUTION=%d+x(%d+)')
+			if not w:match('redundant') and qlty then
+				qlty = tonumber(qlty)
+				t0[#t0 + 1] = {}
+				t0[#t0].Name = qlty .. 'p'
+				t0[#t0].Id = qlty
+				t0[#t0].Address = url .. '$OPT:adaptive-maxheight=' .. qlty .. '$OPT:adaptive-logic=highest' .. extOpt
 			end
 		end
-		if #t == 0 then
+		if #t0 == 0 then
 			m_simpleTV.Control.CurrentAddress = url .. extOpt
 		 return
 		end
-	table.sort(t, function(a, b) return a.Id < b.Id end)
+	table.sort(t0, function(a, b) return a.Id < b.Id end)
+	local hash, t = {}, {}
+		for i = 1, #t0 do
+			if not hash[t0[i].Id] then
+				t[#t + 1] = t0[i]
+				hash[t0[i].Id] = true
+			end
+		end
 	local lastQuality = tonumber(m_simpleTV.Config.GetValue('yandex_qlty') or 5000)
 	local index = #t
 	if #t > 1 then
