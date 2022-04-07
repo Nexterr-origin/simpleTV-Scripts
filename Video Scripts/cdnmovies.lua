@@ -1,12 +1,14 @@
--- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (1/4/22)
+-- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (7/4/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- модуль: /core/playerjs.lua
 -- ## открывает подобные ссылки ##
 -- http://moonwalk.cam/movie/4514
 -- http://moonwalk.cam/serial/5311
+-- http://700filmov.ru/serial/2042
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://moonwalk%.cam')
+			and not m_simpleTV.Control.CurrentAddress:match('^https?://700filmov%.ru')
 			and not m_simpleTV.Control.CurrentAddress:match('^$cdnmovies')
 		then
 		 return
