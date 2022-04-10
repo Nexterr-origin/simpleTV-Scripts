@@ -219,7 +219,6 @@
 		end
 		local titleAnswer = answer:match('<title>([^<]+)')
 		file = file:gsub('%[%]', '""')
-		debug_in_file(file .. '\n')
 		local err, tab = pcall(json.decode, file)
 		local ser = file:match('folder')
 	 return tab, ser, titleAnswer
