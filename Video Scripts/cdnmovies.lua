@@ -1,11 +1,11 @@
--- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (10/4/22)
+-- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (11/4/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- модуль: /core/playerjs.lua
 -- ## открывает подобные ссылки ##
 -- http://moonwalk.cam/movie/4514
 -- http://moonwalk.cam/serial/5311
--- http://700filmov.ru/serial/2042
+-- https://700filmov.ru/serial/2042
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://moonwalk%.cam')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://700filmov%.ru')
@@ -103,17 +103,8 @@
 				t[i].Name = tab[i].title
 			end
 			if #t == 0 then return end
-		t.ExtButton0 = {ButtonEnable = true, ButtonName = '🎞️'}
-		if m_simpleTV.User.paramScriptForSkin_buttonOk then
-			t.OkButton = {ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOk}
-		end
-		local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('перевод: ' .. m_simpleTV.User.cdnmovies.title, 0, t, 10000, 1 + 2 + 4 + 8)
-			if ret == 2 then
-				m_simpleTV.Control.Restart(-2.0, true)
-			 return
-			end
-		id = id or 1
-		m_simpleTV.User.cdnmovies.adr = t[id].Address
+		m_simpleTV.User.cdnmovies.transl = t
+		m_simpleTV.User.cdnmovies.adr = t[1].Address
 	 return true
 	end
 	local function seasons()
@@ -192,16 +183,16 @@
 		if m_simpleTV.User.paramScriptForSkin_buttonOk then
 			t.OkButton = {ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOk}
 		end
-		if m_simpleTV.User.paramScriptForSkin_buttonClose then
-			t.ExtButton1 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonClose, ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
+		if m_simpleTV.User.paramScriptForSkin_buttonPlst then
+			t.ExtButton1 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonPlst, ButtonScript = 'transl_cdnmovies()'}
 		else
-			t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
+			t.ExtButton1 = {ButtonEnable = true, ButtonName = '📋', ButtonScript = 'transl_cdnmovies()'}
 		end
 		m_simpleTV.OSD.ShowSelect_UTF8('CDN Movies', 0, t, 10000, 64 + 32 + 128)
 		play(adr, title)
 	end
 	local function getData()
-		local url = inAdr:gsub('&kinopoisk.+', '')
+		local url = inAdr:gsub('&kinopoisk.+', ''):gsub('^http:', 'https:')
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: https://cdnmovies.net/'})
 			if rc ~= 200 then return end
 		local file = answer:match('file:\'([^\']+)')
@@ -226,6 +217,27 @@
 	function serials_cdnmovies()
 		if seasons() then
 			episodes()
+		end
+	end
+	function transl_cdnmovies()
+		local t = m_simpleTV.User.cdnmovies.transl
+			if not t then return end
+		m_simpleTV.Control.ExecuteAction(37)
+		if m_simpleTV.User.paramScriptForSkin_buttonOk then
+			t.OkButton = {ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOk}
+		end
+		if m_simpleTV.User.paramScriptForSkin_buttonClose then
+			t.ExtButton1 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonClose, ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
+		else
+			t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
+		end
+		local transl_id = m_simpleTV.User.cdnmovies.transl_id or 1
+		local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('Перевод', transl_id - 1, t, 10000, 1 + 2 + 4)
+		if ret == 1 then
+			local retAdr = getAdr(t[id].Address)
+				if not retAdr then return end
+			m_simpleTV.User.cdnmovies.transl_id = id
+			m_simpleTV.Control.SetNewAddressT({address = retAdr, position = m_simpleTV.Control.GetPosition()})
 		end
 	end
 	function qlty_cdnmovies()
@@ -294,6 +306,8 @@
 		m_simpleTV.Control.ChangeChannelName(title, m_simpleTV.Control.ChannelID, false)
 	end
 	m_simpleTV.User.cdnmovies.tab = tab
+	m_simpleTV.User.cdnmovies.transl = nil
+	m_simpleTV.User.cdnmovies.transl_id = nil
 	if ser then
 		serials_cdnmovies()
 	else
