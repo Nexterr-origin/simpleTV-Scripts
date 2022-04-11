@@ -29,7 +29,7 @@
 	if not m_simpleTV.User.cdnmovies then
 		m_simpleTV.User.cdnmovies = {}
 	end
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:98.0) Gecko/20100101 Firefox/98.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:99.0) Gecko/20100101 Firefox/99.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	m_simpleTV.User.cdnmovies.DelayedAddress = nil
@@ -94,7 +94,7 @@
 		m_simpleTV.Control.CurrentAddress = retAdr
 	end
 	local function transl()
-		local tab = m_simpleTV.User.cdnmovies.tab
+		local tab = m_simpleTV.User.cdnmovies.tabTable
 		local t = {}
 			for i = 1, #tab do
 				t[i] = {}
@@ -140,11 +140,14 @@
 				t[i].Id = i
 				t[i].Name = tab[season].folder[i].title
 				t[i].Address = '$cdnmovies' .. tab[season].folder[i].folder[1].file
+				t[i].Table = tab[season].folder[i].folder
 				i = i + 1
 			end
 			if #t == 0 then return end
 		local retAdr = getAdr(t[1].Address)
 			if not retAdr then return end
+		m_simpleTV.User.cdnmovies.tabTable = t[1].Table
+		transl()
 		m_simpleTV.User.cdnmovies.DelayedAddress = retAdr
 		local title = m_simpleTV.User.cdnmovies.title .. m_simpleTV.User.cdnmovies.seasonName
 		m_simpleTV.Control.SetTitle(title)
@@ -155,6 +158,11 @@
 		end
 		if m_simpleTV.User.paramScriptForSkin_buttonOk then
 			t.OkButton = {ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOk}
+		end
+		if m_simpleTV.User.paramScriptForSkin_buttonPlst then
+			t.ExtButton1 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonPlst, ButtonScript = 'transl_cdnmovies()'}
+		else
+			t.ExtButton1 = {ButtonEnable = true, ButtonName = '📋', ButtonScript = 'transl_cdnmovies()'}
 		end
 		t.ExtParams = {}
 		t.ExtParams.LuaOnCancelFunName = 'OnMultiAddressCancel_cdnmovies'
@@ -214,11 +222,6 @@
 		local ser = file:match('folder')
 	 return tab, ser, titleAnswer
 	end
-	function serials_cdnmovies()
-		if seasons() then
-			episodes()
-		end
-	end
 	function transl_cdnmovies()
 		local t = m_simpleTV.User.cdnmovies.transl
 			if not t then return end
@@ -260,6 +263,7 @@
 		end
 	end
 	function OnMultiAddressOk_cdnmovies(Object, id)
+		m_simpleTV.User.cdnmovies.transl_id = id
 		if id == 1 then
 			OnMultiAddressCancel_cdnmovies(Object)
 		else
@@ -285,8 +289,14 @@
 				and t.MultiName
 			then
 				title = t.MultiHeader .. ': ' .. t.MultiName
+				m_simpleTV.User.cdnmovies.tabTable = m_simpleTV.User.cdnmovies.tab[m_simpleTV.User.cdnmovies.season].folder[t.MultiIndex +1].folder
+				transl()
+				local transl_id = m_simpleTV.User.cdnmovies.transl_id or 1
+				if not m_simpleTV.User.cdnmovies.tab[m_simpleTV.User.cdnmovies.season].folder[t.MultiIndex +1].folder[m_simpleTV.User.cdnmovies.transl_id] then
+					m_simpleTV.User.cdnmovies.transl_id = 1
+				end
+				play(m_simpleTV.User.cdnmovies.tab[m_simpleTV.User.cdnmovies.season].folder[t.MultiIndex +1].folder[m_simpleTV.User.cdnmovies.transl_id].file, title)
 			end
-			play(inAdr, title)
 		 return
 		end
 	local tab, ser, titleAnswer = getData()
@@ -309,11 +319,14 @@
 	m_simpleTV.User.cdnmovies.transl = nil
 	m_simpleTV.User.cdnmovies.transl_id = nil
 	if ser then
-		serials_cdnmovies()
+		if seasons() then
+			episodes()
+		end
 	else
 		if m_simpleTV.Control.MainMode == 0 then
 			m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
 		end
+		m_simpleTV.User.cdnmovies.tabTable = m_simpleTV.User.cdnmovies.tab
 		if transl() then
 			movie()
 		end
