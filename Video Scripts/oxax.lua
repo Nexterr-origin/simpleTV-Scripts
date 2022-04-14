@@ -1,11 +1,10 @@
--- видеоскрипт для плейлиста "ОХ-АХ" http://oxax.tv (20/3/20)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для плейлиста "ОХ-АХ" http://oxax.tv (14/4/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: oxax_pls.lua
 -- модуль: /core/playerjs.lua
 -- ## открывает подобные ссылки ##
 -- http://oxax.tv/oh-ah.html
--- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://oxax%.tv/') then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
@@ -15,29 +14,34 @@
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local ua = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3785.143 Safari/537.36'
-	local session = m_simpleTV.Http.New(ua)
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:99.0) Gecko/20100101 Firefox/99.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
-		if rc ~= 200 then
-			m_simpleTV.Http.Close(session)
-		 return
-		end
-	local s = answer:match('%.get%("(pley.-",%s*{%a+:\'[^\']+)')
+		if rc ~= 200 then return end
+	answer = answer:gsub('%s', '')
+	local s = answer:match('%.get%("(pley.-",{%a+:\'[^\']+)')
 		if not s then return end
-	s = s:gsub('",%s*{', '?'):gsub(':\'', '=')
-	local host = inAdr:match('https?://.-/')
+	s = s:gsub('",{', '?'):gsub(':\'', '=')
+	local host = inAdr:match('https?://[^/]+/')
 	rc, answer = m_simpleTV.Http.Request(session, {url = host .. s, headers = 'X-Requested-With: XMLHttpRequest\nReferer: ' .. inAdr})
 	m_simpleTV.Http.Close(session)
 		if rc ~= 200 then return end
-	local retAdr = answer:match('file%s*:%s*"([^"]+)')
+	answer = answer:gsub('%s', '')
+	local retAdr = answer:match('Playerjs%("([^"]+)')
 		if not retAdr then return end
-	local playerjs_url = answer:match('<script src="([^"]+)')
+	local playerjs_url = answer:match('<scriptsrc="([^"]+)')
 		if not playerjs_url then return end
 	playerjs_url = host .. playerjs_url
 	retAdr = playerjs.decode(retAdr, playerjs_url)
 		if not retAdr or retAdr == '' then return end
-	retAdr = retAdr:gsub('^//', 'http://') .. '$OPT:http-referrer=' .. inAdr .. '$OPT:http-user-agent=' .. ua
+	retAdr = retAdr:match('"file":"([^"]+)')
+		if not retAdr then return end
+	local v1= '8?'
+	local v2 = 'Sign='
+	local v3 = 'p'
+	local v4 = answer:match('kan="([^"]+)')	or ''
+	local v5 = answer:match('time="([^"]+)') or ''
+	retAdr = retAdr:gsub('{v1}', v1):gsub('{v2}', v2):gsub('{v3}', v3):gsub('{v4}', v4):gsub('{v5}', v5)
 	m_simpleTV.Control.CurrentAddress = retAdr
 -- debug_in_file(retAdr .. '\n')
