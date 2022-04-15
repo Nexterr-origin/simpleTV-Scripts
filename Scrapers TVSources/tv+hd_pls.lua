@@ -1,5 +1,5 @@
--- скрапер TVS для загрузки плейлиста "TV+ HD" http://www.tvplusonline.ru (3/12/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- скрапер TVS для загрузки плейлиста "TV+ HD" http://www.tvplusonline.ru (15/4/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: tv+hd.lua
 -- ## переименовать каналы ##
@@ -64,8 +64,9 @@ local filter = {
 				local adr = tab[i].name
 				local closed = tab[i].closed
 				if title and adr and closed then
-					local RawM3UString = catchup(adr)
-					if (closed == 1 and RawM3UString) or closed == 0 then
+					-- local RawM3UString = catchup(adr)
+					-- if (closed == 1 and RawM3UString) or closed == 0 then
+if closed then
 						title = unescape1(title)
 						if title == 'Матч! Футбол 3' then
 							adr = 'matchfootball3'
@@ -75,6 +76,7 @@ local filter = {
 						t[#t].RawM3UString = RawM3UString
 						if closed == 1 then
 							adr = adr .. '&plus=true'
+t[#t].RawM3UString = 'catchup="flussonic-hls" catchup-days="1" catchup-source=""'
 						end
 						t[#t].address = 'https://tv+hd.' .. adr
 					end
