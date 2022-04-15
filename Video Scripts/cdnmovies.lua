@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (11/4/22)
+-- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (15/4/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- модуль: /core/playerjs.lua
@@ -107,7 +107,7 @@
 		m_simpleTV.User.cdnmovies.adr = t[1].Address
 	 return true
 	end
-	local function seasons()
+	local function seasons(transl_menu)
 		local tab = m_simpleTV.User.cdnmovies.tab
 		local title = m_simpleTV.User.cdnmovies.title
 		local t = {}
@@ -120,10 +120,29 @@
 		if m_simpleTV.User.paramScriptForSkin_buttonOk then
 			t.OkButton = {ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOk}
 		end
-		t.ExtButton0 = {ButtonEnable = true, ButtonName = '🎞️'}
-		local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('сезон: ' .. title, 0, t, 10000, 1 + 2 + 4 + 8)
-			if ret == 2 then
+		if not transl_menu then
+			t.ExtButton0 = {ButtonEnable = true, ButtonName = '🎞️'}
+		end
+		if m_simpleTV.User.paramScriptForSkin_buttonClose then
+			t.ExtButton1 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonClose}
+		else
+			t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕'}
+		end
+		local season_chk = m_simpleTV.User.cdnmovies.season or 1
+		local fl = 0
+		if transl_menu and m_simpleTV.Control.GetState() == 0 then
+			fl = 8
+		end
+		local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('сезоны - ' .. title, season_chk - 1, t, 10000, 1 + 2 + 4 + fl)
+			if ret == 2 and not transl_menu then
 				m_simpleTV.Control.Restart(-2.0, true)
+			 return
+			end
+			if (not id or ret == 3) and transl_menu then
+				m_simpleTV.Control.ExecuteAction(37)
+			 return
+			elseif ret == 3 and not transl_menu then
+				m_simpleTV.Control.ExecuteAction(37)
 			 return
 			end
 		id = id or 1
@@ -234,6 +253,7 @@
 		else
 			t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
 		end
+		t.ExtButton0 = {ButtonEnable = true, ButtonName = 'Сезоны'}
 		local transl_id = m_simpleTV.User.cdnmovies.transl_id or 1
 		local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('Перевод', transl_id - 1, t, 10000, 1 + 2 + 4)
 		if ret == 1 then
@@ -241,6 +261,14 @@
 				if not retAdr then return end
 			m_simpleTV.User.cdnmovies.transl_id = id
 			m_simpleTV.Control.SetNewAddressT({address = retAdr, position = m_simpleTV.Control.GetPosition()})
+		end
+		if ret == 2 then
+			if seasons(true) then
+				episodes()
+			end
+		end
+		if (not id or ret == 3) and m_simpleTV.Control.GetState() == 0 then
+			m_simpleTV.Control.ExecuteAction(108)
 		end
 	end
 	function qlty_cdnmovies()
@@ -318,6 +346,7 @@
 	m_simpleTV.User.cdnmovies.tab = tab
 	m_simpleTV.User.cdnmovies.transl = nil
 	m_simpleTV.User.cdnmovies.transl_id = nil
+	m_simpleTV.User.cdnmovies.season = nil
 	if ser then
 		if seasons() then
 			episodes()
