@@ -64,9 +64,11 @@ local filter = {
 				local adr = tab[i].name
 				local closed = tab[i].closed
 				if title and adr and closed then
-					-- local RawM3UString = catchup(adr)
-					-- if (closed == 1 and RawM3UString) or closed == 0 then
-if closed then
+					local RawM3UString = catchup(adr)
+					if #dvr == 0 then
+						RawM3UString = ''
+					end
+					if (closed == 1 and RawM3UString) or closed == 0 then
 						title = unescape1(title)
 						if title == 'Матч! Футбол 3' then
 							adr = 'matchfootball3'
@@ -76,7 +78,9 @@ if closed then
 						t[#t].RawM3UString = RawM3UString
 						if closed == 1 then
 							adr = adr .. '&plus=true'
-t[#t].RawM3UString = 'catchup="flussonic-hls" catchup-days="1" catchup-source=""'
+							if #dvr == 0 then
+								t[#t].RawM3UString = 'catchup="flussonic-hls" catchup-days="1" catchup-source=""'
+							end
 						end
 						t[#t].address = 'https://tv+hd.' .. adr
 					end
