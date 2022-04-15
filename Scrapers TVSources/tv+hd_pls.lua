@@ -45,10 +45,14 @@ local filter = {
 		local tab = json.decode(answer)
 			if not tab then return end
 		local dvr = {}
+		local tsift
 		rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly93d3cudHZwbHVzb25saW5lLnJ1L3ZlcnNpb250di50eHQ')})
 			if rc == 200 then
 				dvr = answer:match('dvr,([^%c%s]+)') or ''
 				dvr = split(dvr, ';')
+				if #dvr > 0 then
+					tsift = true
+				end
 			end
 			local function catchup(adr)
 				for i = 1, #dvr do
@@ -65,7 +69,7 @@ local filter = {
 				local closed = tab[i].closed
 				if title and adr and closed then
 					local RawM3UString = catchup(adr)
-					if #dvr == 0 then
+					if not tsift then
 						RawM3UString = ''
 					end
 					if (closed == 1 and RawM3UString) or closed == 0 then
@@ -75,10 +79,11 @@ local filter = {
 						end
 						t[#t + 1] = {}
 						t[#t].name = title
+						t[#t].adr = adr
 						t[#t].RawM3UString = RawM3UString
 						if closed == 1 then
 							adr = adr .. '&plus=true'
-							if #dvr == 0 then
+							if not tsift then
 								t[#t].RawM3UString = 'catchup="flussonic-hls" catchup-days="1" catchup-source=""'
 							end
 						end
@@ -87,6 +92,14 @@ local filter = {
 				end
 			end
 			if #t == 0 then return end
+		local notWork = {'tv365', 'rtg', 'autoplus', 'jivi', 'cooktv', 'matchfootball1hd', 'matchfootball2hd', 'matchfootball3hd', 'nostalgia', 'matchpremierhd', 'iz'}
+			for i = 1, #t do
+				for j = 1, #notWork do
+					if t[i].adr == notWork[j] then
+						t[i].skip = true
+					end
+				end
+			end
 	 return t
 	end
 	function GetList(UpdateID, m3u_file)
