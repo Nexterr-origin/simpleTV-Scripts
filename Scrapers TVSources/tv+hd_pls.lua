@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "TV+ HD" http://www.tvplusonline.ru (15/4/22)
+-- скрапер TVS для загрузки плейлиста "TV+ HD" http://www.tvplusonline.ru (16/4/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: tv+hd.lua
@@ -97,6 +97,7 @@ local filter = {
 				for j = 1, #notWork do
 					if t[i].adr == notWork[j] then
 						t[i].skip = true
+					 break
 					end
 				end
 			end
