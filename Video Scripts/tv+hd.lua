@@ -1,5 +1,5 @@
--- видеоскрипт для плейлиста "TV+ HD" http://www.tvplusonline.ru (3/12/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для плейлиста "TV+ HD" http://www.tvplusonline.ru (16/4/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: tv+hd_pls.lua
 -- ## открывает подобные ссылки ##
@@ -29,6 +29,6 @@
 	local retAdr = answer:match('https?://[^%s"]+')
 		if not retAdr then return end
 	retAdr = retAdr:gsub('/index[^.]+%.', '/index.')
-	retAdr = retAdr .. '$OPT:http-user-agent=' .. userAgent
+	retAdr = retAdr .. '$OPT:adaptive-logic=highest$OPT:http-user-agent=' .. userAgent
 	m_simpleTV.Control.CurrentAddress = retAdr
 -- debug_in_file(retAdr .. '\n')
