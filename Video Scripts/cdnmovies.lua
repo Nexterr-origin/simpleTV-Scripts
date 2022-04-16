@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (15/4/22)
+-- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (16/4/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- модуль: /core/playerjs.lua
@@ -211,9 +211,9 @@
 			t.OkButton = {ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOk}
 		end
 		if m_simpleTV.User.paramScriptForSkin_buttonPlst then
-			t.ExtButton1 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonPlst, ButtonScript = 'transl_cdnmovies()'}
+			t.ExtButton1 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonPlst, ButtonScript = 'transl_cdnmovies(true)'}
 		else
-			t.ExtButton1 = {ButtonEnable = true, ButtonName = '📋', ButtonScript = 'transl_cdnmovies()'}
+			t.ExtButton1 = {ButtonEnable = true, ButtonName = '📋', ButtonScript = 'transl_cdnmovies(true)'}
 		end
 		m_simpleTV.OSD.ShowSelect_UTF8('CDN Movies', 0, t, 10000, 64 + 32 + 128)
 		play(adr, title)
@@ -241,7 +241,7 @@
 		local ser = file:match('folder')
 	 return tab, ser, titleAnswer
 	end
-	function transl_cdnmovies()
+	function transl_cdnmovies(movie)
 		local t = m_simpleTV.User.cdnmovies.transl
 			if not t then return end
 		m_simpleTV.Control.ExecuteAction(37)
@@ -253,14 +253,22 @@
 		else
 			t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
 		end
-		t.ExtButton0 = {ButtonEnable = true, ButtonName = 'Сезоны'}
+		if not movie then
+			t.ExtButton0 = {ButtonEnable = true, ButtonName = 'Сезоны'}
+		end
 		local transl_id = m_simpleTV.User.cdnmovies.transl_id or 1
 		local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('Перевод', transl_id - 1, t, 10000, 1 + 2 + 4)
 		if ret == 1 then
 			local retAdr = getAdr(t[id].Address)
 				if not retAdr then return end
+			local position
+			if m_simpleTV.Control.GetState() == 0 then
+				position = 0
+			else
+				position = m_simpleTV.Control.GetPosition()
+			end
 			m_simpleTV.User.cdnmovies.transl_id = id
-			m_simpleTV.Control.SetNewAddressT({address = retAdr, position = m_simpleTV.Control.GetPosition()})
+			m_simpleTV.Control.SetNewAddressT({address = retAdr, position = position})
 		end
 		if ret == 2 then
 			if seasons(true) then
