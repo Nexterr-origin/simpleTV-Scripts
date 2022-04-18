@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "Hdvb" https://hdvb.tv (27/3/22)
+-- видеоскрипт для видеобалансера "Hdvb" https://hdvb.tv (18/4/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://vid1647324294.vb17121coramclean.pw/movie/c77fd8d3ec03509000778d9af49f8d86/iframe
@@ -24,15 +24,17 @@
 	if not m_simpleTV.User.hdvb then
 		m_simpleTV.User.hdvb = {}
 	end
-	if not inAdr:match('^$hdvb') then
-		m_simpleTV.User.hdvb.startAdr = inAdr
-	end
-	m_simpleTV.User.hdvb.DelayedAddress = nil
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:98.0) Gecko/20100101 Firefox/98.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:99.0) Gecko/20100101 Firefox/99.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
-	local function showMsg(str)
-		local t = {text = 'Hdvb ошибка: ' .. str, showTime = 1000 * 8, color = ARGB(255, 255, 102, 0), id = 'channelName'}
+	m_simpleTV.User.hdvb.DelayedAddress = nil
+	local function showMsg(str, msg)
+		local color
+		if not msg then
+			msg = 'Hdvb ошибка: ' .. str
+			color = ARGB(255, 255, 102, 0)
+		end
+		local t = {text = msg, showTime = 1000 * 8, color = color, id = 'channelName'}
 		m_simpleTV.OSD.ShowMessageT(t)
 	end
 	local function getAddress(adr)
@@ -61,7 +63,7 @@
 		end
 	 return index
 	end
-	local function getAdrTab(url)
+	local function getAdr(url)
 			if not url then return end
 		url = url:gsub('^$hdvb', '')
 		url = url:gsub('^//', 'https://')
@@ -119,34 +121,82 @@
 	local function getStream(adr)
 		adr = getAddress(adr)
 			if not adr then	return end
-	 return getAdrTab(adr)
+	 return getAdr(adr)
 	end
 	local function play(adr, title)
 		local retAdr = getStream(adr)
-			if not retAdr then
-				m_simpleTV.Control.CurrentAddress = 'http://wonky.lostcut.net/vids/error_getlink.avi'
-			 return
-			end
+			if not retAdr then return end
 -- debug_in_file(retAdr .. '\n')
 		m_simpleTV.Control.SetTitle(title)
 		m_simpleTV.OSD.ShowMessageT({text = title, showTime = 1000 * 5, id = 'channelName'})
 		m_simpleTV.Control.CurrentAddress = retAdr
 	end
-	local function seasons()
+	local function transl()
+		local tab = m_simpleTV.User.hdvb.tabEpisode
+		local transl_name = m_simpleTV.User.hdvb.transl_name or m_simpleTV.User.hdvb.tabEpisode[1].title
+		local transl_id = m_simpleTV.User.hdvb.transl_id
+		local found_transl_name
+		local t = {}
+			for i = 1, #tab do
+				local adr = tab[i].file
+				if adr then
+					t[#t + 1] = {}
+					t[#t].Id = #t
+					t[#t].Address = adr
+					t[#t].Name = tab[i].title
+					if t[#t].Name == transl_name then
+						transl_id = #t
+						found_transl_name = true
+					end
+				end
+			end
+			if #t == 0 then return end
+		m_simpleTV.User.hdvb.transl_name = transl_name or t[1].Name
+		if not transl_id or transl_id > #t or not found_transl_name then
+			transl_id = 1
+		end
+		m_simpleTV.User.hdvb.transl_id = transl_id
+		m_simpleTV.User.hdvb.transl = t
+	 return true
+	end
+	local function seasons(transl_menu)
 		local tab = m_simpleTV.User.hdvb.tab
 		local title = m_simpleTV.User.hdvb.title
-		local t, i = {}, 1
-			while tab[i] do
-				t[i] = {}
-				t[i].Id = i
-				t[i].Name = tab[i].title
-				i = i + 1
+		local t = {}
+			for i = 1, #tab do
+				t[#t +1] = {}
+				t[#t].Id = #t
+				t[#t].Name = tab[#t].title
 			end
 			if #t == 0 then return end
 		if m_simpleTV.User.paramScriptForSkin_buttonOk then
 			t.OkButton = {ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOk}
 		end
-		local _, id = m_simpleTV.OSD.ShowSelect_UTF8('сезон: ' .. title, 0, t, 10000, 1 + 2 + 4 + 8)
+		if not transl_menu then
+			t.ExtButton0 = {ButtonEnable = true, ButtonName = '🎞️'}
+		end
+		if m_simpleTV.User.paramScriptForSkin_buttonClose then
+			t.ExtButton1 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonClose}
+		else
+			t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕'}
+		end
+		local season_chk = m_simpleTV.User.hdvb.season or 1
+		local fl = 0
+		if transl_menu and m_simpleTV.Control.GetState() == 0 then
+			fl = 8
+		end
+		local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('сезоны - ' .. title, season_chk - 1, t, 10000, 1 + 2 + 4 + fl)
+			if ret == 2 and not transl_menu then
+				m_simpleTV.Control.Restart(-2.0, true)
+			 return
+			end
+			if (not id or ret == 3) and transl_menu then
+				m_simpleTV.Control.ExecuteAction(37)
+			 return
+			elseif ret == 3 and not transl_menu then
+				m_simpleTV.Control.ExecuteAction(37)
+			 return
+			end
 		id = id or 1
 		m_simpleTV.User.hdvb.season = id
 		m_simpleTV.User.hdvb.seasonName = ' (' .. t[id].Name .. ')'
@@ -159,16 +209,16 @@
 			while tab[season].folder[i] do
 				t[i] = {}
 				t[i].Id = i
-				t[i].Name = tab[season].folder[i].title .. ' (' .. tab[season].folder[i].folder[1].title .. ')'
+				t[i].Name = tab[season].folder[i].title
 				t[i].Address = '$hdvb' .. tab[season].folder[i].folder[1].file
+				t[i].Table = tab[season].folder[i].folder
 				i = i + 1
 			end
 			if #t == 0 then return end
 		local retAdr = getStream(t[1].Address)
-			if not retAdr then
-				m_simpleTV.Control.CurrentAddress = 'http://wonky.lostcut.net/vids/error_getlink.avi'
-			 return
-			end
+			if not retAdr then return end
+		m_simpleTV.User.hdvb.tabEpisode = t[1].Table
+		transl()
 		m_simpleTV.User.hdvb.DelayedAddress = retAdr
 		local title = m_simpleTV.User.hdvb.title .. m_simpleTV.User.hdvb.seasonName
 		m_simpleTV.Control.SetTitle(title)
@@ -181,9 +231,9 @@
 			t.OkButton = {ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOk}
 		end
 		if m_simpleTV.User.paramScriptForSkin_buttonPlst then
-			t.ExtButton1 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonPlst, ButtonScript = 'm_simpleTV.Control.SetNewAddressT({address = m_simpleTV.User.hdvb.startAdr, position = 0})'}
+			t.ExtButton1 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonPlst, ButtonScript = 'transl_hdvb()'}
 		else
-			t.ExtButton1 = {ButtonEnable = true, ButtonName = '📋', ButtonScript = 'm_simpleTV.Control.SetNewAddressT({address = m_simpleTV.User.hdvb.startAdr, position = 0})'}
+			t.ExtButton1 = {ButtonEnable = true, ButtonName = '📋', ButtonScript = 'transl_hdvb()'}
 		end
 		t.ExtParams = {}
 		t.ExtParams.LuaOnCancelFunName = 'OnMultiAddressCancel_hdvb'
@@ -193,8 +243,9 @@
 		t.ExtParams.StopAfterPlay = 1
 		t.ExtParams.PlayMode = 1
 		m_simpleTV.OSD.ShowSelect_UTF8(title, 0, t, 10000, 2 + 64)
-		m_simpleTV.Control.CurrentAddress = 'wait'
 		m_simpleTV.User.hdvb.episodeTitle = title .. ': ' .. t[1].Name
+		m_simpleTV.Control.CurrentAddress = 'wait'
+		m_simpleTV.Control.SetNewAddressT({address = m_simpleTV.Control.CurrentAddress})
 	end
 	local function movie()
 		local title = m_simpleTV.User.hdvb.title
@@ -240,33 +291,51 @@
 		answer = answer:gsub('%[%]', '""')
 		answer = answer:gsub('\\', '\\\\')
 		answer = unescape3(answer)
+		debug_in_file(answer .. '\n')
 		local err, tab = pcall(json.decode, answer)
 		if err == false then
 			tab = answer
 		end
 	 return tab
 	end
-	function OnMultiAddressOk_hdvb(Object, id)
-		if id == 1 then
-			OnMultiAddressCancel_hdvb(Object)
+	function transl_hdvb()
+		local t = m_simpleTV.User.hdvb.transl
+			if not t then return end
+		m_simpleTV.Control.ExecuteAction(37)
+		if m_simpleTV.User.paramScriptForSkin_buttonOk then
+			t.OkButton = {ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOk}
+		end
+		if m_simpleTV.User.paramScriptForSkin_buttonClose then
+			t.ExtButton1 = {ButtonEnable = true, ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonClose, ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
 		else
-			m_simpleTV.User.hdvb.DelayedAddress = nil
+			t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
 		end
-	end
-	function OnMultiAddressCancel_hdvb(Object)
-		if m_simpleTV.User.hdvb.DelayedAddress then
+		t.ExtButton0 = {ButtonEnable = true, ButtonName = 'Сезоны'}
+		local transl_id = m_simpleTV.User.hdvb.transl_id
+		m_simpleTV.User.hdvb.transl_name = m_simpleTV.User.hdvb.transl[transl_id].Name
+		local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('Перевод', transl_id - 1, t, 10000, 1 + 2 + 4)
+		if ret == 1 then
+			local retAdr = getStream(t[id].Address)
+				if not retAdr then return end
+			local position
 			if m_simpleTV.Control.GetState() == 0 then
-				m_simpleTV.Control.SetNewAddressT({address = m_simpleTV.User.hdvb.DelayedAddress, position = 0})
-				local title = m_simpleTV.User.hdvb.episodeTitle
-				m_simpleTV.Control.SetTitle(title)
-				m_simpleTV.OSD.ShowMessageT({text = title, showTime = 1000 * 5, id = 'channelName'})
+				position = 0
+			else
+				position = m_simpleTV.Control.GetPosition()
 			end
-			m_simpleTV.User.hdvb.DelayedAddress = nil
+			m_simpleTV.User.hdvb.transl_id = id
+			m_simpleTV.User.hdvb.transl_name = m_simpleTV.User.hdvb.transl[id].Name
+			m_simpleTV.Control.SetNewAddressT({address = retAdr, position = position})
 		end
-	end
-	function serials_hdvb()
-		if seasons() then
-			episodes()
+		if ret == 2 then
+			if seasons(true) then
+				m_simpleTV.User.hdvb.transl_id = nil
+				m_simpleTV.User.hdvb.transl_name = nil
+				episodes()
+			end
+		end
+		if (not id or ret == 3) and m_simpleTV.Control.GetState() == 0 then
+			m_simpleTV.Control.ExecuteAction(108)
 		end
 	end
 	function qlty_hdvb()
@@ -288,6 +357,24 @@
 			m_simpleTV.Config.SetValue('hdvb_qlty', t[id].qlty)
 		end
 	end
+	function OnMultiAddressOk_hdvb(Object, id)
+		if id == 1 then
+			OnMultiAddressCancel_hdvb(Object)
+		else
+			m_simpleTV.User.hdvb.DelayedAddress = nil
+		end
+	end
+	function OnMultiAddressCancel_hdvb(Object)
+		if m_simpleTV.User.hdvb.DelayedAddress then
+			if m_simpleTV.Control.GetState() == 0 then
+				m_simpleTV.Control.SetNewAddressT({address = m_simpleTV.User.hdvb.DelayedAddress, position = 0})
+				local title = m_simpleTV.User.hdvb.episodeTitle
+				m_simpleTV.Control.SetTitle(title)
+				showMsg(nil, title)
+			end
+			m_simpleTV.User.hdvb.DelayedAddress = nil
+		end
+	end
 		if inAdr:match('^$hdvb') then
 			local title = ''
 			local t = m_simpleTV.Control.GetCurrentChannelInfo()
@@ -296,8 +383,11 @@
 				and t.MultiName
 			then
 				title = t.MultiHeader .. ': ' .. t.MultiName
+				m_simpleTV.User.hdvb.tabEpisode = m_simpleTV.User.hdvb.tab[m_simpleTV.User.hdvb.season].folder[t.MultiIndex +1].folder
+				transl()
+				local transl_id = m_simpleTV.User.hdvb.transl_id
+				play(m_simpleTV.User.hdvb.tab[m_simpleTV.User.hdvb.season].folder[t.MultiIndex +1].folder[transl_id].file, title)
 			end
-			play(inAdr, title)
 		 return
 		end
 	local tab = getData()
@@ -309,15 +399,21 @@
 	if title then
 		title = m_simpleTV.Common.fromPercentEncoding(title)
 	else
-		title = 'Hdvb'
+		title = titleAnswer or 'Hdvb'
 	end
 	m_simpleTV.User.hdvb.title = title
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Control.ChangeChannelName(title, m_simpleTV.Control.ChannelID, false)
 	end
 	m_simpleTV.User.hdvb.tab = tab
+	m_simpleTV.User.hdvb.transl = nil
+	m_simpleTV.User.hdvb.transl_id = nil
+	m_simpleTV.User.hdvb.season = nil
+	m_simpleTV.User.hdvb.transl_name = nil
 	if type(tab) == 'table' then
-		serials_hdvb()
+		if seasons() then
+			episodes()
+		end
 	else
 		if m_simpleTV.Control.MainMode == 0 then
 			m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
