@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (16/4/22)
+-- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (18/4/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- модуль: /core/playerjs.lua
@@ -93,18 +93,32 @@
 		showMsg(nil, title)
 		m_simpleTV.Control.CurrentAddress = retAdr
 	end
-	local function transl()
-		local tab = m_simpleTV.User.cdnmovies.tabTable
+	local function transl(movie)
+		local tab = m_simpleTV.User.cdnmovies.tabEpisode
+		local transl_name = m_simpleTV.User.cdnmovies.transl_name or m_simpleTV.User.cdnmovies.tabEpisode[1].title
+		local transl_id = m_simpleTV.User.cdnmovies.transl_id
+		local found_transl_name
 		local t = {}
 			for i = 1, #tab do
 				t[i] = {}
 				t[i].Id = i
 				t[i].Address = tab[i].file
 				t[i].Name = tab[i].title
+				if t[i].Name == transl_name then
+					transl_id = i
+					found_transl_name = true
+				end
 			end
 			if #t == 0 then return end
+		m_simpleTV.User.cdnmovies.transl_name = transl_name or t[1].Name
+		if not transl_id or transl_id > #t or not found_transl_name then
+			transl_id = 1
+		end
+		m_simpleTV.User.cdnmovies.transl_id = transl_id
 		m_simpleTV.User.cdnmovies.transl = t
-		m_simpleTV.User.cdnmovies.adr = t[1].Address
+		if movie then
+			m_simpleTV.User.cdnmovies.adr = t[1].Address
+		end
 	 return true
 	end
 	local function seasons(transl_menu)
@@ -165,7 +179,7 @@
 			if #t == 0 then return end
 		local retAdr = getAdr(t[1].Address)
 			if not retAdr then return end
-		m_simpleTV.User.cdnmovies.tabTable = t[1].Table
+		m_simpleTV.User.cdnmovies.tabEpisode = t[1].Table
 		transl()
 		m_simpleTV.User.cdnmovies.DelayedAddress = retAdr
 		local title = m_simpleTV.User.cdnmovies.title .. m_simpleTV.User.cdnmovies.seasonName
@@ -256,7 +270,8 @@
 		if not movie then
 			t.ExtButton0 = {ButtonEnable = true, ButtonName = 'Сезоны'}
 		end
-		local transl_id = m_simpleTV.User.cdnmovies.transl_id or 1
+		local transl_id = m_simpleTV.User.cdnmovies.transl_id
+		m_simpleTV.User.cdnmovies.transl_name = m_simpleTV.User.cdnmovies.transl[transl_id].Name
 		local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('Перевод', transl_id - 1, t, 10000, 1 + 2 + 4)
 		if ret == 1 then
 			local retAdr = getAdr(t[id].Address)
@@ -268,10 +283,13 @@
 				position = m_simpleTV.Control.GetPosition()
 			end
 			m_simpleTV.User.cdnmovies.transl_id = id
+			m_simpleTV.User.cdnmovies.transl_name = m_simpleTV.User.cdnmovies.transl[id].Name
 			m_simpleTV.Control.SetNewAddressT({address = retAdr, position = position})
 		end
 		if ret == 2 then
 			if seasons(true) then
+				m_simpleTV.User.cdnmovies.transl_id = nil
+				m_simpleTV.User.cdnmovies.transl_name = nil
 				episodes()
 			end
 		end
@@ -299,7 +317,6 @@
 		end
 	end
 	function OnMultiAddressOk_cdnmovies(Object, id)
-		m_simpleTV.User.cdnmovies.transl_id = id
 		if id == 1 then
 			OnMultiAddressCancel_cdnmovies(Object)
 		else
@@ -325,13 +342,10 @@
 				and t.MultiName
 			then
 				title = t.MultiHeader .. ': ' .. t.MultiName
-				m_simpleTV.User.cdnmovies.tabTable = m_simpleTV.User.cdnmovies.tab[m_simpleTV.User.cdnmovies.season].folder[t.MultiIndex +1].folder
+				m_simpleTV.User.cdnmovies.tabEpisode = m_simpleTV.User.cdnmovies.tab[m_simpleTV.User.cdnmovies.season].folder[t.MultiIndex +1].folder
 				transl()
-				local transl_id = m_simpleTV.User.cdnmovies.transl_id or 1
-				if not m_simpleTV.User.cdnmovies.tab[m_simpleTV.User.cdnmovies.season].folder[t.MultiIndex +1].folder[m_simpleTV.User.cdnmovies.transl_id] then
-					m_simpleTV.User.cdnmovies.transl_id = 1
-				end
-				play(m_simpleTV.User.cdnmovies.tab[m_simpleTV.User.cdnmovies.season].folder[t.MultiIndex +1].folder[m_simpleTV.User.cdnmovies.transl_id].file, title)
+				local transl_id = m_simpleTV.User.cdnmovies.transl_id
+				play(m_simpleTV.User.cdnmovies.tab[m_simpleTV.User.cdnmovies.season].folder[t.MultiIndex +1].folder[transl_id].file, title)
 			end
 		 return
 		end
@@ -355,6 +369,7 @@
 	m_simpleTV.User.cdnmovies.transl = nil
 	m_simpleTV.User.cdnmovies.transl_id = nil
 	m_simpleTV.User.cdnmovies.season = nil
+	m_simpleTV.User.cdnmovies.transl_name = nil
 	if ser then
 		if seasons() then
 			episodes()
@@ -363,8 +378,8 @@
 		if m_simpleTV.Control.MainMode == 0 then
 			m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
 		end
-		m_simpleTV.User.cdnmovies.tabTable = m_simpleTV.User.cdnmovies.tab
-		if transl() then
+		m_simpleTV.User.cdnmovies.tabEpisode = m_simpleTV.User.cdnmovies.tab
+		if transl(true) then
 			movie()
 		end
 	end
