@@ -1,10 +1,10 @@
--- видеоскрипт для видеобалансера "Hdvb" https://hdvb.tv (18/4/22)
+-- видеоскрипт для видеобалансера "Hdvb" https://hdvb.tv (20/4/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://vid1647324294.vb17121coramclean.pw/movie/c77fd8d3ec03509000778d9af49f8d86/iframe
 -- https://vid1648222294.vb17121coramclean.pw/serial/77de2d434d279e861121237797af59a26ae2a19b53718d36ce15bcca908eaed2/iframe
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('^https?://vid%d+.-/%a+/%x+/iframe')
+		if not m_simpleTV.Control.CurrentAddress:match('^https?://vid%d+[^/]+/%a+/%x+/iframe')
 			and not m_simpleTV.Control.CurrentAddress:match('^$hdvb')
 		then
 		 return
@@ -291,7 +291,6 @@
 		answer = answer:gsub('%[%]', '""')
 		answer = answer:gsub('\\', '\\\\')
 		answer = unescape3(answer)
-		debug_in_file(answer .. '\n')
 		local err, tab = pcall(json.decode, answer)
 		if err == false then
 			tab = answer
