@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (25/3/22)
+-- видеоскрипт для сайта http://www.kinopoisk.ru (20/4/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
@@ -52,7 +52,7 @@ local tname = {
 	htmlEntities = require 'htmlEntities'
 	m_simpleTV.Control.ChangeAddress= 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:99.0) Gecko/20100101 Firefox/99.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	if inAdr:match('hd%.kinopoisk%.ru') then
@@ -157,7 +157,7 @@ local tname = {
 			else
 			 return
 			end
-			local sessionFilmix = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0')
+			local sessionFilmix = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:99.0) Gecko/20100101 Firefox/99.0')
 				if not sessionFilmix then return end
 			m_simpleTV.Http.SetTimeout(sessionFilmix, 8000)
 			local ratimdbot, ratkinot, ratimdbdo, ratkindo, yearot, yeardo = '', '', '', '', '', ''
@@ -443,6 +443,9 @@ local tname = {
 			m_simpleTV.OSD.ShowMessageT({text = 'Видео не найдено\nkinopoisk ошибка[2]', color = 0xff99ff99, showTime = 1000 * 5, id = 'channelName'})
 		 return
 		end
+	if title == '' then
+		title = nil
+	end
 	title = title or altTitle or 'КиноПоиск'
 	m_simpleTV.Control.CurrentTitle_UTF8 = title
 	m_simpleTV.Control.SetTitle(title)
