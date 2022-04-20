@@ -1,4 +1,4 @@
--- видеоскрипт для видеобазы "kodik" http://kodik.cc (10/2/22)
+-- видеоскрипт для видеобазы "kodik" http://kodik.cc (21/4/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://hdrise.com/video/31756/445f20d7950d3df08f7574311e82521e/720p
@@ -25,8 +25,8 @@
 	end
 	inAdr = inAdr:gsub('/$', '')
 	m_simpleTV.Control.ChangeAddress = 'Yes'
-	m_simpleTV.Control.CurrentAddress = ''
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3809.87 Safari/537.36')
+	m_simpleTV.Control.CurrentAddress = 'error'
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:99.0) Gecko/20100101 Firefox/99.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	if not m_simpleTV.User then
@@ -111,7 +111,10 @@
 		if not m_simpleTV.User.kodik.url then
 			local script = answer:match('type="text/javascript".-src="([^"]+)')
 				if not script then return end
-			rc, answer = m_simpleTV.Http.Request(session, {url = 'http://' .. pd .. script, headers = 'Referer: ' .. refer})
+			if not script:match('^http') then
+				script = 'http://' .. pd .. script
+			end
+			rc, answer = m_simpleTV.Http.Request(session, {url = script, headers = 'Referer: ' .. refer})
 			local url = answer:match('url:atob%("([^"]+)')
 				if not url then return end
 			url = decode64(url)
