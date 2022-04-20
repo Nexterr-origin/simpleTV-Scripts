@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (20/4/22)
+-- видеоскрипт для сайта http://www.kinopoisk.ru (21/4/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
@@ -443,24 +443,33 @@ local tname = {
 			m_simpleTV.OSD.ShowMessageT({text = 'Видео не найдено\nkinopoisk ошибка[2]', color = 0xff99ff99, showTime = 1000 * 5, id = 'channelName'})
 		 return
 		end
-	if title == '' then
+	if not title or title == '' then
 		title = nil
 	end
-	title = title or altTitle or 'КиноПоиск'
+	if not altTitle or altTitle == '' then
+		altTitle = nil
+	end
+	title = title or altTitle
+	local title_retAdr
+	if not title then
+		title = 'КиноПоиск'
+		title_retAdr = ''
+	else
+		title_retAdr = title
+	end
 	m_simpleTV.Control.CurrentTitle_UTF8 = title
 	m_simpleTV.Control.SetTitle(title)
 	selectmenu()
+	m_simpleTV.Http.Close(session)
 		if not retAdr or retAdr == 0 then
 			m_simpleTV.Control.ExecuteAction(37)
-			m_simpleTV.Http.Close(session)
 			m_simpleTV.Control.ExecuteAction(11)
 			if not retAdr then m_simpleTV.OSD.ShowMessageT({text = 'Видео не найдено\nkinopoisk ошибка[3]', color = 0xff99ff99, showTime = 1000 * 5, id = 'channelName'}) end
 		 return
 		end
-	m_simpleTV.Http.Close(session)
 	m_simpleTV.Control.ExecuteAction(37)
 	retAdr = retAdr:gsub('\\/', '/')
 	retAdr = retAdr:gsub('^//', 'http://')
-	retAdr = retAdr .. '&kinopoisk=' .. m_simpleTV.Common.toPercentEncoding(title)
+	retAdr = retAdr .. '&kinopoisk=' .. m_simpleTV.Common.toPercentEncoding(title_retAdr)
 	m_simpleTV.Control.SetNewAddressT({address = retAdr, position = 0})
 -- debug_in_file(retAdr .. '\n')
