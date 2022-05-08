@@ -1,9 +1,8 @@
--- видеоскрипт для сайта https://www.imdb.com (26/6/20)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта https://www.imdb.com (8/5/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
--- https://www.imdb.com/video/vi4095655705?playlistId=tt8579674&ref_=tt_ov_vi
+-- https://www.imdb.com/video/vi1935655705?playlistId=tt12412888&ref_=tt_pr_ov_vi
 -- http://www.imdb.com/video/imdb/vi2524815897
--- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://[%w%.]*imdb%.com.-vi%d+') then return end
 	m_simpleTV.OSD.ShowMessageT({text = '', showTime = 1000, color = 0xFF8080FF, id = 'channelName'})
@@ -19,11 +18,8 @@
 	local function showError(str)
 		m_simpleTV.OSD.ShowMessageT({text = 'imdb ошибка: ' .. str, showTime = 5000, color = 0xffff1000, id = 'channelName'})
 	end
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.79 Safari/537.36')
-		if not session then
-			showError('0')
-		 return
-		end
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:100.0) Gecko/20100101 Firefox/100.0')
+		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local function GetThemoviedb(d)
 			if not d then return end
@@ -35,17 +31,14 @@
 			if not tab then return end
 	 return tab.movie_results[1].title, tab.movie_results[1].poster_path
 	end
-	local id = inAdr:match('vi%d+')
-	local key = '{"type":"VIDEO_PLAYER","subType":"FORCE_LEGACY","id":"' .. id .. '"}'
-	key = encode64(key)
-	local url = 'https://www.imdb.com/ve/data/VIDEO_PLAYBACK_DATA?key=' .. key
-	local rc, answer = m_simpleTV.Http.Request(session, {url = url})
+	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
 		if rc ~= 200 then
 			m_simpleTV.Http.Close(session)
 			showError('1 - ' .. rc)
 		 return
 		end
-	local retAdr = answer:match('definition":"AUTO","mimeType":"application/x%-mpegurl","url":"([^"]+)')
+	answer = unescape3(answer)
+	local retAdr = answer:match('"playbackURLs":%[{"mimeType":"application/x%-mpegurl","url":"([^"]+)')
 	local retAdr_mp4 = answer:match('video/mp4","url":"([^"]+)')
 		if not retAdr and not retAdr_mp4 then
 			showError('2')
