@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (8/3/22)
+-- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (16/5/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://32.svetacdn.in/fnXOUDB9nNSO?kp_id=5928
@@ -44,7 +44,7 @@ local proxy = ''
 		m_simpleTV.User.Videocdn.qlty = tonumber(m_simpleTV.Config.GetValue('Videocdn_qlty') or '10000')
 	end
 	local title
-	if m_simpleTV.User.Videocdn.Tabletitle then
+	if m_simpleTV.User.Videocdn.Tabletitle and not psevdotv then
 		local index = m_simpleTV.Control.GetMultiAddressIndex()
 		if index then
 			title = m_simpleTV.User.Videocdn.title .. ' - ' .. m_simpleTV.User.Videocdn.Tabletitle[index].Name
