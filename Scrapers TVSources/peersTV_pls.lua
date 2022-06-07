@@ -1,5 +1,5 @@
--- скрапер TVS для загрузки плейлиста "PeersTV" http://peers.tv (23/3/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- скрапер TVS для загрузки плейлиста "PeersTV" http://peers.tv (7/6/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: peersTV.lua
 -- расширение дополнения httptimeshift: peerstv-timeshift_ext.lua
@@ -48,7 +48,6 @@ local filter = {
 	{'Юрган', 'Юрган (Сыктывкар)'},
 	{'Якутия 24', 'Якутия 24 (Якутск)'},
 	}
--- ##
 	module('peersTV_pls', package.seeall)
 	local my_src_name = 'PeersTV'
 	local function ProcessFilterTableLocal(t)
@@ -72,12 +71,8 @@ local filter = {
 	local function trim(s)
 	 return (s:gsub("^%s*(.-)%s*$", "%1"))
 	end
-	local function showMsg(str, color)
-		local t = {text = str, color = color, showTime = 1000 * 5, id = 'channelName'}
-		m_simpleTV.OSD.ShowMessageT(t)
-	end
 	local function LoadFromSite()
-		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:81.0) Gecko/20100101 Firefox/81.0')
+		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:101.0) Gecko/20100101 Firefox/101.0')
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 8000)
 		local rc, answer = m_simpleTV.Http.Request(session, {body = decode64('Z3JhbnRfdHlwZT1pbmV0cmElM0Fhbm9ueW1vdXMmY2xpZW50X2lkPTI5NzgzMDUxJmNsaWVudF9zZWNyZXQ9YjRkNGViNDM4ZDc2MGRhOTVmMGFjYjViYzZiNWM3NjA='), url = decode64('aHR0cDovL2FwaS5wZWVycy50di9hdXRoLzIvdG9rZW4='), method = 'post', headers = 'Content-Type: application/x-www-form-urlencoded'})
@@ -89,23 +84,28 @@ local filter = {
 		local t, i = {}, 1
 			for w in answer:gmatch('STREAM%-INF.-%.m3u8') do
 				local name, adr = w:match(',(.-)\n(.+)')
-				if not w:match('access=denied')
-					and name
+				if name
 					and adr
 					and not adr:match('/data/tv/')
 				then
 					t[i] = {}
-					t[i].name = name
-					id = w:match('%sid=(%d+)')
-					if w:match('timeshift=true') and id then
+					t[i].name = name:gsub('%[%d+%+%]', '')
+					t[i].ch_name_reg = adr:match('streaming/([^/]+/[^/]+/)')
+					if w:match('access=denied') then
+						adr = adr:gsub('^.-/streaming/([^/]+/%d+/).-$', 'http://api.peers.tv/timeshift/%1playlist.m3u8?offset=1')
 						t[i].RawM3UString = 'catchup="append" catchup-minutes="360" catchup-source="&offset=${offset}"'
-						adr = adr .. '$id=' .. id
+					else
+						local id = w:match('%sid=(%d+)')
+						if w:match('timeshift=true') and id then
+							t[i].RawM3UString = 'catchup="append" catchup-minutes="360" catchup-source="&offset=${offset}"'
+							adr = adr .. '$id=' .. id
+						end
 					end
 					t[i].address = adr
 					i = i + 1
 				end
 			end
-			if i == 1 then return end
+			if #t == 0 then return end
 			for _, v in pairs(t) do
 				v.name = trim(v.name)
 				if v.address:match('/16/')
@@ -129,6 +129,16 @@ local filter = {
 					v.name = v.name .. ' (+4)'
 				end
 			end
+			if #t == 0 then return end
+		local notWork = {'shopping_live/16/', 'kinoliving/16/', 'nano_tv/126/', 'nick_jr/16/', 'ginger_hd/16/', 'mmntk/126/', 'sportivnyy/16/', 'pro100/126/', 'ratnik/16/', 'lipetskoye_vremya/16/', 'futbol/16/', 'amedia_2/16/', 'filmbox/16/', 'playboy_tv_18/gvh1w/'}
+			for i = 1, #t do
+				for j = 1, #notWork do
+					if t[i].ch_name_reg == notWork[j] then
+						t[i].skip = true
+					 break
+					end
+				end
+			end
 	 return t
 	end
 	function GetList(UpdateID, m3u_file)
@@ -137,11 +147,7 @@ local filter = {
 			if not TVSources_var.tmp.source[UpdateID] then return end
 		local Source = TVSources_var.tmp.source[UpdateID]
 		local t_pls = LoadFromSite()
-			if not t_pls then
-				showMsg(Source.name .. ' ошибка загрузки плейлиста', ARGB(255, 255, 102, 0))
-			 return
-			end
-		showMsg(Source.name .. ' (' .. #t_pls .. ')', ARGB(255, 153, 255, 153))
+			if not t_pls then return end
 		t_pls = ProcessFilterTableLocal(t_pls)
 		local m3ustr = tvs_core.ProcessFilterTable(UpdateID, Source, t_pls)
 		local handle = io.open(m3u_file, 'w+')
