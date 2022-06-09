@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "TV+ HD" http://www.tvplusonline.ru (16/4/22)
+-- скрапер TVS для загрузки плейлиста "TV+ HD" http://www.tvplusonline.ru (9/6/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: tv+hd.lua
@@ -12,6 +12,16 @@ local filter = {
 	{'Москва 24', 'Москва 24 (Москва)'},
 	{'Наш дом', '11 канал (Пенза)'},
 	{'ТВ3', 'ТВ-3'},
+	{'kinohit', 'Кинохит'},
+	{'kinoman', 'Мужское кино'},
+	{'kinomix', 'Киномикс'},
+	{'kinopremier', 'Кинопремьера'},
+	{'kinouzas', 'Киноужас'},
+	{'matchfighter', 'Матч! Боец'},
+	{'matchoursport', 'Матч! Страна'},
+	{'matchpremier', 'Матч! Премьер'},
+	{'matchtvhd', 'Матч! HD'},
+	{'nashenovoekino', 'Наше новое кино'},
 	}
 	module('tv+hd_pls', package.seeall)
 	local my_src_name = 'TV+ HD'
@@ -45,58 +55,56 @@ local filter = {
 		local tab = json.decode(answer)
 			if not tab then return end
 		local dvr = {}
-		local tsift
 		rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly93d3cudHZwbHVzb25saW5lLnJ1L3ZlcnNpb250di50eHQ')})
 			if rc == 200 then
 				dvr = answer:match('dvr,([^%c%s]+)') or ''
+				dvr = dvr:gsub('moscow24;?', '')
 				dvr = split(dvr, ';')
-				if #dvr > 0 then
-					tsift = true
-				end
-			end
-			local function catchup(adr)
-				for i = 1, #dvr do
-					if adr == dvr[i] then
-					 return 'catchup="flussonic-hls" catchup-days="1" catchup-source=""'
-					end
-				end
-			 return
 			end
 		local t = {}
 			for i = 1, #tab do
 				local title = tab[i].title
 				local adr = tab[i].name
 				local closed = tab[i].closed
-				if title and adr and closed then
-					local RawM3UString = catchup(adr)
-					if not tsift then
-						RawM3UString = ''
-					end
-					if (closed == 1 and RawM3UString) or closed == 0 then
-						title = unescape1(title)
-						if title == 'Матч! Футбол 3' then
-							adr = 'matchfootball3'
-						end
-						t[#t + 1] = {}
-						t[#t].name = title
-						t[#t].adr = adr
-						t[#t].RawM3UString = RawM3UString
-						if closed == 1 then
-							adr = adr .. '&plus=true'
-							if not tsift then
-								t[#t].RawM3UString = 'catchup="flussonic-hls" catchup-days="1" catchup-source=""'
-							end
-						end
-						t[#t].address = 'https://tv+hd.' .. adr
-					end
+				if title and adr and closed == 0 then
+					title = unescape1(title)
+					t[#t + 1] = {}
+					t[#t].adr = adr
+					t[#t].name = title
+					t[#t].address = 'https://tv+hd.' .. adr
 				end
 			end
+			for i = 1, #dvr  do
+				t[#t + 1] = {}
+				t[#t].name = dvr[i]
+				t[#t].adr = dvr[i]
+				t[#t].address = 'https://tv+hd.' .. dvr[i] .. '&plus=true'
+				t[#t].RawM3UString = 'catchup="flussonic-hls" catchup-days="1" catchup-source=""'
+			end
 			if #t == 0 then return end
-		local notWork = {'tv365', 'rtg', 'autoplus', 'jivi', 'cooktv', 'matchfootball1hd', 'matchfootball2hd', 'matchfootball3hd', 'nostalgia', 'matchpremierhd', 'iz'}
-			for i = 1, #t do
+		local notWork = {
+		'boxtv',
+		'indiankino',
+		'khlhd',
+		'autoplus',
+		'kinofamily',
+		'kinokomediya',
+		'kinolove',
+		'kinoseriya',
+		'm1global',
+		'matcharena',
+		'matcharenahd',
+		'matchfootball1',
+		'matchfootball2',
+		'matchfootball3',
+		'matchgame',
+		'matchgamehd',
+		'rodnoekino',
+		}
+			for k = 1, #t do
 				for j = 1, #notWork do
-					if t[i].adr == notWork[j] then
-						t[i].skip = true
+					if t[k].adr == notWork[j] then
+						t[k].skip = true
 					 break
 					end
 				end
