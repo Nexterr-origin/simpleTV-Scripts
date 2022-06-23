@@ -1,16 +1,14 @@
--- видеоскрипт для сайта https://smotrim.ru (19/3/22)
+-- видеоскрипт для сайта https://smotrim.ru (23/6/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## Необходим ##
 -- видеоскприпт: mediavitrina.lua
 -- ## открывает подобные ссылки ##
 -- https://smotrim.ru/video/2393207
 -- https://smotrim.ru/article/2512070
--- https://smotrim.ru/live/channel/2961
--- https://smotrim.ru/live/vitrina/254
--- https://smotrim.ru/live/channel/248 -- радио
--- https://smotrim.ru/live/61647
+-- https://smotrim.ru/channel/267
+-- https://smotrim.ru/channel/254
+-- https://smotrim.ru/channel/248 -- радио
 -- https://smotrim.ru/podcast/45
--- https://smotrim.ru/live/52035
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://smotrim%.ru')
 			and not m_simpleTV.Control.CurrentAddress:match('^smotrim_podcast=')
@@ -31,7 +29,7 @@
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:95.0) Gecko/20100101 Firefox/95.0', nil, true)
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:101.0) Gecko/20100101 Firefox/101.0', nil, true)
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local function showErr(str)
@@ -165,32 +163,14 @@
 		 return
 		end
 	local embedUrl = answer:match('http[^\'\"<>]+player%.[^<>\'\"]+') or answer:match('http[^\'\"<>]+icecast%-[^<>\'\"]+')
-		if not embedUrl or not inAdr:match('%d+') then
+		if not embedUrl or not inAdr:match('%d+') or embedUrl:match('&quot') then
 			showErr('Медиа контент не найден')
 		 return
 		end
-		if not embedUrl:match('player%.vgtrk%.com') then
-			local title = answer:match('"og:title" content="([^"]+)')
-			if title then
-				if m_simpleTV.Control.MainMode == 0 then
-					title = title:gsub('&quot;', '"')
-					m_simpleTV.Control.ChangeChannelName(title, m_simpleTV.Control.ChannelID, false)
-					local poster = inAdr:match('/channel/(%d+)')
-					if poster then
-						poster = 'https://smotrim.ru/i/' .. poster .. '.svg'
-					end
-					poster = poster or 'https://smotrim.ru/i/smotrim_logo_soc.png'
-					m_simpleTV.Control.ChangeChannelLogo(poster, m_simpleTV.Control.ChannelID)
-				end
-				m_simpleTV.Control.CurrentTitle_UTF8 = title
-			end
-				if embedUrl:match('mediavitrina') then
-					m_simpleTV.Control.ChangeAddress = 'No'
-					m_simpleTV.Control.CurrentAddress = embedUrl
-					dofile(m_simpleTV.MainScriptDir .. 'user/video/video.lua')
-				 return
-				end
+		if embedUrl:match('mediavitrina') then
+			m_simpleTV.Control.ChangeAddress = 'No'
 			m_simpleTV.Control.CurrentAddress = embedUrl
+			dofile(m_simpleTV.MainScriptDir .. 'user/video/video.lua')
 		 return
 		end
 	embedUrl = embedUrl:gsub('amp;', '')
@@ -301,10 +281,6 @@
 		t[#t].Id = 100000000
 		t[#t].Name = '▫ всегда высокое'
 		t[#t].Address = t[#t - 1].Address
-		t[#t + 1] = {}
-		t[#t].Id = 500000000
-		t[#t].Name = '▫ адаптивное'
-		t[#t].Address = retAdr .. extOpt
 		index = #t
 			for i = 1, #t do
 				if t[i].Id >= lastQuality then
