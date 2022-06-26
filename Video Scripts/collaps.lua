@@ -1,7 +1,7 @@
--- видеоскрипт для видеобалансера "Collaps" https://collaps.org (10/2/22)
+-- видеоскрипт для видеобалансера "Collaps" https://collaps.org (26/6/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
--- https://api1603044906.kinogram.best/embed/movie/7059
+-- http://api1656248141.synchroncode.com/embed/kp/460586
 -- https://api1603044906.kinogram.best/embed/kp/5928
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://api[%d]*%[^/]+/embed/movie/%d+')
@@ -18,7 +18,7 @@
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:96.0) Gecko/20100101 Firefox/96.0'
+	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:101.0) Gecko/20100101 Firefox/101.0'
 	local session = m_simpleTV.Http.New(userAgent)
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 12000)
@@ -106,7 +106,7 @@
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 			if rc ~= 200 then return end
 		local t = {}
-			for w, adr in answer:gmatch('EXT%-X%-STREAM%-INF(.-)\n(.-%.m3u8)') do
+			for w, adr in answer:gmatch('EXT%-X%-STREAM%-INF(.-)\n(.-%.m3u8.-)\n') do
 				local qlty = w:match('RESOLUTION=%d+x(%d+)')
 				if adr and w:match('AUDIO="audio0"') and qlty then
 					t[#t + 1] = {}
@@ -148,7 +148,7 @@
 		end
 			for i = 1, #t do
 				t[i].Id = i
-				t[i].Address = t[i].Address:gsub('%.m3u8$', '-a' .. transl ..'.m3u8')
+				t[i].Address = t[i].Address:gsub('%.m3u8', '-a' .. transl ..'.m3u8')
 			end
 		m_simpleTV.User.collaps.Tab = t
 		local index = collapsIndex(t)
