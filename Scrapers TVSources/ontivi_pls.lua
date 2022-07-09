@@ -1,12 +1,11 @@
--- скрапер TVS для загрузки плейлиста "ontivi" http://ontivi.net (22/4/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- скрапер TVS для загрузки плейлиста "ontivi" http://ontivi.net (9/7/21)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: ontivi.lua
 -- ## переименовать каналы ##
 local filter = {
 	{'имя до', 'после'},
 	}
--- ##
 	module('ontivi_pls', package.seeall)
 	local my_src_name = 'ontivi'
 	local function ProcessFilterTableLocal(t)
@@ -27,15 +26,11 @@ local filter = {
 	function GetVersion()
 	 return 2, 'UTF-8'
 	end
-	local function showMess(str, color)
-		local t = {text = str, color = color, showTime = 1000 * 5, id = 'channelName'}
-		m_simpleTV.OSD.ShowMessageT(t)
-	end
 	local function LoadFromSite()
-		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:85.0) Gecko/20100101 Firefox/85.0')
+		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv102.0) Gecko/20100101 Firefox/102.0')
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 8000)
-		local url = 'http://tv.ontivi.net'
+		local url = 'http://ip.ontivi.net'
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url .. '/chanel'})
 		m_simpleTV.Http.Close(session)
 			if rc ~= 200 then return end
@@ -50,7 +45,6 @@ local filter = {
 					i = i + 1
 				end
 			end
-			if #t == 0 then return end
 	 return t
 	end
 	function GetList(UpdateID, m3u_file)
@@ -59,11 +53,7 @@ local filter = {
 			if not TVSources_var.tmp.source[UpdateID] then return end
 		local Source = TVSources_var.tmp.source[UpdateID]
 		local t_pls = LoadFromSite()
-			if not t_pls then
-				showMess(Source.name .. ' ошибка загрузки плейлиста', ARGB(255, 255, 102, 0))
-			 return
-			end
-		showMess(Source.name .. ' (' .. #t_pls .. ')', ARGB(255, 153, 255, 153))
+			if not t_pls or #t_pls == 0 then return end
 		t_pls = ProcessFilterTableLocal(t_pls)
 		local m3ustr = tvs_core.ProcessFilterTable(UpdateID, Source, t_pls)
 		local handle = io.open(m3u_file, 'w+')
