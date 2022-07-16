@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://smotrim.ru (23/6/22)
+-- видеоскрипт для сайта https://smotrim.ru (18/7/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## Необходим ##
 -- видеоскприпт: mediavitrina.lua
@@ -29,7 +29,7 @@
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:101.0) Gecko/20100101 Firefox/101.0', nil, true)
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:103.0) Gecko/20100101 Firefox/103.0', nil, true)
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local function showErr(str)
@@ -222,8 +222,8 @@
 			title = unescape3(title)
 			title = title:gsub('%%22', '"')
 			m_simpleTV.Control.ChangeChannelName(title, m_simpleTV.Control.ChannelID, false)
-			local poster = answer:match('"picture":"([^"]+)') or 'https://smotrim.ru/i/smotrim_logo_soc.png'
-			m_simpleTV.Control.ChangeChannelLogo(poster, m_simpleTV.Control.ChannelID)
+			local poster = answer:match('"pictures":{"[^}]+"16:9":"([^"]+)') or 'https://smotrim.ru/i/smotrim_logo_soc.png'
+			m_simpleTV.Control.ChangeChannelLogo(poster, m_simpleTV.Control.ChannelID, 'CHANGE_IF_NOT_EQUAL')
 		end
 		title = addTitle .. ' - ' .. title
 	end
@@ -304,4 +304,4 @@
 		retAdr = retAdr .. '$OPT:POSITIONTOCONTINUE=0'
 	end
 	m_simpleTV.Control.CurrentAddress = retAdr
--- debug_in_file(m_simpleTV.Control.CurrentAddress .. '\n')
+-- debug_in_file(retAdr .. '\n')
