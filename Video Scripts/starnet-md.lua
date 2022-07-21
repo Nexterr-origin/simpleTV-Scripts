@@ -1,5 +1,5 @@
--- видеоскрипт для плейлиста "StarNet" https://www.starnet.md (27/11/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для плейлиста "StarNet" https://www.starnet.md (21/7/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: starnet-md_pls.lua
 -- ## открывает подобные ссылки ##
@@ -17,8 +17,7 @@
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local id = inAdr:match('%.([^&$%?]*)')
-	local url = string.reverse('8SbhVmc0N3LjlmbvN3c1xmRvkGch9CZt5iY0NnLuV2avR3LvoDc0RHa')
-	local url = decode64(url) .. id .. '/metadata.json'
+	local url = decode64('aHR0cHM6Ly90b2tlbi5zdGIubWQvYXBpL0ZsdXNzb25pYy9zdHJlYW0v') .. id .. '/metadata.json'
 	local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 		if rc ~= 200 then return end
 	local retAdr = answer:match('"url":"([^"]+)')
