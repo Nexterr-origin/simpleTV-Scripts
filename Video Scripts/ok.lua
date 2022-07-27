@@ -1,11 +1,11 @@
--- видеоскрипт для сайта https://ok.ru (31/1/22)
+-- видеоскрипт для сайта https://ok.ru (27/7/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- http://ok.ru/videoembed/2636779838
 -- https://ok.ru/video/361515387611
 -- http://ok.ru/video/23276948199
--- https://m.ok.ru/live/73314
 -- https://ok.ru/live/search/1115050286838
+-- https://ok.ru/video/1951798069873
 -- https://m.ok.ru/dk?st.cmd=movieLayer&st.discId=220851668368&st.retLoc=default&st.discType=MOVIE&st.mvId=220851668368&st.stpos=rec_5&_prevCmd=movieLayer&tkn=3933
 -- https://m.ok.ru/dk?st.cmd=moviePlaybackRedirect&st.sig=923171edb53da243925fbfe90c1a285ea99c3fe9&st.mq=3&st.mvid=1565588916953&st.ip=178.57.98.107&st.exp=1575887947669&st.hls=off&_prevCmd=main&tkn=9594
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
@@ -25,7 +25,7 @@
 			m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = '', UseLogo = 0, Once = 1})
 		end
 	end
-	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:82.0) Gecko/20100101 Firefox/82.0'
+	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:103.0) Gecko/20100101 Firefox/103.0'
 	if not m_simpleTV.User then
 		m_simpleTV.User = {}
 	end
@@ -53,7 +53,9 @@
 					{'lowest', 240},
 					{'low', 360},
 					{'sd', 480},
+					{'medium', 480},
 					{'hd', 720},
+					{'high', 720},
 					{'full', 1080},
 					{'quad', 1440},
 					{'ultra', 2160},
@@ -140,7 +142,7 @@
 			m_simpleTV.Http.Close(session)
 		 return
 		end
-	local retAdr = answer:match('hlsMa.-;:\\&quot;(.-)\\&quot')
+	local retAdr = answer:match('hlsMa.-;:\\&quot;(.-)\\&quot') or answer:match('ondemandHls.-;:\\&quot;(.-)\\&quot')
 		if not retAdr then
 			retAdr = answer:match('originalUrl\\&quot;:\\&quot;(.-)\\&quot')
 			m_simpleTV.Http.Close(session)
@@ -212,28 +214,26 @@
 	m_simpleTV.Http.Close(session)
 		if rc ~= 200 then return end
 	local base = retAdr:match('.+/')
-	local i, t = 1, {}
-	local adr, name
+	local t = {}
 		for w in answer0:gmatch('EXT%-X%-STREAM%-INF.-\n.-\n') do
-			adr = w:match('\n(.-)\n')
-			name = w:match('QUALITY=(%a+)')
+			local adr = w:match('\n(.-)\n')
+			local name = w:match('QUALITY=(%a+)')
 				if not adr or not name then break end
 			name = GetQltyName(name)
 			if name > 300 then
 				if not adr:match('^http') then
 					adr = base .. adr
 				end
-				t[i] = {}
-				t[i].Id = name
-				t[i].Name = name .. 'p'
-				t[i].Address = adr .. extOpt
-				i = i + 1
+				t[#t + 1] = {}
+				t[#t].Id = name
+				t[#t].Name = name .. 'p'
+				t[#t].Address = adr .. extOpt
 			end
 		end
 	if not inAdr:find('videoembed') then
 		m_simpleTV.Control.CurrentTitle_UTF8 = title
 	end
-		if i == 1 then
+		if #t == 0 then
 			Thumbs(answer)
 			m_simpleTV.Control.CurrentAddress = retAdr .. extOpt .. '$OPT:POSITIONTOCONTINUE=0'
 		 return
