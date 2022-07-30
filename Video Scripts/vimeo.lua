@@ -1,5 +1,5 @@
--- видеоскрипт для сайта https://vimeo.com/watch (20/3/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта https://vimeo.com/watch (30/7/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://vimeo.com/channels/musicvideoland/368152561
 -- https://vimeo.com/channels/staffpicks/204150149?autoplay=1
@@ -7,9 +7,9 @@
 -- https://vimeo.com/2196013
 -- https://player.vimeo.com/video/344303837?wmode=transparent$OPT:http-referrer=https://www.clubbingtv.com/video/play/4194/live-dj-set-with-dan-lo/
 -- https://vimeo.com/27945056
--- https://vimeo.com/512309078/4c76d1b3fd
 -- https://vimeo.com/showcase/3717822/video/329792082
--- ##
+-- https://vimeo.com/718108412
+
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://[%a%.]*vimeo%.com/.+') then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
@@ -29,7 +29,7 @@
 			showError('not found \'id\' in url')
 		 return
 		end
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:86.0) Gecko/20100101 Firefox/86.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:103.0) Gecko/20100101 Firefox/103.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	function vimeoSaveQuality(obj, id)
@@ -103,8 +103,9 @@
 			title = addTitle .. ' - ' .. title
 		end
 	end
-	local t, i = {}, 1
-	if tab.request.files.progressive then
+	local t = {}
+	if tab.request.files.progressive and tab.request.files.progressive ~= '' then
+		local i = 1
 			while true do
 					if not tab.request.files.progressive[i] then break end
 				t[i] = {}
@@ -113,43 +114,47 @@
 				t[i].Address = tab.request.files.progressive[i].url:gsub('%?.-$', '') .. '$OPT:NO-STIMESHIFT'
 				i = i + 1
 			end
-	elseif tab.request.files.hls
-		and tab.request.files.hls.cdns
-		and tab.request.files.hls.cdns.akamai_live
-		and tab.request.files.hls.cdns.akamai_live.json_url
-	then
-		local url = tab.request.files.hls.cdns.akamai_live.json_url
-		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
-			if rc ~= 200 then
-				m_simpleTV.Http.Close(session)
-				showError('4')
-			 return
-			end
-		url = answer:match('"url":"([^"]+)')
-			if not url then
-				showError('4.1')
-			 return
-			end
-		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
-			if rc ~= 200 then
-				m_simpleTV.Http.Close(session)
-				showError('4.2')
-			 return
-			end
-		local base = url:match('.+/')
-			for w in answer:gmatch('EXT%-X%-STREAM%-INF.-\n.-\n') do
-				local adr = w:match('\n(.-)\n')
-				local name = w:match('RESOLUTION=%d+x(%d+)')
-				if adr and name then
-					if not adr:match('^http') then
-						adr = base .. adr
+	else
+		if tab.request.files.hls and tab.request.files.hls.cdns then
+			local url
+			if tab.request.files.hls.cdns.akamai_live and tab.request.files.hls.cdns.akamai_live.json_url then
+				url = tab.request.files.hls.cdns.akamai_live.json_url
+				rc, answer = m_simpleTV.Http.Request(session, {url = url})
+					if rc ~= 200 then
+						showError('4')
+					 return
 					end
-					t[#t + 1] = {}
-					t[#t].Id = tonumber(name)
-					t[#t].Name = name .. 'p'
-					t[#t].Address = adr
-				end
+				url = answer:match('"url":"([^"]+)')
+					if not url then
+						showError('4.1')
+					 return
+					end
+			elseif tab.request.files.hls.cdns.akfire_interconnect_quic and tab.request.files.hls.cdns.akfire_interconnect_quic.url then
+			url = tab.request.files.hls.cdns.akfire_interconnect_quic.url
 			end
+				rc, answer = m_simpleTV.Http.Request(session, {url = url})
+					if rc ~= 200 then
+						showError('4.21')
+					 return
+					end
+				local base = url:match('.+/')
+					for w in answer:gmatch('EXT%-X%-STREAM%-INF.-\n.-\n') do
+						local adr = w:match('\n(.-)\n')
+						local name = w:match('RESOLUTION=%d+x(%d+)')
+						if adr and name then
+							if not adr:match('^http') then
+								if adr:match('^%.%./') then
+									base = url:match('.+/video/') or ''
+								end
+								adr = base .. adr:gsub('^[%./]+', '')
+							end
+							t[#t + 1] = {}
+							t[#t].Id = tonumber(name)
+							t[#t].Name = name .. 'p'
+							t[#t].Address = adr
+						end
+					end
+		end
 	end
 	m_simpleTV.Http.Close(session)
 		if #t == 0 then
