@@ -9,7 +9,6 @@
 -- https://vimeo.com/27945056
 -- https://vimeo.com/showcase/3717822/video/329792082
 -- https://vimeo.com/718108412
-
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://[%a%.]*vimeo%.com/.+') then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
