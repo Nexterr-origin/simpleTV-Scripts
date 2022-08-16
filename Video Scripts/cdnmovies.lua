@@ -1,13 +1,14 @@
--- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (18/4/22)
+-- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (16/8/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- модуль: /core/playerjs.lua
 -- ## открывает подобные ссылки ##
 -- http://moonwalk.cam/movie/4514
 -- http://moonwalk.cam/serial/5311
+-- http://62fb60adddaed.moonwalk.cam/serial/13070
 -- https://700filmov.ru/serial/2042
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('^https?://moonwalk%.cam')
+		if not m_simpleTV.Control.CurrentAddress:match('^https?://[^.]-%.?moonwalk%.cam')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://700filmov%.ru')
 			and not m_simpleTV.Control.CurrentAddress:match('^$cdnmovies')
 		then
@@ -29,7 +30,7 @@
 	if not m_simpleTV.User.cdnmovies then
 		m_simpleTV.User.cdnmovies = {}
 	end
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:99.0) Gecko/20100101 Firefox/99.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:103.0) Gecko/20100101 Firefox/103.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	m_simpleTV.User.cdnmovies.DelayedAddress = nil
