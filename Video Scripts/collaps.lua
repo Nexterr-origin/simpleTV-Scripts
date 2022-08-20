@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "Collaps" https://collaps.org (26/6/22)
+-- видеоскрипт для видеобалансера "Collaps" https://collaps.org (20/8/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- http://api1656248141.synchroncode.com/embed/kp/460586
@@ -18,7 +18,7 @@
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:101.0) Gecko/20100101 Firefox/101.0'
+	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:103.0) Gecko/20100101 Firefox/103.0'
 	local session = m_simpleTV.Http.New(userAgent)
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 12000)
@@ -105,16 +105,23 @@
 		-- url = GetChiperUrl(url)
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 			if rc ~= 200 then return end
-		local t = {}
+		local t0 = {}
 			for w, adr in answer:gmatch('EXT%-X%-STREAM%-INF(.-)\n(.-%.m3u8.-)\n') do
 				local qlty = w:match('RESOLUTION=%d+x(%d+)')
 				if adr and w:match('AUDIO="audio0"') and qlty then
-					t[#t + 1] = {}
-					t[#t].Address = adr
-					t[#t].qlty = tonumber(qlty)
+					t0[#t0 + 1] = {}
+					t0[#t0].Address = adr
+					t0[#t0].qlty = tonumber(qlty)
 				end
 			end
-			if #t == 0 then return end
+			if #t0 == 0 then return end
+		local hash, t = {}, {}
+			for i = 1, #t0 do
+				if not hash[t0[i].Address] then
+					t[#t + 1] = t0[i]
+					hash[t0[i].Address] = true
+				end
+			end
 			for _, v in pairs(t) do
 				v.qlty = tonumber(v.qlty)
 				if v.qlty > 0 and v.qlty <= 180 then
