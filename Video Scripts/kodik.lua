@@ -1,4 +1,4 @@
--- видеоскрипт для видеобазы "kodik" http://kodik.cc (21/4/22)
+-- видеоскрипт для видеобазы "kodik" http://kodik.cc (22/8/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://hdrise.com/video/31756/445f20d7950d3df08f7574311e82521e/720p
@@ -26,7 +26,7 @@
 	inAdr = inAdr:gsub('/$', '')
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:99.0) Gecko/20100101 Firefox/99.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:103.0) Gecko/20100101 Firefox/103.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	if not m_simpleTV.User then
@@ -273,21 +273,27 @@
 	if title then
 		title = m_simpleTV.Common.fromPercentEncoding(title)
 	else
-		title = 'Kodik'
+		title = answer:match('<title>([^<]+)') or 'Kodik'
 	end
 	local transl = answer:match('%-translations%-box".-</div>')
 	if transl and not psevdotv then
+		local url = inAdr:match('^https?://[^/]+/[^/]+/')
 		local t, i = {}, 1
-			for Adr, name in transl:gmatch('<option value="(.-)">(.-)<') do
-				t[i] = {}
-				t[i].Id = i
-				t[i].Name = name
-				t[i].Address = Adr:gsub('^//', 'http://'):gsub('%?.+', '')
-				i = i + 1
+			for w in transl:gmatch('<option.-</option>') do
+				local name = w:match('>(.-)</option>')
+				local hash = w:match('data%-media%-hash="([^"]+)')
+				local id = w:match('data%-media%-id="([^"]+)')
+				if name and hash and id then
+					t[i] = {}
+					t[i].Id = i
+					t[i].Name = name
+					t[i].Address = url .. id .. '/' .. hash .. '/720p'
+					i = i + 1
+				end
 			end
 		if i > 2 then
 			local _, id = m_simpleTV.OSD.ShowSelect_UTF8('Выберете перевод - ' .. title, 0, t, 5000, 1)
-			if not id then id = 1 end
+			id = id or 1
 		 	inAdr = t[id].Address
 		else
 			inAdr = t[1].Address
@@ -299,15 +305,19 @@
 			 return
 			end
 	end
-	local seasons = answer:match('<div class="series(.-)class="serial')
+	local seasons = answer:match('<div class="serial%-panel".-</div>')
 	if seasons then
 		local t, i = {}, 1
-			for seas in seasons:gmatch('<div class=(.-)</div>') do
-				t[i] = {}
-				t[i].Id = i
-				t[i].Name = seas:match('"season%-(%d+)"') .. ' сезон'
-				t[i].Address = seas:match('"season%-(%d+)"')
-				i = i + 1
+			for w in seasons:gmatch('<option.-</option>') do
+				local value = w:match('value="([^"]+)')
+				local name = w:match('>(.-)</option>')
+				if value and name then
+					t[i] = {}
+					t[i].Id = i
+					t[i].Name = name
+					t[i].Address = value
+					i = i + 1
+				end
 			end
 		if i > 2 then
 			local _, id = m_simpleTV.OSD.ShowSelect_UTF8('Выберете сезон ' .. title, 0, t, 5000, 1)
@@ -322,15 +332,19 @@
 			end
 		end
 	end
-	local episodes = answer:match('season%-'.. seson .. '(.-)</div>')
+	local episodes = answer:match('<div class="series%-options".-</div>')
 	if episodes then
 		local t, i = {}, 1
-			for epis in episodes:gmatch('<option(.-)/option>') do
-				t[i] = {}
-				t[i].Id = i
-				t[i].Name = epis:match('value=.->(.-)<')
-				t[i].Address = '$kodiks' .. (epis:match('value="(.-)"'))
-				i = i + 1
+			for w in episodes:gmatch('<option.-</option>') do
+				local value = w:match('value="([^"]+)')
+				local name = w:match('>(.-)</option>')
+				if value and name then
+					t[i] = {}
+					t[i].Id = i
+					t[i].Name = name
+					t[i].Address = '$kodiks' .. inAdr .. '?season=' .. seson .. '&episode=' .. value
+					i = i + 1
+				end
 			end
 		m_simpleTV.User.kodik.Tabletitle = t
 		t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
