@@ -29,7 +29,7 @@
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local retAdr
 	if inAdr:match('market%.yandex') then
-		local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr, headers = 'Cookie: yandexuid=1281442091643735977;'})
+		local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
 			if rc ~= 200 then return end
 		inAdr = answer:match('[^\'\"<>]+frontend%.vh%.[^<>\'\"?]+')
 			if not inAdr then return end
