@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://yandex.ru (24/8/22)
+-- видеоскрипт для сайта https://yandex.ru (26/8/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://frontend.vh.yandex.ru/player/15392977509995281185
@@ -29,7 +29,7 @@
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local retAdr
 	if inAdr:match('market%.yandex') then
-		local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
+		local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr, headers = 'Cookie: yandexuid=1281442091643735977;'})
 			if rc ~= 200 then return end
 		inAdr = answer:match('[^\'\"<>]+frontend%.vh%.[^<>\'\"?]+')
 			if not inAdr then return end
