@@ -1,13 +1,19 @@
--- видеоскрипт для сайта https://rutube.ru (15/2/22)
+-- видеоскрипт для сайта https://rutube.ru https://rutube.sport (30/8/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: mediavitrina.lua
 -- ## открывает подобные ссылки ##
--- https://rutube.ru/video/49bde61061d4db358977418d89f0bf83/
--- https://rutube.ru/live/video/ef31151c1c1af2e9eb85fc213abb4ef2/
+-- https://rutube.ru/video/c32bacf2f2ef213d4cf86cedc0f88cf5/
 -- https://rutube.ru/live/video/54395b96ad1a7b49966f46a6eee370a4
+-- https://rutube.ru/video/c58f502c7bb34a8fcdd976b221fca292/
+-- https://rutube.sport/video/reyndzhers-psv-obzor/
+-- https://rutube.sport/video/aznaur-kalsynov-vs-vyacheslav-borisenok/
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('^https?://rutube%.ru/.+') then return end
+		if not m_simpleTV.Control.CurrentAddress:match('^https?://rutube%.ru/.+')
+			and not m_simpleTV.Control.CurrentAddress:match('^https?://rutube%.sport/.+')
+		then
+		 return
+		end
 	local logo ='https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/rutube.png'
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.OSD.ShowMessageT({text = 'RUTUBE', showTime = 5000, id = 'channelName'})
@@ -20,14 +26,23 @@
 		local t = {text = 'RUTUBE - ошибка ' .. str, showTime = 1000 * 8, color = ARGB(255, 255, 102, 0), id = 'channelName'}
 		m_simpleTV.OSD.ShowMessageT(t)
 	end
-	local id = inAdr:match('/video/(%w+)') or inAdr:match('/audio/(%w+)')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:104.0) Gecko/20100101 Firefox/104.0')
+		if not session then return end
+	m_simpleTV.Http.SetTimeout(session, 8000)
+	local id
+	if inAdr:match('//rutube%.sport') then
+		local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
+		if rc ~= 200 then
+			answer = ''
+		end
+		id = answer:match('/play/embed/(%w+)')
+	else
+		id = inAdr:match('/video/(%w+)') or inAdr:match('/audio/(%w+)')
+	end
 		if not id or inAdr:match('/tags/') then
 			showMsg('неверная ссылке')
 		 return
 		end
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:86.0) Gecko/20100101 Firefox/86.0')
-		if not session then return end
-	m_simpleTV.Http.SetTimeout(session, 8000)
 	function rutubeSaveQuality(obj, id)
 		m_simpleTV.Config.SetValue('rutube_qlty', tostring(id))
 	end
@@ -35,8 +50,7 @@
 		m_simpleTV.Config.SetValue('rutube_live_qlty', tostring(id))
 	end
 	local url = decode64('aHR0cHM6Ly9ydXR1YmUucnUvYXBpL3BsYXkvb3B0aW9ucy8') .. id
-	local headers = 'Referer: ' .. inAdr
-	local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
+	local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 		if rc ~= 200 then
 			m_simpleTV.Http.Close(session)
 			showMsg('1, видео не доступно')
