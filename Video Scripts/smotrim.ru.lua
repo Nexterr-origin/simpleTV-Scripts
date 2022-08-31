@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://smotrim.ru (18/7/22)
+-- видеоскрипт для сайта https://smotrim.ru (31/8/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## Необходим ##
 -- видеоскприпт: mediavitrina.lua
@@ -9,6 +9,7 @@
 -- https://smotrim.ru/channel/254
 -- https://smotrim.ru/channel/248 -- радио
 -- https://smotrim.ru/podcast/45
+-- https://smotrim.ru/audio/2650807
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://smotrim%.ru')
 			and not m_simpleTV.Control.CurrentAddress:match('^smotrim_podcast=')
@@ -31,7 +32,7 @@
 	m_simpleTV.Control.CurrentAddress = 'error'
 	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:103.0) Gecko/20100101 Firefox/103.0', nil, true)
 		if not session then return end
-	m_simpleTV.Http.SetTimeout(session, 8000)
+	m_simpleTV.Http.SetTimeout(session, 10000)
 	local function showErr(str)
 		local t = {text = 'smotrim.ru ошибка: ' .. str, color = ARGB(255, 255, 102, 0), showTime = 1000 * 5, id = 'channelName'}
 		m_simpleTV.OSD.ShowMessageT(t)
@@ -162,8 +163,9 @@
 			player_vgtrk(answer)
 		 return
 		end
+	answer = answer:gsub('\\/', '/'):gsub('&quot;', '"'):gsub('&amp;', '&')
 	local embedUrl = answer:match('http[^\'\"<>]+player%.[^<>\'\"]+') or answer:match('http[^\'\"<>]+icecast%-[^<>\'\"]+')
-		if not embedUrl or not inAdr:match('%d+') or embedUrl:match('&quot') then
+		if not embedUrl then
 			showErr('Медиа контент не найден')
 		 return
 		end
@@ -173,7 +175,6 @@
 			dofile(m_simpleTV.MainScriptDir .. 'user/video/video.lua')
 		 return
 		end
-	embedUrl = embedUrl:gsub('amp;', '')
 	rc, answer = m_simpleTV.Http.Request(session, {url = embedUrl, headers = 'Referer: ' .. inAdr})
 		if rc ~= 200 then
 			m_simpleTV.Http.Close(session)
@@ -281,6 +282,10 @@
 		t[#t].Id = 100000000
 		t[#t].Name = '▫ всегда высокое'
 		t[#t].Address = t[#t - 1].Address
+		t[#t + 1] = {}
+		t[#t].Id = 500000000
+		t[#t].Name = '▫ адаптивное'
+		t[#t].Address = retAdr .. extOpt
 		index = #t
 			for i = 1, #t do
 				if t[i].Id >= lastQuality then
