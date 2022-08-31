@@ -1,10 +1,11 @@
--- видеоскрипт для сайта https://smotrim.ru (31/8/22)
+-- видеоскрипт для сайта https://smotrim.ru (1/9/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## Необходим ##
 -- видеоскприпт: mediavitrina.lua
 -- ## открывает подобные ссылки ##
 -- https://smotrim.ru/video/2393207
 -- https://smotrim.ru/article/2512070
+-- https://smotrim.ru/brand/7321
 -- https://smotrim.ru/channel/267
 -- https://smotrim.ru/channel/254
 -- https://smotrim.ru/channel/248 -- радио
@@ -33,13 +34,13 @@
 	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:103.0) Gecko/20100101 Firefox/103.0', nil, true)
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 10000)
+	m_simpleTV.User.smotrim_ru.ThumbsInfo = nil
 	local function showErr(str)
 		local t = {text = 'smotrim.ru ошибка: ' .. str, color = ARGB(255, 255, 102, 0), showTime = 1000 * 5, id = 'channelName'}
 		m_simpleTV.OSD.ShowMessageT(t)
 	end
 	local function Thumbs(thumbsInfo)
 			if m_simpleTV.Control.MainMode ~= 0 then return end
-		m_simpleTV.User.smotrim_ru.ThumbsInfo = nil
 		thumbsInfo = thumbsInfo:match('"tooltip":{.-}}')
 			if not thumbsInfo then return end
 		thumbsInfo = thumbsInfo:match('"high":{.-}') or thumbsInfo:match('"low":{.-}')
@@ -68,7 +69,7 @@
 		if not m_simpleTV.User.smotrim_ru.PositionThumbsHandler then
 			local handlerInfo = {}
 			handlerInfo.luaFunction = 'PositionThumbs_smotrim_ru'
-			handlerInfo.regexString = '//smotrim\.ru/.'
+			handlerInfo.regexString = '//smotrim\.ru/video|//smotrim\.ru/brand'
 			handlerInfo.sizeFactor = m_simpleTV.User.paramScriptForSkin_thumbsSizeFactor or 0.20
 			handlerInfo.backColor = m_simpleTV.User.paramScriptForSkin_thumbsBackColor or ARGB(255, 0, 0, 0)
 			handlerInfo.textColor = m_simpleTV.User.paramScriptForSkin_thumbsTextColor or ARGB(240, 127, 255, 0)
@@ -189,6 +190,9 @@
 		 return
 		end
 		if dataUrlAudio then
+			if not dataUrlAudio:match('%.m3u8') then
+				dataUrlAudio = dataUrlAudio .. '$OPT:demux=avdemux'
+			end
 			m_simpleTV.Control.CurrentAddress = dataUrlAudio
 		 return
 		end
@@ -233,6 +237,9 @@
 	local duration = answer:match('"duration":(%d+)')
 	Thumbs(answer)
 	m_simpleTV.Http.SetRedirectAllow(session, false)
+	if retAdr:match('vesti%.ru') then
+		retAdr = retAdr:gsub('?.+', '')
+	end
 	rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 	if rc == 301 then
 		local raw = m_simpleTV.Http.GetRawHeader(session)
