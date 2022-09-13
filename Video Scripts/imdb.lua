@@ -1,40 +1,30 @@
--- видеоскрипт для сайта https://www.imdb.com (8/5/22)
+-- видеоскрипт для сайта https://www.imdb.com (14/9/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
--- https://www.imdb.com/video/vi1935655705?playlistId=tt12412888&ref_=tt_pr_ov_vi
 -- http://www.imdb.com/video/imdb/vi2524815897
+-- https://www.imdb.com/video/vi4266967577/?ref_=vp_vi_t_4
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://[%w%.]*imdb%.com.-vi%d+') then return end
-	m_simpleTV.OSD.ShowMessageT({text = '', showTime = 1000, color = 0xFF8080FF, id = 'channelName'})
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	inAdr = inAdr:gsub('%?.-$', '')
 	require 'json'
+	htmlEntities = require 'htmlEntities'
 	m_simpleTV.Control.ChangeAddress = 'Yes'
-	m_simpleTV.Control.CurrentAddress = ''
+	m_simpleTV.Control.CurrentAddress = 'error'
 	local logo = 'https://m.media-amazon.com/images/G/01/AUIClients/IMDbHelpSiteAssets-IMDb_Primary-9feba87f52c383ff59810fdae66d87f34e69faf3._V2_.png'
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = logo, UseLogo = 1, Once = 1, Blur = 5})
 	end
 	local function showError(str)
-		m_simpleTV.OSD.ShowMessageT({text = 'imdb ошибка: ' .. str, showTime = 5000, color = 0xffff1000, id = 'channelName'})
+		m_simpleTV.OSD.ShowMessageT({text = 'IMDb ошибка: ' .. str, showTime = 1000 * 5, color = ARGB(255, 255, 102, 0), id = 'channelName'})
 	end
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:100.0) Gecko/20100101 Firefox/100.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:104.0) Gecko/20100101 Firefox/104.0')
 		if not session then return end
-	m_simpleTV.Http.SetTimeout(session, 8000)
-	local function GetThemoviedb(d)
-			if not d then return end
-		local url = 'https://api.themoviedb.org/3/find/' .. d .. decode64('P2FwaV9rZXk9ZDU2ZTUxZmI3N2IwODFhOWNiNTE5MmVhYWE3ODIzYWQmbGFuZ3VhZ2U9cnUmZXh0ZXJuYWxfc291cmNlPWltZGJfaWQ')
-		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
-			if rc ~= 200 then return end
-		answer = answer:gsub('(%[%])', '"nil"')
-		local tab = json.decode(answer)
-			if not tab then return end
-	 return tab.movie_results[1].title, tab.movie_results[1].poster_path
-	end
+	m_simpleTV.Http.SetTimeout(session, 10000)
 	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
 		if rc ~= 200 then
 			m_simpleTV.Http.Close(session)
-			showError('1 - ' .. rc)
+			showError('1')
 		 return
 		end
 	answer = unescape3(answer)
@@ -44,12 +34,13 @@
 			showError('2')
 		 return
 		end
-	local tt = inAdr:match('tt%d+')
-	local title, poster = GetThemoviedb(tt)
-	local addTitle = 'imdb'
+	local poster = answer:match('"contentUrl":"([^"]+)')
+	local title = answer:match('"name":"([^|"]+)')
+	local addTitle = 'IMDb'
 	if not title then
 		title = addTitle
 	else
+		title = htmlEntities.decode(title)
 		if m_simpleTV.Control.MainMode == 0 then
 			m_simpleTV.Control.ChangeChannelName(title, m_simpleTV.Control.ChannelID, false)
 		end
@@ -57,7 +48,6 @@
 	end
 	if m_simpleTV.Control.MainMode == 0 then
 		if poster and poster ~= '' then
-			poster = 'http://image.tmdb.org/t/p/w300' .. poster
 			m_simpleTV.Control.ChangeChannelLogo(poster, m_simpleTV.Control.ChannelID, 'CHANGE_IF_NOT_EQUAL')
 		else
 			m_simpleTV.Control.ChangeChannelLogo(logo, m_simpleTV.Control.ChannelID)
@@ -72,7 +62,7 @@
 	rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 	m_simpleTV.Http.Close(session)
 		if rc ~= 200 then
-			showError('3 - ' .. rc)
+			showError('3')
 		 return
 		end
 	local base = retAdr:match('.+/')
