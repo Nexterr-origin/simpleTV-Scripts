@@ -1,8 +1,9 @@
--- видеоскрипт для видеобалансера "Collaps" https://collaps.org (20/8/22)
+-- видеоскрипт для видеобалансера "Collaps" https://collaps.org (12/9/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- http://api1656248141.synchroncode.com/embed/kp/460586
 -- https://api1603044906.kinogram.best/embed/kp/5928
+-- http://api1663028625.synchroncode.com/embed/kp/1394275
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://api[%d]*%[^/]+/embed/movie/%d+')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://api[%d]*[^/]+/embed/kp/%d+')
@@ -114,12 +115,22 @@
 					t0[#t0].qlty = tonumber(qlty)
 				end
 			end
+			if #t0 == 0 then
+				for w, adr in answer:gmatch('EXT%-X%-STREAM%-INF(.-)\n(.-%.m3u8.-)\n') do
+					local qlty = w:match('RESOLUTION=%d+x(%d+)')
+					if adr and qlty then
+						t0[#t0 + 1] = {}
+						t0[#t0].Address = adr
+						t0[#t0].qlty = tonumber(qlty)
+					end
+				end
+			end
 			if #t0 == 0 then return end
 		local hash, t = {}, {}
 			for i = 1, #t0 do
-				if not hash[t0[i].Address] then
+				if not hash[t0[i].qlty] then
 					t[#t + 1] = t0[i]
-					hash[t0[i].Address] = true
+					hash[t0[i].qlty] = true
 				end
 			end
 			for _, v in pairs(t) do
