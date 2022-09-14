@@ -1,21 +1,21 @@
--- видеоскрипт для сайта https://yandex.ru (26/8/22)
+-- видеоскрипт для сайта https://yandex.ru https://dzen.ru (14/9/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://frontend.vh.yandex.ru/player/15392977509995281185
 -- https://frontend.vh.yandex.ru/player/414780668cb673c2b384e399e52a9ff4.json
--- https://zen.yandex.ru/video/watch/603848a5fe5aef7eb18d47e9
--- https://zen.yandex.ru/video/watch/6305bbbe5f105764024fb6af
+-- https://dzen.ru/video/watch/603848a5fe5aef7eb18d47e9
+-- https://dzen.ru/video/watch/6305bbbe5f105764024fb6af
 -- https://market.yandex.ru/live/kugo-09-08-22
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://frontend%.vh%.yandex%.ru')
-			and not m_simpleTV.Control.CurrentAddress:match('^https?://zen%.yandex%.ru/video/watch/')
+			and not m_simpleTV.Control.CurrentAddress:match('^https?://dzen%.ru/video/watch/')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://market%.yandex%.ru/live/')
 		then
 		 return
 		end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	local logo, title
-	if inAdr:match('zen%.yandex%.ru') then
+	if inAdr:match('dzen%.ru') then
 		logo = 'https://avatars.mds.yandex.net/get-lpc/1368426/a157fe67-d325-4c4a-9621-ae970301043a/width_1280'
 	else
 		logo = 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/yandex-vod.png'
@@ -34,12 +34,22 @@
 		inAdr = answer:match('[^\'\"<>]+frontend%.vh%.[^<>\'\"?]+')
 			if not inAdr then return end
 	end
-	if inAdr:match('^https?://zen%.yandex%.ru/') then
+	if inAdr:match('^https?://dzen%.ru/') then
 		local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
 			if rc ~= 200 then return end
-		retAdr = answer:match('"([^"]+%.m3u8[^"]*)","StreamType":"ST_HLS"') or answer:match('"([^"]+%.m3u8[^"]*)')
+		answer = answer:gsub('\\u002F', '/')
+		local host = answer:match('host":"([^"]+)')
+		local retpath = answer:match('retpath":"([^"]+)')
+		local element2 = answer:match('element2%.value[^\']+\'([^\']+)')
+			if not element2 or not host or not retpath then return end
+		local body = 'retpath=' .. retpath .. '&container=' .. element2
+		rc, answer = m_simpleTV.Http.Request(session, {url = host, method='post', body = body})
+			if rc ~= 200 then return end
+		rc, answer = m_simpleTV.Http.Request(session, {url = retpath})
+			if rc~=200 then return end
+		retAdr = answer:match('"([^"]+%.m3u8[^"]*)')
 			if not retAdr then return end
-		title = answer:match(':title" content="([^"]+)') or 'zen yandex'
+		title = answer:match(':title" content="([^"]+)') or 'Dzen'
 		logo = answer:match(':image" content="([^"]+)') or logo
 	end
 	if inAdr:match('^https?://frontend%.vh%.yandex%.ru') then
@@ -53,7 +63,12 @@
 		end
 	end
 		if not retAdr then return end
-	local addTitle = 'Yandex'
+	local addTitle
+	if inAdr:match('^https?://dzen%.ru/') then
+		addTitle = 'Dzen'
+	else
+		addTitle = 'Yandex'
+	end
 	if not title then
 		title = addTitle
 	else
