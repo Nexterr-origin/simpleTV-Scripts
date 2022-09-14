@@ -20,7 +20,9 @@
 	else
 		logo = 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/yandex-vod.png'
 	end
-	m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = logo, TypeBackColor = 0, UseLogo = 1, Once = 1})
+	if m_simpleTV.Control.MainMode == 0 then
+		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = logo, TypeBackColor = 0, UseLogo = 1, Once = 1})
+	end
 	htmlEntities = require 'htmlEntities'
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
@@ -75,7 +77,7 @@
 		if m_simpleTV.Control.MainMode == 0 then
 			title = htmlEntities.decode(title)
 			m_simpleTV.Control.ChangeChannelName(title, m_simpleTV.Control.ChannelID, false)
-			m_simpleTV.Control.ChangeChannelLogo(logo, m_simpleTV.Control.ChannelID)
+			m_simpleTV.Control.ChangeChannelLogo(logo, m_simpleTV.Control.ChannelID, 'CHANGE_IF_NOT_EQUAL')
 		end
 		title = addTitle .. ' - ' .. title
 	end
