@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://vk.com (31/1/22)
+-- видеоскрипт для сайта http://vk.com (15/9/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: YT.lua, vimeo.lua ...
@@ -21,14 +21,14 @@
 		 return
 		end
 	htmlEntities = require 'htmlEntities'
-	local logo = 'https://smajlik.ru/wp-content/uploads/2017/12/3.png'
+	local logo = 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/vk.png'
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = logo, UseLogo = 1, Once = 1})
 	end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:97.0) Gecko/20100101 Firefox/97.0'
+	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:104.0) Gecko/20100101 Firefox/104.0'
 	local session = m_simpleTV.Http.New(userAgent)
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
@@ -71,6 +71,9 @@
 	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 		if rc ~= 200 then return end
 	local extOpt = '$OPT:http-user-agent=' .. userAgent
+	if not answer:match('RESOLUTION=') then
+		answer = answer:gsub('QUALITY=lowest', 'RESOLUTION=1x240'):gsub('QUALITY=low', 'RESOLUTION=2x360'):gsub('QUALITY=sd', 'RESOLUTION=3x480'):gsub('QUALITY=hd', 'RESOLUTION=4x720')
+	end
 	local t = {}
 		for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-\n.-)\n') do
 			adr = w:match('\n(.+)')
