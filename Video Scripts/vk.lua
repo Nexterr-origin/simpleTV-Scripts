@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://vk.com (15/9/22)
+-- видеоскрипт для сайта http://vk.com (16/9/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: YT.lua, vimeo.lua ...
@@ -12,8 +12,9 @@
 -- https://vk.com/video_ext.php?oid=-24136539&id=456239830&hash=34e326ffb9cbb93e
 -- https://vk.com/video-208344_456241847
 -- https://vk.com/video-208344_456241842
--- https://vk.com/video/playlist/-121487680_192
 -- https://vk.com/video-40535376_456239575
+-- https://vk.com/video/playlist/-121487680_216
+-- https://vk.com/video-185616318_456241088
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://vk%.com/.+')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://vkontakte%.ru/.+')
@@ -31,7 +32,7 @@
 	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:104.0) Gecko/20100101 Firefox/104.0'
 	local session = m_simpleTV.Http.New(userAgent)
 		if not session then return end
-	m_simpleTV.Http.SetTimeout(session, 8000)
+	m_simpleTV.Http.SetTimeout(session, 10000)
 	inAdr = inAdr:gsub('&id=', '_')
 	local vId = inAdr:match('[%a=](%-?%d+_%d+)')
 	local listId = inAdr:match('list=([^&]+)')
@@ -43,7 +44,7 @@
 	local rc, answer = m_simpleTV.Http.Request(session, {url = url, method = 'post', body = body, headers = headers})
 		if rc ~= 200 then return end
 	answer = answer:gsub('\\/', '/')
-	local retAdr = answer:match('"hls":"([^"]+)')
+	local retAdr = answer:match('"hls":"([^"]+)') or answer:match('"hls_ondemand":"([^"]+)')
 		if not retAdr then
 			answer = answer:gsub('\\"', '"')
 			retAdr = answer:match('<iframe class[^>]+src="([^"]+)') or answer:match('cur%.incViews%(%);"%ssrc="([^"]+)')
@@ -54,7 +55,7 @@
 			dofile(m_simpleTV.MainScriptDir_UTF8 .. 'user/video/video.lua')
 		 return
 		end
-	local addTitle = 'vk'
+	local addTitle = 'VK'
 	local title = answer:match('"payload":%[%d+,%["([^"]+)')
 	if not title then
 		title = addTitle
