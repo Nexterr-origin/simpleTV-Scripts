@@ -104,6 +104,8 @@ aHR0cHM6Ly9zdHJtLnlhbmRleC5ydS9rYWwvcm1ib3gvcm1ib3gwLm0zdTg
 aHR0cHM6Ly9zdHJtLnlhbmRleC5ydS9rYWwvdWRhci91ZGFyMC5tM3U4
 #EXTINF:-1,Наша сибирь HD
 aHR0cHM6Ly9zdHJtLnlhbmRleC5ydS9rYWwvc2liaXIvc2liaXIwLm0zdTg
+#EXTINF:-1,RT Doc
+aHR0cHM6Ly9zdHJtLnlhbmRleC5ydS9rYWwvcnRkX2hkL3J0ZF9oZDAubTN1OA
 ]]
 	end
 	module('yandex+_pls', package.seeall)
