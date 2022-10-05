@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "Yandex" https://yandex.ru (2/10/22)
+-- скрапер TVS для загрузки плейлиста "Yandex+" https://yandex.ru (5/10/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: yandex.lua
@@ -82,8 +82,6 @@ aHR0cHM6Ly9zdHJtLnlhbmRleC5ydS9rYWwvdG50bXVzaWMvdG50bXVzaWMwLm0zdTg
 aHR0cHM6Ly9zdHJtLnlhbmRleC5ydS9rYWwvbXVzaWNib3hnb2xkL211c2ljYm94Z29sZDAubTN1OA
 #EXTINF:-1,Bridge Deluxe
 aHR0cHM6Ly9zdHJtLnlhbmRleC5ydS9rYWwvYnJpZGdldHZkZWx1eGUvYnJpZGdldHZkZWx1eGUwLm0zdTg
-#EXTINF:-1,Music Box Russia
-aHR0cHM6Ly9zdHJtLnlhbmRleC5ydS9rYWwvcm1ib3gvcm1ib3gwLm0zdTg
 #EXTINF:-1,Москва 24 (Москва)
 aHR0cHM6Ly9zdHJtLnlhbmRleC5ydS9rYWwvbXNrMjRfc3VwcmVzL21zazI0X3N1cHJlczAubTN1OA
 #EXTINF:-1,360 Новости (Москва)
@@ -94,6 +92,16 @@ aHR0cHM6Ly9zdHJtLnlhbmRleC5ydS9rYWwvYnJpZGdldHYvYnJpZGdldHYwLm0zdTg
 aHR0cHM6Ly9zdHJtLnlhbmRleC5ydS9rYWwvbWlyMjQvbWlyMjQwLm0zdTg
 #EXTINF:-1,Bridge Hits
 aHR0cHM6Ly9zdHJtLnlhbmRleC5ydS9rYWwvYnJpZGdldHZoaXRzL2JyaWRnZXR2aGl0czAubTN1OA
+#EXTINF:-1,Bridge TV Фрэш
+aHR0cHM6Ly9zdHJtLnlhbmRleC5ydS9rYWwvYnJpZGdlX3R2X2ZyZXNoL2JyaWRnZV90dl9mcmVzaDAubTN1OA
+#EXTINF:-1,Bridge TV Шлягер
+aHR0cHM6Ly9zdHJtLnlhbmRleC5ydS9rYWwvYnJpZGdldHZfc2hseWFnZXIvYnJpZGdldHZfc2hseWFnZXIwLm0zdTg
+#EXTINF:-1,RU.TV HD
+aHR0cHM6Ly9zdHJtLnlhbmRleC5ydS9rYWwvcnV0dl9jdi9ydXR2X2N2MC5tM3U4
+#EXTINF:-1,Russian MusicBox
+aHR0cHM6Ly9zdHJtLnlhbmRleC5ydS9rYWwvcm1ib3gvcm1ib3gwLm0zdTg
+#EXTINF:-1,Удар
+aHR0cHM6Ly9zdHJtLnlhbmRleC5ydS9rYWwvdWRhci91ZGFyMC5tM3U4
 ]]
 	end
 	module('yandex+_pls', package.seeall)
@@ -112,6 +120,7 @@ aHR0cHM6Ly9zdHJtLnlhbmRleC5ydS9rYWwvYnJpZGdldHZoaXRzL2JyaWRnZXR2aGl0czAubTN1OA
 		local t_pls = tvs_core.GetPlsAsTable(LoadPlst())
 			for _, v in pairs(t_pls) do
 				v.address = decode64(v.address)
+				debug_in_file(v.address .. '\n')
 			end
 		t_pls = ProcessFilterTableLocal(t_pls)
 		local m3ustr = tvs_core.ProcessFilterTable(UpdateID, Source, t_pls)
