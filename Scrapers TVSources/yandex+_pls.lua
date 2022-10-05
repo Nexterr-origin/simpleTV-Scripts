@@ -120,7 +120,6 @@ aHR0cHM6Ly9zdHJtLnlhbmRleC5ydS9rYWwvdWRhci91ZGFyMC5tM3U4
 		local t_pls = tvs_core.GetPlsAsTable(LoadPlst())
 			for _, v in pairs(t_pls) do
 				v.address = decode64(v.address)
-				debug_in_file(v.address .. '\n')
 			end
 		t_pls = ProcessFilterTableLocal(t_pls)
 		local m3ustr = tvs_core.ProcessFilterTable(UpdateID, Source, t_pls)
