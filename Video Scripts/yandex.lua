@@ -1,24 +1,21 @@
--- видеоскрипт для плейлиста "Yandex" https://yandex.ru (1/4/22)
+-- видеоскрипт для плейлиста "Yandex" https://yandex.ru (7/10/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: yandex_pls.lua
 -- расширение дополнения httptimeshift: yandex-timesift_ext.lua
 -- ## открывает подобные ссылки ##
 -- https://strm.yandex.ru/kal/rtg/rtg0.m3u8
+-- https://strm.yandex.ru/kal/sony_channel/manifest.mpd ...
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('https?://strm%.yandex%.ru/k') then return end
-		if m_simpleTV.Control.CurrentAddress:match('PARAMS=yandex_tv')
-			or m_simpleTV.Control.CurrentAddress:match('decryption_key')
-		then
-		 return
-		end
+		if m_simpleTV.Control.CurrentAddress:match('PARAMS=yandex_tv') then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
 	end
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:98.0) Gecko/20100101 Firefox/98.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local extOpt = '$OPT:INT-SCRIPT-PARAMS=yandex_tv'
@@ -28,19 +25,37 @@
 	local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 	m_simpleTV.Http.Close(session)
 		if rc ~= 200 then return end
-	local t0 = {}
-		for w in answer:gmatch('#EXT%-X%-STREAM.-\n.-\n') do
-			local qlty = w:match('RESOLUTION=%d+x(%d+)')
-			if not w:match('redundant') and qlty then
-				qlty = tonumber(qlty)
-				t0[#t0 + 1] = {}
-				t0[#t0].Name = qlty .. 'p'
-				t0[#t0].Id = qlty
-				t0[#t0].Address = url .. '$OPT:adaptive-maxheight=' .. qlty .. '$OPT:adaptive-logic=highest' .. extOpt
+	local function streamsTab(answer)
+		local t0 = {}
+			for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-\n.-)\n') do
+				local qlty = w:match('RESOLUTION=%d+x(%d+)')
+				if qlty then
+					qlty = tonumber(qlty)
+					t0[#t0 + 1] = {}
+					t0[#t0].Name = qlty .. 'p'
+					t0[#t0].Id = qlty
+					t0[#t0].Address = url .. '$OPT:adaptive-maxheight=' .. qlty .. '$OPT:adaptive-logic=highest' .. extOpt
+				end
 			end
-		end
+			if #t0 > 0 then
+			 return t0
+			end
+		url = inAdr
+			for w in answer:gmatch('<Representation[^>]+height=[^>]+>') do
+				local qlty = w:match('height="(%d+)')
+				if qlty then
+					qlty = tonumber(qlty)
+					t0[#t0 + 1] = {}
+					t0[#t0].Name = qlty .. 'p'
+					t0[#t0].Id = qlty
+					t0[#t0].Address = url .. '$OPT:adaptive-maxheight=' .. qlty .. '$OPT:adaptive-logic=highest' .. extOpt
+				end
+			end
+	 return t0
+	end
+	local t0 = streamsTab(answer)
 		if #t0 == 0 then
-			m_simpleTV.Control.CurrentAddress = url .. extOpt
+			m_simpleTV.Control.CurrentAddress = inAdr .. exOpt
 		 return
 		end
 	table.sort(t0, function(a, b) return a.Id < b.Id end)
