@@ -1,7 +1,7 @@
--- видеоскрипт для плейлиста "Yandex" https://yandex.ru (7/10/22)
+-- видеоскрипт для плейлиста "Yandex+" https://yandex.ru (7/10/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
--- скрапер TVS: yandex_pls.lua
+-- скрапер TVS: yandex+_pls.lua
 -- расширение дополнения httptimeshift: yandex-timesift_ext.lua
 -- ## открывает подобные ссылки ##
 -- https://strm.yandex.ru/kal/rtg/rtg0.m3u8
