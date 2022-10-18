@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "Yandex+" https://yandex.ru (7/10/22)
+-- видеоскрипт для плейлиста "Yandex+" https://yandex.ru (18/10/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: yandex+_pls.lua
@@ -55,7 +55,7 @@
 	end
 	local t0 = streamsTab(answer)
 		if #t0 == 0 then
-			m_simpleTV.Control.CurrentAddress = inAdr .. exOpt
+			m_simpleTV.Control.CurrentAddress = inAdr .. extOpt
 		 return
 		end
 	table.sort(t0, function(a, b) return a.Id < b.Id end)
