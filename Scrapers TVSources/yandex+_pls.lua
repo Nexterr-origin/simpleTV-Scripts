@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "Yandex+" https://yandex.ru (7/10/22)
+-- скрапер TVS для загрузки плейлиста "Yandex+" https://yandex.ru (18/10/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: yandex.lua
@@ -106,6 +106,10 @@ aHR0cHM6Ly9zdHJtLnlhbmRleC5ydS9rYWwvdWRhci91ZGFyMC5tM3U4
 aHR0cHM6Ly9zdHJtLnlhbmRleC5ydS9rYWwvc2liaXIvc2liaXIwLm0zdTg
 #EXTINF:-1,RT Doc
 aHR0cHM6Ly9zdHJtLnlhbmRleC5ydS9rYWwvcnRkX2hkL3J0ZF9oZDAubTN1OA
+#EXTINF:-1,Радио Карнавал
+aHR0cHM6Ly9zdHJtLnlhbmRleC5ydS9rYWwvZm1fa2FybmF2YWxfdjIvZm1fa2FybmF2YWxfdjIwLm0zdTg
+#EXTINF:-1,Авторадио
+aHR0cHM6Ly9zdHJtLnlhbmRleC5ydS9rYWwvZm1fdGVzdHYyX2F2dG9yYWRpby9mbV90ZXN0djJfYXZ0b3JhZGlvMC5tM3U4
 ]]
 	end
 	module('yandex+_pls', package.seeall)
