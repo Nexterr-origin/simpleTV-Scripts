@@ -1,13 +1,18 @@
--- видеоскрипт для плейлиста "Yandex+" https://yandex.ru (18/10/22)
+-- видеоскрипт для плейлиста "Yandex+" https://yandex.ru (2/11/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: yandex+_pls.lua
 -- расширение дополнения httptimeshift: yandex-timesift_ext.lua
 -- ## открывает подобные ссылки ##
+-- $yandexGktbm9pdGF0cGFkYS1oc2FkLWV2aXRwY...
 -- https://strm.yandex.ru/kal/rtg/rtg0.m3u8
--- https://strm.yandex.ru/kal/sony_channel/manifest.mpd ...
+-- https://strm.yandex.ru/kal/sony_channel/manifest.mpd...
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('https?://strm%.yandex%.ru/k') then return end
+		if not m_simpleTV.Control.CurrentAddress:match('https?://strm%.yandex%.ru/k')
+			and not m_simpleTV.Control.CurrentAddress:match('^$yandex')
+		then
+		 return
+		end
 		if m_simpleTV.Control.CurrentAddress:match('PARAMS=yandex_tv') then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.Control.ChangeAddress = 'Yes'
@@ -18,6 +23,7 @@
 	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
+	inAdr = inAdr:gsub('^$yandex(.-)$', function(c) return decode64(c):reverse() end)
 	local extOpt = '$OPT:INT-SCRIPT-PARAMS=yandex_tv'
 	local url = inAdr:gsub('_%d+_%d+p%.json.-$', '.m3u8')
 	url = url:gsub('%$OPT:.-$', '')
@@ -92,7 +98,7 @@
 		if m_simpleTV.Control.MainMode == 0 then
 			t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
 			t.ExtParams = {LuaOnOkFunName = 'yandexSaveQuality'}
-			m_simpleTV.OSD.ShowSelect_UTF8('⚙ Качество', index - 1, t, 5000, 32 + 64 + 128)
+			m_simpleTV.OSD.ShowSelect_UTF8('⚙ Качество', index - 1, t, 5000, 32 + 64 + 128 + 8)
 		end
 	end
 	m_simpleTV.Control.CurrentAddress = t[index].Address
