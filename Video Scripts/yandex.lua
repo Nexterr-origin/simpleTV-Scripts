@@ -23,6 +23,7 @@
 	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
+	inAdr = inAdr:gsub('$OPT:INT%-SCRIPT%-PARAMS=Catchuped', '')
 	inAdr = inAdr:gsub('^https?://strm%.yandex%.ru/tv/wY2lzd(.-)$', function(c) return decode64(c):reverse() end)
 	local extOpt = '$OPT:INT-SCRIPT-PARAMS=yandex_tv'
 	local url = inAdr:gsub('_%d+_%d+p%.json.-$', '.m3u8')
