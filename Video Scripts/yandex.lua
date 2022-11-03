@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "Yandex+" https://yandex.ru (2/11/22)
+-- видеоскрипт для плейлиста "Yandex+" https://yandex.ru (3/11/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: yandex+_pls.lua
@@ -24,7 +24,7 @@
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	inAdr = inAdr:gsub('$OPT:INT%-SCRIPT%-PARAMS=Catchuped', '')
-	inAdr = inAdr:gsub('^https?://strm%.yandex%.ru/tv/wY2lzd(.-)$', function(c) return decode64(c):reverse() end)
+	inAdr = inAdr:gsub('^https?://strm%.yandex%.ru/tv/...lzd(.-)$', function(c) return decode64(c):reverse() end)
 	local extOpt = '$OPT:INT-SCRIPT-PARAMS=yandex_tv'
 	local url = inAdr:gsub('_%d+_%d+p%.json.-$', '.m3u8')
 	url = url:gsub('%$OPT:.-$', '')
