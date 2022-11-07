@@ -1,6 +1,6 @@
--- видеоскрипт для ссылок Ростелекома https://rt.ru (3/5/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
--- в архиве не переключает качество
+-- видеоскрипт для ссылок Ростелекома https://rt.ru (6/11/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- ! в архиве не переключает качество !
 -- ## необходим ##
 -- расширение дополнения httptimeshift: rt-tv-timeshift_ext.lua
 -- ## открывает подобные ссылки ##
@@ -10,7 +10,7 @@
 -- ## юзер агент ##
 local userAgent = 'Mozilla/5.0 (SMART-TV; Linux; Tizen 4.0.0.2) AppleWebkit/605.1.15 (KHTML, like Gecko) SamsungBrowser/9.2 TV Safari/605.1.15'
 -- ## Пртокол ##
-local http = 1
+local http = 0
 -- 0 - httpS
 -- 1 - http
 -- ## Прокси ##
@@ -92,7 +92,7 @@ local proxy = ''
 					else
 						t[#t].Name = bw .. ' кбит/с'
 					end
-					t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s%s', inAdr, bw, extOpt)
+					t[#t].Address = string.format('%s$OPT:no-ts-cc-check$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s%s', inAdr, bw, extOpt)
 				end
 			end
 	 return t
