@@ -53,9 +53,7 @@
 					resolution = resolution:gsub('p', ''):gsub('Auto', 30000)
 					local res = tonumber(resolution)
 					adr = adr:gsub('\\/', '/'):gsub('\\u0026', '&')
-					if not adr:match('^https?://') then
-						adr = 'https://player.sport3.tv' .. adr
-					end
+					adr = adr:gsub('^/', 'https://player.sport3.tv/')
 					t[#t + 1] = {}
 					t[#t].Id = res
 					t[#t].Address = adr .. extOpt
