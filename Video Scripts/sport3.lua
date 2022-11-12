@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://sport3.tv (10/11/22)
+-- видеоскрипт для сайта https://sport3.tv (12/11/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://sport3.tv/kubok-afl/202607
@@ -18,60 +18,55 @@
 	local url = inAdr:gsub('https://sport3.tv/', 'https://player.sport3.tv/api/proxy-zfront/')
 	local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 		if rc ~= 200 then return end
-	local retAdr
-	if answer:match('"type":"live"') then
-		retAdr = answer:match('"playListUri":"([^"]+/adaptive[^"]+)')
-	else
-		retAdr = answer:match('"playListUri":"\\/(master%?uri=[^"]+)')
-		if retAdr then
-			retAdr = 'https://player.sport3.tv/' .. retAdr
-		end
-	end
-		if not retAdr then return end
-	retAdr = retAdr:gsub('\\/', '/'):gsub('\\u0026', '&')
-	local title = answer:match('"title":"([^"]+)') or 'sport3'
-	title = unescape3(title)
-	if m_simpleTV.Control.MainMode == 0 then
-		local thumbnail = answer:match('"thumbnailUri":"([^"]+)') or logo
-		m_simpleTV.Control.ChangeChannelLogo(thumbnail, m_simpleTV.Control.ChannelID)
-		m_simpleTV.Control.ChangeChannelName(title, m_simpleTV.Control.ChannelID, false)
-	end
-	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
-		if rc ~= 200 then return end
-	local extOpt = '$OPT:adaptive-hls-ignore-discontinuity$OPT:http-referrer=https://player.sport3.tv/$OPT:http-user-agent=' .. userAgent
-	local host = retAdr:match('https?://[^/]+/')
-	local t = {}
-		for w in string.gmatch(answer,'EXT%-X%-STREAM%-INF(.-\n.-)\n') do
-			local name = w:match('RESOLUTION=%d+x(%d+)')
-			local adr = w:match('\n(.+)')
-			if name and adr then
-				name = tonumber(name)
-				if not adr:match('^http') then
-					adr = host .. adr
+	require 'json'
+	answer = answer:gsub('null', '""')
+	answer = answer:gsub('%[%]', '""')
+	answer = answer:gsub('\\', '\\\\')
+	local tab = json.decode(answer)
+		if not tab
+			or not tab.data
+			or not tab.data.sources
+			or not tab.data.sources[1]
+		then
+			if tab and tab.data then
+				local beginAt = tab.data.beginAt
+				if beginAt and beginAt ~= '' then
+					local title = tab.title or 'sport3'
+					title = unescape3(title) .. '\n\nначало ' .. beginAt
+					m_simpleTV.OSD.ShowMessageT({text = title, showTime = 8000, color = ARGB(255, 153, 255, 153), id = 'channelName'})
 				end
-				t[#t +1] = {}
-				t[#t].Address = adr .. extOpt
-				t[#t].Id = name
-				t[#t].Name = name .. 'p'
 			end
-		end
-	m_simpleTV.Control.CurrentTitle_UTF8 = title
-		if #t == 0 then
-			m_simpleTV.Control.CurrentAddress = retAdr .. extOpt
 		 return
 		end
+	local title = tab.title or 'sport3'
+	title = unescape3(title)
+	if m_simpleTV.Control.MainMode == 0 then
+		m_simpleTV.Control.ChangeChannelLogo(logo, m_simpleTV.Control.ChannelID)
+		m_simpleTV.Control.ChangeChannelName(title, m_simpleTV.Control.ChannelID, false)
+	end
+	local extOpt = '$OPT:adaptive-hls-ignore-discontinuity$OPT:http-referrer=https://player.sport3.tv/$OPT:http-user-agent=' .. userAgent
+	local t = {}
+		for i = 1, #tab.data.sources do
+			local adr = tab.data.sources[i].playListUri
+			local resolution = tab.data.sources[i].resolution
+				if adr and resolution then
+					resolution = resolution:gsub('p', ''):gsub('Auto', 30000)
+					local res = tonumber(resolution)
+					adr = adr:gsub('\\/', '/'):gsub('\\u0026', '&')
+					if not adr:match('^https?://') then
+						adr = 'https://player.sport3.tv' .. adr
+					end
+					t[#t + 1] = {}
+					t[#t].Id = res
+					t[#t].Address = adr .. extOpt
+					t[#t].Name = tab.data.sources[i].resolution
+				end
+			end
+			if #t == 0 then return end
 	table.sort(t, function(a, b) return a.Id < b.Id end)
 	local lastQuality = tonumber(m_simpleTV.Config.GetValue('sport3_qlty') or 1080)
 	local index = #t
 	if #t > 1 then
-		t[#t + 1] = {}
-		t[#t].Id = 20000
-		t[#t].Name = '▫ всегда высокое'
-		t[#t].Address = t[#t - 1].Address
-		t[#t + 1] = {}
-		t[#t].Id = 30000
-		t[#t].Name = '▫ адаптивное'
-		t[#t].Address = retAdr .. extOpt
 		index = #t
 			for i = 1, #t do
 				if t[i].Id >= lastQuality then
@@ -91,6 +86,7 @@
 		end
 	end
 	m_simpleTV.Control.CurrentAddress = t[index].Address
+	m_simpleTV.Control.CurrentTitle_UTF8 = title
 	function sport3SaveQuality(obj, id)
 		m_simpleTV.Config.SetValue('sport3_qlty', id)
 	end
