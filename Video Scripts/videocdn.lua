@@ -1,18 +1,15 @@
--- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (16/5/22)
+-- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (14/11/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
--- https://32.svetacdn.in/fnXOUDB9nNSO?kp_id=5928
--- https://32.tvmovies.in/fnXOUDB9nNSO/tv-series/92
--- https://32.tvmovies.in/fnXOUDB9nNSO/movie/22080
--- http://32.svetacdn.in/fnXOUDB9nNSO/movie/36905
+-- https://7741.annacdn.cc/fnXOUDB9nNSO/tv-series/92
+-- https://7741.annacdn.cc/fnXOUDB9nNSO/movie/22080
+-- https://7741.annacdn.cc/fnXOUDB9nNSO?kp_id=5928
 -- ## прокси ##
 local proxy = ''
 -- '' - нет
 -- 'https://proxy-nossl.antizapret.prostovpn.org:29976' (пример)
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('^https?://[%w%.]*videocdn%.')
-			and not m_simpleTV.Control.CurrentAddress:match('^https?://.-/fnXOUDB9nNSO')
-			and not m_simpleTV.Control.CurrentAddress:match('^https?://[%w%.]*svetacdn%.')
+		if not m_simpleTV.Control.CurrentAddress:match('^https?://%d+%.annacdn%.')
 			and not m_simpleTV.Control.CurrentAddress:match('^$videocdn')
 		then
 		 return
@@ -30,10 +27,10 @@ local proxy = ''
 		psevdotv = true
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
-	m_simpleTV.Control.CurrentAddress = ''
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:96.0) Gecko/20100101 Firefox/96.0', proxy, false)
+	m_simpleTV.Control.CurrentAddress = 'error'
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0', proxy, false)
 		if not session then return end
-	m_simpleTV.Http.SetTimeout(session, 12000)
+	m_simpleTV.Http.SetTimeout(session, 10000)
 	if not m_simpleTV.User then
 		m_simpleTV.User = {}
 	end
