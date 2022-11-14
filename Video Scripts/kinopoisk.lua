@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (25/10/22)
+-- видеоскрипт для сайта http://www.kinopoisk.ru (14/11/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
@@ -54,7 +54,7 @@ local tname = {
 	m_simpleTV.Control.CurrentAddress = 'error'
 	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:99.0) Gecko/20100101 Firefox/99.0')
 		if not session then return end
-	m_simpleTV.Http.SetTimeout(session, 8000)
+	m_simpleTV.Http.SetTimeout(session, 10000)
 	if inAdr:match('hd%.kinopoisk%.ru') then
 		local id = inAdr:match('hd%.kinopoisk%.ru/film/(%x+)')
 			if not id then return end
@@ -139,7 +139,7 @@ local tname = {
 					i = i + 1
 				end
 			return Adrivi
-		elseif url:match('svetacdn') then
+		elseif url:match('annacdn') then
 				rc, answer = m_simpleTV.Http.Request(session, {url = url})
 					if rc ~= 200 then return end
 			return url
@@ -263,7 +263,7 @@ local tname = {
 			return answer
 		elseif url:match('ivi%.ru') then
 			return answer
-		elseif url:match('svetacdn') then
+		elseif url:match('annacdn') then
 			return answer
 		elseif url:match('cdnmovies%.net') then
 			return answer
@@ -351,7 +351,7 @@ local tname = {
 			elseif tname[i] == 'ivi' then
 				turl[i] = {adr = decode64('aHR0cHM6Ly9hcGkuaXZpLnJ1L21vYmlsZWFwaS9zZWFyY2gvdjUvP2ZpZWxkcz1rcF9pZCxpZCxkcm1fb25seSZmYWtlPTAmcXVlcnk9'), tTitle = 'Фильмы и сериалы с ivi.ru', tLogo = 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/ivi.png'}
 			elseif tname[i] == 'Videocdn' then
-				turl[i] = {adr = decode64('aHR0cHM6Ly83NzQxLnN2ZXRhY2RuLmluL1BYazJRR2J2RVZtUz9rcF9pZD0') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
+				turl[i] = {adr = decode64('aHR0cHM6Ly83NzQxLmFubmFjZG4uY2MvUFhrMlFHYnZFVm1TP2twX2lkPQ') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
 			elseif tname[i] == 'Collaps' then
 				turl[i] = {adr = 'http://api' .. os.time() .. decode64('LnN5bmNocm9uY29kZS5jb20vZW1iZWQva3Av') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
 			elseif tname[i] == 'CDN Movies' then
