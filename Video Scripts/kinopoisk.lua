@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (14/11/22)
+-- видеоскрипт для сайта http://www.kinopoisk.ru (17/11/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
@@ -22,12 +22,13 @@ local tname = {
 -- сортировать: поменять порядок строк
 -- отключить: поставить в начале строки --
 	'Voidboost',
-	'Videocdn',
+	'VideoCdn',
 	'Videoframe',
 	'Filmix',
 	'Collaps',
 	'Hdvb',
 	-- 'CDN Movies',
+	'VideoApi',
 	'Kodik',
 	'ivi',
 	'Seasonvar',
@@ -52,7 +53,7 @@ local tname = {
 	htmlEntities = require 'htmlEntities'
 	m_simpleTV.Control.ChangeAddress= 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:99.0) Gecko/20100101 Firefox/99.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 10000)
 	if inAdr:match('hd%.kinopoisk%.ru') then
@@ -157,7 +158,7 @@ local tname = {
 			else
 			 return
 			end
-			local sessionFilmix = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:99.0) Gecko/20100101 Firefox/99.0')
+			local sessionFilmix = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 				if not sessionFilmix then return end
 			m_simpleTV.Http.SetTimeout(sessionFilmix, 8000)
 			local ratimdbot, ratkinot, ratimdbdo, ratkindo, yearot, yeardo = '', '', '', '', '', ''
@@ -241,6 +242,15 @@ local tname = {
 			rc, answer = m_simpleTV.Http.Request(session, {url = url})
 				if rc ~= 200 then return end
 			return answer:match('"path":"([^"]+)')
+		elseif url:match('videocdn%.tv') then
+			rc, answer = m_simpleTV.Http.Request(session, {url = url})
+				if rc ~= 200 then return end
+			local imdbid = answer:match('"imdb_id":"([^"]+)')
+				if not imdbid then return end
+				local url_videoapi = decode64('aHR0cHM6Ly81MTYzLnN2ZXRhY2RuLmluL2FwaS9zaG9ydD9hcGlfdG9rZW49Rm5rSDlocVlwZUU0dHJINjJrYng2T293TnJpM2FhbVomaW1kYl9pZD0') .. imdbid
+			rc, answer = m_simpleTV.Http.Request(session, {url = url_videoapi})
+				if rc ~= 200 then return end
+			return answer:match('"iframe_src":"([^"]+)')
 		elseif url:match('synchroncode') then
 			rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: api.synchroncode.com'})
 				if rc ~= 200 then return end
@@ -264,6 +274,8 @@ local tname = {
 		elseif url:match('ivi%.ru') then
 			return answer
 		elseif url:match('annacdn') then
+			return answer
+		elseif url:match('videocdn%.tv') then
 			return answer
 		elseif url:match('cdnmovies%.net') then
 			return answer
@@ -318,7 +330,7 @@ local tname = {
 	 return
 	end
 	local function getlogo()
-		local session2 = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:97.0) Gecko/20100101 Firefox/97.0', nil, true)
+		local session2 = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0', nil, true)
 			if not session2 then return end
 		m_simpleTV.Http.SetTimeout(session2, 8000)
 		local url = 'https://st.kp.yandex.net/images/film_iphone/iphone360_' .. kpid .. '.jpg'
@@ -350,8 +362,10 @@ local tname = {
 				turl[i] = {adr = decode64('aHR0cDovL3NlYXNvbnZhci5ydS9hdXRvY29tcGxldGUucGhwP3F1ZXJ5PQ=='), tTitle = 'Сериалы с Seasonvar.ru', tLogo = 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/seasonvar.png'}
 			elseif tname[i] == 'ivi' then
 				turl[i] = {adr = decode64('aHR0cHM6Ly9hcGkuaXZpLnJ1L21vYmlsZWFwaS9zZWFyY2gvdjUvP2ZpZWxkcz1rcF9pZCxpZCxkcm1fb25seSZmYWtlPTAmcXVlcnk9'), tTitle = 'Фильмы и сериалы с ivi.ru', tLogo = 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/ivi.png'}
-			elseif tname[i] == 'Videocdn' then
+			elseif tname[i] == 'VideoCdn' then
 				turl[i] = {adr = decode64('aHR0cHM6Ly83NzQxLmFubmFjZG4uY2MvUFhrMlFHYnZFVm1TP2twX2lkPQ') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
+			elseif tname[i] == 'VideoApi' then
+				turl[i] = {adr = decode64('aHR0cHM6Ly92aWRlb2Nkbi50di9hcGkvc2hvcnQ/YXBpX3Rva2VuPW9TN1d6dk5meGU0SzhPY3NQanBBSVU2WHUwMVNpMGZtJmtpbm9wb2lza19pZD0') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
 			elseif tname[i] == 'Collaps' then
 				turl[i] = {adr = 'http://api' .. os.time() .. decode64('LnN5bmNocm9uY29kZS5jb20vZW1iZWQva3Av') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
 			elseif tname[i] == 'CDN Movies' then
