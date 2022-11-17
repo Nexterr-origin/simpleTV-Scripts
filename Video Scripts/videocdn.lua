@@ -1,15 +1,18 @@
--- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (14/11/22)
+-- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv , "videoapi" https://videoapi.tv (17/11/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://7741.annacdn.cc/fnXOUDB9nNSO/tv-series/92
 -- https://7741.annacdn.cc/fnXOUDB9nNSO/movie/22080
 -- https://7741.annacdn.cc/fnXOUDB9nNSO?kp_id=5928
+-- https://5102.svetacdn.in/kNKj47MkBgLS/movie/664
+-- https://5102.svetacdn.in/kNKj47MkBgLS?imdb_id=tt0120663
 -- ## прокси ##
 local proxy = ''
 -- '' - нет
 -- 'https://proxy-nossl.antizapret.prostovpn.org:29976' (пример)
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://%d+%.annacdn%.')
+			and not m_simpleTV.Control.CurrentAddress:match('^https?://%d+%.svetacdn%.')
 			and not m_simpleTV.Control.CurrentAddress:match('^$videocdn')
 		then
 		 return
