@@ -43,15 +43,15 @@
 		 return
 		end
 	table.sort(t, function(a, b) return a.Id < b.Id end)
-	local lastQuality = tonumber(m_simpleTV.Config.GetValue('tv24h_qlty') or 10000)
+	local lastQuality = tonumber(m_simpleTV.Config.GetValue('tv24h_qlty') or 20000)
 	local index = #t
 	if #t > 1 then
 		t[#t + 1] = {}
-		t[#t].Id = 10000
+		t[#t].Id = 20000
 		t[#t].Name = '▫ всегда высокое'
 		t[#t].Address = t[#t - 1].Address
 		t[#t + 1] = {}
-		t[#t].Id = 30000
+		t[#t].Id = 50000
 		t[#t].Name = '▫ адаптивное'
 		t[#t].Address = retAdr .. extOpt
 		index = #t
