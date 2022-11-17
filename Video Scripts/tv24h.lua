@@ -21,6 +21,7 @@
 		if rc ~= 200 then return end
 	local retAdr = answer:match('"hls_mbr":"([^"]+)') or answer:match('"hls":"([^"]+)')
 		if not retAdr then return end
+	retAdr = retAdr:gsub('^https://', 'http://')
 	rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 		if rc ~= 200 then return end
 	local extOpt = ''
@@ -68,7 +69,7 @@
 		if m_simpleTV.Control.MainMode == 0 then
 			t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
 			t.ExtParams = {LuaOnOkFunName = 'tv24hSaveQuality'}
-			m_simpleTV.OSD.ShowSelect_UTF8('⚙ Качество', index - 1, t, 5000, 32 + 64 + 128)
+			m_simpleTV.OSD.ShowSelect_UTF8('⚙ Качество', index - 1, t, 5000, 32 + 64 + 128 + 8)
 		end
 	end
 	m_simpleTV.Control.CurrentAddress = t[index].Address
