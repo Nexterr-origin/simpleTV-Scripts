@@ -2,7 +2,6 @@
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: tv24h.lua
--- расширение дополнения httptimeshift: tv24h-timeshift_ext.lua
 -- ## авторизация ##
 local access_token = ''
 -- '7256ca88e36da8c4955e439de98279ebb79a9fef' (например)
@@ -52,7 +51,6 @@ local filter = {
 					t[i] = {}
 					t[i].name = tab[j].name
 					t[i].address = 'https://tv24h/' .. tab[j].id .. '/stream?access_token=' .. access_token
-					t[i].RawM3UString = string.format('catchup="append" catchup-days="%s" catchup-source=""', (tab[j].real_archived_days or 0))
 					i = i + 1
 				end
 				j = j + 1
