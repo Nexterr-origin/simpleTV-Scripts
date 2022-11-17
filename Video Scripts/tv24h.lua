@@ -2,7 +2,6 @@
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: tv24h_pls.lua
--- расширение дополнения httptimeshift: tv24h-timeshift_ext.lua
 -- ## открывает подобные ссылки ##
 -- https://tv24h/10170/stream?access_token=7256ca88e36da8c4955e439de98279ebb79a9fef
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
