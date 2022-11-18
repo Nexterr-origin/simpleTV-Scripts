@@ -1,10 +1,10 @@
--- скрапер TVS для загрузки плейлиста "24часаТВ" https://app.24h.tv (17/11/22)
+-- скрапер TVS для загрузки плейлиста "24часаТВ" https://app.24h.tv (18/11/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: tv24h.lua
 -- ## авторизация ##
 local access_token = ''
--- '7256ca88e36da8c4955e439de98279ebb79a9fef' (например)
+-- '2b4eb39d93b021c3e24a2c6dd5b2f3845b66e06d' (например)
 -- ## переименовать каналы ##
 local filter = {
 	{'Мир-ТВ', 'МИР'},
@@ -33,7 +33,7 @@ local filter = {
 		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 			if not session then return end
 		if access_token == '' then
-			access_token = '7256ca88e36da8c4955e439de98279ebb79a9fef'
+			access_token = '2b4eb39d93b021c3e24a2c6dd5b2f3845b66e06d'
 		end
 		m_simpleTV.Http.SetTimeout(session, 8000)
 		local url = decode64('aHR0cHM6Ly8yNGh0di5wbGF0Zm9ybTI0LnR2L3YyL2NoYW5uZWxzP2Zvcm1hdD1qc29uJmFjY2Vzc190b2tlbj0') .. access_token
