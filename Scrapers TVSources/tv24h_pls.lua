@@ -2,13 +2,15 @@
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: tv24h.lua
+-- расширение дополнения httptimeshift: tv24h-timeshift_ext.lua
 -- ## авторизация ##
 local access_token = ''
--- '2b4eb39d93b021c3e24a2c6dd5b2f3845b66e06d' (например)
+-- '60e7bd6049f70cfffe0dee01fff89569593128d5' (например)
 -- ## переименовать каналы ##
 local filter = {
 	{'Мир-ТВ', 'МИР'},
 	}
+-- ##
 	module('tv24h_pls', package.seeall)
 	local my_src_name = '24часаТВ'
 	local function ProcessFilterTableLocal(t)
@@ -29,17 +31,26 @@ local filter = {
 	function GetVersion()
 	 return 2, 'UTF-8'
 	end
+	local function showMess(str, color)
+		local t = {text = str, showTime = 1000 * 5, color = color, id = 'channelName'}
+		m_simpleTV.OSD.ShowMessageT(t)
+	end
 	local function LoadFromSite()
 		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 			if not session then return end
+		local ts
 		if access_token == '' then
 			access_token = '2b4eb39d93b021c3e24a2c6dd5b2f3845b66e06d'
+			ts = 1
 		end
 		m_simpleTV.Http.SetTimeout(session, 8000)
 		local url = decode64('aHR0cHM6Ly8yNGh0di5wbGF0Zm9ybTI0LnR2L3YyL2NoYW5uZWxzP2Zvcm1hdD1qc29uJmFjY2Vzc190b2tlbj0') .. access_token
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 		m_simpleTV.Http.Close(session)
-			if rc ~= 200 then return end
+			if rc ~= 200 then
+				answer = answer or ''
+			 return answer:match('"message":"([^"]+)') or 'Недопустимый токен'
+			end
 		answer = answer:gsub('%[%]', '""')
 		require 'json'
 		local tab = json.decode(answer)
@@ -51,6 +62,7 @@ local filter = {
 					t[i] = {}
 					t[i].name = tab[j].name
 					t[i].address = 'https://tv24h/' .. tab[j].id .. '/stream?access_token=' .. access_token
+					t[i].RawM3UString = string.format('catchup="append" catchup-days="%s" catchup-source=""', (ts or tab[j].real_archived_days or 0))
 					i = i + 1
 				end
 				j = j + 1
@@ -64,7 +76,14 @@ local filter = {
 			if not TVSources_var.tmp.source[UpdateID] then return end
 		local Source = TVSources_var.tmp.source[UpdateID]
 		local t_pls = LoadFromSite()
-			if not t_pls then return end
+			if not t_pls then
+				showMess(Source.name .. ' ошибка загрузки плейлиста', ARGB(255, 255, 102, 0))
+			 return
+			elseif type(t_pls) ~= 'table' then
+				showMess(Source.name .. '\n' .. t_pls, ARGB(255, 255, 102, 0))
+			 return
+			end
+		showMess(Source.name .. ' (' .. #t_pls .. ')', ARGB(255, 153, 255, 153))
 		t_pls = ProcessFilterTableLocal(t_pls)
 		local m3ustr = tvs_core.ProcessFilterTable(UpdateID, Source, t_pls)
 		local handle = io.open(m3u_file, 'w+')
