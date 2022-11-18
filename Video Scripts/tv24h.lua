@@ -2,6 +2,7 @@
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: tv24h_pls.lua
+-- расширение дополнения httptimeshift: tv24h-timeshift_ext.lua
 -- ## открывает подобные ссылки ##
 -- https://tv24h/10170/stream?access_token=2b4eb39d93b021c3e24a2c6dd5b2f3845b66e06d
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
@@ -10,7 +11,14 @@
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
 	end
 	local url = m_simpleTV.Control.CurrentAddress:gsub('^https?://tv24h', decode64('aHR0cHM6Ly8yNGh0di5wbGF0Zm9ybTI0LnR2L3YyL2NoYW5uZWxz'))
+	if not m_simpleTV.User then
+		m_simpleTV.User = {}
+	end
+	if not m_simpleTV.User.tv24h then
+		m_simpleTV.User.tv24h = {}
+	end
 	url = url:gsub('$OPT:.+', '')
+	m_simpleTV.User.tv24h.address = url
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
 	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
