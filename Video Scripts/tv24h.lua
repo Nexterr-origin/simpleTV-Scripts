@@ -1,9 +1,9 @@
--- видеоскрипт для плейлиста "24часаТВ" https://app.24h.tv (17/11/22)
+-- видеоскрипт для плейлиста "24часаТВ" https://app.24h.tv (18/11/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: tv24h_pls.lua
 -- ## открывает подобные ссылки ##
--- https://tv24h/10170/stream?access_token=7256ca88e36da8c4955e439de98279ebb79a9fef
+-- https://tv24h/10170/stream?access_token=2b4eb39d93b021c3e24a2c6dd5b2f3845b66e06d
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://tv24h/%d') then return end
 	if m_simpleTV.Control.MainMode == 0 then
