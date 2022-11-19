@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (17/11/22)
+-- видеоскрипт для сайта http://www.kinopoisk.ru (19/11/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
@@ -140,7 +140,7 @@ local tname = {
 					i = i + 1
 				end
 			return Adrivi
-		elseif url:match('annacdn') then
+		elseif url:match('3221407734375553') then
 				rc, answer = m_simpleTV.Http.Request(session, {url = url})
 					if rc ~= 200 then return end
 			return url
@@ -273,7 +273,7 @@ local tname = {
 			return answer
 		elseif url:match('ivi%.ru') then
 			return answer
-		elseif url:match('annacdn') then
+		elseif url:match('3221407734375553') then
 			return answer
 		elseif url:match('videocdn%.tv') then
 			return answer
@@ -363,7 +363,7 @@ local tname = {
 			elseif tname[i] == 'ivi' then
 				turl[i] = {adr = decode64('aHR0cHM6Ly9hcGkuaXZpLnJ1L21vYmlsZWFwaS9zZWFyY2gvdjUvP2ZpZWxkcz1rcF9pZCxpZCxkcm1fb25seSZmYWtlPTAmcXVlcnk9'), tTitle = 'Фильмы и сериалы с ivi.ru', tLogo = 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/ivi.png'}
 			elseif tname[i] == 'VideoCdn' then
-				turl[i] = {adr = decode64('aHR0cHM6Ly83NzQxLmFubmFjZG4uY2MvUFhrMlFHYnZFVm1TP2twX2lkPQ') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
+				turl[i] = {adr = decode64('aHR0cDovLzMyMjE0MDc3MzQzNzU1NTMuc3ZldGFjZG4uaW4vZm5YT1VEQjluTlNPP2twX2lkPQ') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
 			elseif tname[i] == 'VideoApi' then
 				turl[i] = {adr = decode64('aHR0cHM6Ly92aWRlb2Nkbi50di9hcGkvc2hvcnQ/YXBpX3Rva2VuPW9TN1d6dk5meGU0SzhPY3NQanBBSVU2WHUwMVNpMGZtJmtpbm9wb2lza19pZD0') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
 			elseif tname[i] == 'Collaps' then
