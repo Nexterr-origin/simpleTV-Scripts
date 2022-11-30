@@ -2,6 +2,7 @@
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: yandex.lua
+-- расширение дополнения httptimeshift: yandex-timesift_ext.lua
 -- ## переименовать каналы ##
 local filter = {
 	{'360° Новости', '360 Новости (Москва)'},
