@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "yandex+" (1/12/22)
+-- скрапер TVS для загрузки плейлиста "Yandex+" https://hd.kinopoisk.ru (1/12/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: yandex.lua
