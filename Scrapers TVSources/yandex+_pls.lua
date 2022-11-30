@@ -1,8 +1,7 @@
--- скрапер TVS для загрузки плейлиста "yandex+" (2/10/22)
+-- скрапер TVS для загрузки плейлиста "yandex+" (1/12/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: yandex.lua
--- расширение дополнения httptimeshift: yandex-timesift_ext.lua
 -- ## переименовать каналы ##
 local filter = {
 	{'360° Новости', '360 Новости (Москва)'},
