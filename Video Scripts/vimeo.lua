@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://vimeo.com/watch (3/12/22)
+-- видеоскрипт для сайта https://vimeo.com/watch (4/12/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://vimeo.com/channels/musicvideoland/368152561
@@ -13,6 +13,12 @@
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://[%a%.]*vimeo%.com/.+') then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
+	if not m_simpleTV.User then
+		m_simpleTV.User = {}
+	end
+	if not m_simpleTV.User.vimeo then
+		m_simpleTV.User.vimeo = {}
+	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
 	if not inAdr:match('player%.vimeo%.com') then
@@ -75,7 +81,6 @@
 	answer = answer:gsub('%[%]', ' ')
 	require 'json'
 	local tab = json.decode(answer)
-	local retAdr
 		if not tab
 			and not tab.video
 			and not tab.request
@@ -86,6 +91,7 @@
 			showError('видео не найдено')
 		 return
 		end
+	local retAdr
 	if tab.request.files.hls.cdns.akamai_live then
 		retAdr = tab.request.files.hls.cdns.akamai_live.url
 	elseif tab.request.files.hls.cdns.akfire_interconnect_quic then
@@ -95,6 +101,67 @@
 			showError('3')
 		 return
 		end
+	local function Thumbs(thumbsInfo)
+			if m_simpleTV.Control.MainMode ~= 0 then return end
+		m_simpleTV.User.vimeo.ThumbsInfo = nil
+			if not tab.request.thumb_preview
+				or not tab.video.duration
+			then
+			 return
+			end
+		local urlPattern = tab.request.thumb_preview.url
+		local thumbHeight = tab.request.thumb_preview.frame_height or 0
+		local thumbWidth = tab.request.thumb_preview.frame_width or 0
+		local thumbsPerImage = tab.request.thumb_preview.frames or 0
+			if not urlPattern
+				or thumbHeight == 0
+				or thumbWidth == 0
+				or thumbsPerImage == 0
+			then
+			 return
+			end
+		m_simpleTV.User.vimeo.ThumbsInfo = {}
+		m_simpleTV.User.vimeo.ThumbsInfo.urlPattern = urlPattern
+		m_simpleTV.User.vimeo.ThumbsInfo.duration = tab.video.duration
+		m_simpleTV.User.vimeo.ThumbsInfo.thumbHeight = thumbHeight
+		m_simpleTV.User.vimeo.ThumbsInfo.thumbWidth = thumbWidth
+		m_simpleTV.User.vimeo.ThumbsInfo.thumbsPerImage = thumbsPerImage
+		if not m_simpleTV.User.vimeo.PositionThumbsHandler then
+			local handlerInfo = {}
+			handlerInfo.luaFunction = 'PositionThumbs_vimeo'
+			handlerInfo.regexString = '.*vimeo\.com/.*'
+			handlerInfo.sizeFactor = 0.20
+			handlerInfo.backColor = ARGB(255, 0, 0, 0)
+			handlerInfo.textColor = ARGB(240, 127, 255, 0)
+			handlerInfo.glowParams = 'glow="7" samples="5" extent="4" color="0xB0000000"'
+			handlerInfo.marginBottom = 0
+			handlerInfo.showPreviewWhileSeek = true
+			handlerInfo.clearImgCacheOnStop = false
+			handlerInfo.minImageWidth = 80
+			handlerInfo.minImageHeight = 44
+			m_simpleTV.User.YT.PositionThumbsHandler = m_simpleTV.PositionThumbs.AddHandler(handlerInfo)
+		end
+	end
+	function PositionThumbs_vimeo(queryType, address, forTime)
+		if queryType == 'testAddress' then
+		 return false
+		end
+		if queryType == 'getThumbs' then
+				if not m_simpleTV.User.vimeo.ThumbsInfo then
+				 return true
+				end
+			local t = {}
+			t.playAddress = address
+			t.url = m_simpleTV.User.vimeo.ThumbsInfo.urlPattern
+			t.elementWidth = m_simpleTV.User.vimeo.ThumbsInfo.thumbWidth
+			t.elementHeight = m_simpleTV.User.vimeo.ThumbsInfo.thumbHeight
+			t.startTime = 0
+			t.elementsPerImage = m_simpleTV.User.vimeo.ThumbsInfo.thumbsPerImage
+			t.length = m_simpleTV.User.vimeo.ThumbsInfo.duration * 1000
+			m_simpleTV.PositionThumbs.AppendThumb(t)
+		 return true
+		end
+	end
 	local title = tab.video.title
 	if not inAdr:match('player%.vimeo%.com/') then
 		local addTitle = 'vimeo'
@@ -138,6 +205,7 @@
 			showError('5')
 		 return
 		end
+	Thumbs(tab)
 	table.sort(t, function(a, b) return a.Id < b.Id end)
 	local lastQuality = tonumber(m_simpleTV.Config.GetValue('vimeo_qlty') or 20000)
 	local index = #t
