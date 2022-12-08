@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://ok.ru (27/7/22)
+-- видеоскрипт для сайта https://ok.ru (8/12/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- http://ok.ru/videoembed/2636779838
@@ -8,6 +8,7 @@
 -- https://ok.ru/video/1951798069873
 -- https://m.ok.ru/dk?st.cmd=movieLayer&st.discId=220851668368&st.retLoc=default&st.discType=MOVIE&st.mvId=220851668368&st.stpos=rec_5&_prevCmd=movieLayer&tkn=3933
 -- https://m.ok.ru/dk?st.cmd=moviePlaybackRedirect&st.sig=923171edb53da243925fbfe90c1a285ea99c3fe9&st.mq=3&st.mvid=1565588916953&st.ip=178.57.98.107&st.exp=1575887947669&st.hls=off&_prevCmd=main&tkn=9594
+-- https://ok.ru/video/4138886498843
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://[wm%.]*ok%.ru') then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
@@ -25,7 +26,7 @@
 			m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = '', UseLogo = 0, Once = 1})
 		end
 	end
-	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:103.0) Gecko/20100101 Firefox/103.0'
+	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0'
 	if not m_simpleTV.User then
 		m_simpleTV.User = {}
 	end
@@ -96,7 +97,7 @@
 			local handlerInfo = {}
 			handlerInfo.luaFunction = 'PositionThumbs_ok'
 			handlerInfo.regexString = '.*\.ok\.ru/.*|kinogid\.com/.*'
-			handlerInfo.sizeFactor = m_simpleTV.User.paramScriptForSkin_thumbsSizeFactor or 0.12
+			handlerInfo.sizeFactor = m_simpleTV.User.paramScriptForSkin_thumbsSizeFactor or 0.18
 			handlerInfo.backColor = m_simpleTV.User.paramScriptForSkin_thumbsBackColor or 0x00000000
 			handlerInfo.textColor = m_simpleTV.User.paramScriptForSkin_thumbsTextColor or 0x00000000
 			handlerInfo.glowParams = m_simpleTV.User.paramScriptForSkin_thumbsGlowParams or ''
@@ -158,10 +159,11 @@
 		 return
 		end
 	retAdr = retAdr:gsub('\\\\u0026', '&')
-	local extOpt = '$OPT:http-user-agent=' .. userAgent
-	if m_simpleTV.Common.GetVlcVersion() > 3000 then
-		extOpt = extOpt .. '$OPT:no-ts-cc-check'
+	local subtitle = answer:match('subtitleTracks\\&quot;:%[{\\&quot;url\\&quot;:\\&quot;(.-)\\&quot')
+	if subtitle then
+		subtitle = '$OPT:sub-track-id=0$OPT:input-slave=' .. subtitle:gsub('\\\\u0026', '&'):gsub('^//', 'https://')
 	end
+	local extOpt = '$OPT:no-ts-cc-check$OPT:http-user-agent=' .. userAgent
 	if not answer:match('"vid%-card_live __active">Live<') then
 		extOpt = extOpt .. '$OPT:NO-STIMESHIFT'
 	end
@@ -183,7 +185,7 @@
 			else
 				m_simpleTV.Control.CurrentTitle_UTF8 = title
 			end
-			m_simpleTV.Control.CurrentAddress = retAdr .. extOpt .. '$OPT:POSITIONTOCONTINUE=0'
+			m_simpleTV.Control.CurrentAddress = retAdr .. (subtitle or '') .. extOpt .. '$OPT:POSITIONTOCONTINUE=0'
 		 return
 		end
 	local title
@@ -227,7 +229,7 @@
 				t[#t + 1] = {}
 				t[#t].Id = name
 				t[#t].Name = name .. 'p'
-				t[#t].Address = adr .. extOpt
+				t[#t].Address = adr .. (subtitle or '') .. extOpt
 			end
 		end
 	if not inAdr:find('videoembed') then
@@ -235,7 +237,7 @@
 	end
 		if #t == 0 then
 			Thumbs(answer)
-			m_simpleTV.Control.CurrentAddress = retAdr .. extOpt .. '$OPT:POSITIONTOCONTINUE=0'
+			m_simpleTV.Control.CurrentAddress = retAdr .. (subtitle or '') .. extOpt .. '$OPT:POSITIONTOCONTINUE=0'
 		 return
 		end
 	table.sort(t, function(a, b) return a.Id < b.Id end)
@@ -249,7 +251,7 @@
 		t[#t + 1] = {}
 		t[#t].Id = 10000
 		t[#t].Name = '▫ адаптивное'
-		t[#t].Address = retAdr .. extOpt
+		t[#t].Address = retAdr .. (subtitle or '') .. extOpt
 		index = #t
 			for i = 1, #t do
 				if t[i].Id >= lastQuality then
