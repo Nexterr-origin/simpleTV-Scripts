@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://ok.ru (8/12/22)
+-- видеоскрипт для сайта https://ok.ru (9/12/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- http://ok.ru/videoembed/2636779838
@@ -161,7 +161,7 @@
 	retAdr = retAdr:gsub('\\\\u0026', '&')
 	local subtitle = answer:match('subtitleTracks\\&quot;:%[{\\&quot;url\\&quot;:\\&quot;(.-)\\&quot')
 	if subtitle then
-		subtitle = '$OPT:sub-track-id=0$OPT:input-slave=' .. subtitle:gsub('\\\\u0026', '&'):gsub('^//', 'https://')
+		subtitle = '$OPT:sub-track-id=0$OPT:input-slave=' .. subtitle:gsub('\\\\u0026', '&'):gsub('^//', 'https://'):gsub('://', '/webvtt://')
 	end
 	local extOpt = '$OPT:no-ts-cc-check$OPT:http-user-agent=' .. userAgent
 	if not answer:match('"vid%-card_live __active">Live<') then
