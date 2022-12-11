@@ -1,13 +1,14 @@
--- видеоскрипт для сайта https://rutube.ru https://rutube.sport (30/8/22)
+-- видеоскрипт для сайта https://rutube.ru https://rutube.sport (11/12/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: mediavitrina.lua
 -- ## открывает подобные ссылки ##
--- https://rutube.ru/video/c32bacf2f2ef213d4cf86cedc0f88cf5/
+-- https://rutube.ru/video/c32bacf2f2ef213d4cf86cedc0f88cf5
 -- https://rutube.ru/live/video/54395b96ad1a7b49966f46a6eee370a4
 -- https://rutube.ru/video/c58f502c7bb34a8fcdd976b221fca292/
 -- https://rutube.sport/video/reyndzhers-psv-obzor/
 -- https://rutube.sport/video/aznaur-kalsynov-vs-vyacheslav-borisenok/
+-- https://rutube.ru/video/private/884fb55f07a97ab673c7d654553e0f48/?p=x2QojCumHTS3rsKHWXN8Lg
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://rutube%.ru/.+')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://rutube%.sport/.+')
@@ -26,7 +27,7 @@
 		local t = {text = 'RUTUBE - ошибка ' .. str, showTime = 1000 * 8, color = ARGB(255, 255, 102, 0), id = 'channelName'}
 		m_simpleTV.OSD.ShowMessageT(t)
 	end
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:104.0) Gecko/20100101 Firefox/104.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local id
@@ -35,9 +36,9 @@
 		if rc ~= 200 then
 			answer = ''
 		end
-		id = answer:match('/play/embed/(%w+)')
+		id = answer:match('/play/embed/([^&"]+)')
 	else
-		id = inAdr:match('/video/(%w+)') or inAdr:match('/audio/(%w+)')
+		id = inAdr:match('/video/private/([^&"]+)' or inAdr:match('/audio/([^&"]+)') ) or inAdr:match('/play/embed/([^&"]+)') or inAdr:match('/video/([^&"]+)')
 	end
 		if not id or inAdr:match('/tags/') then
 			showMsg('неверная ссылке')
@@ -61,7 +62,7 @@
 	answer = answer:gsub('\\/', '/')
 	answer = answer:gsub('%s*%[%]', '""')
 	require 'json'
-	local tab = json.decode(answer)
+	local err, tab = pcall(json.decode, answer)
 		if not tab then
 			showMsg('2')
 		 return
