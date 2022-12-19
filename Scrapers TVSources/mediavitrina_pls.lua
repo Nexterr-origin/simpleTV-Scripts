@@ -1,12 +1,11 @@
--- скрапер TVS для загрузки плейлиста "Витрина ТВ" https://vitrina.tv (30/1/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- скрапер TVS для загрузки плейлиста "Витрина ТВ" https://vitrina.tv (19/12/22)
+-- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: mediavitrina.lua
 -- ## переименовать каналы ##
 local filter = {
 	{'Звезда - RU', 'Звезда'},
 	}
--- ##
 	module('mediavitrina_pls', package.seeall)
 	local my_src_name = 'Витрина ТВ'
 	local function ProcessFilterTableLocal(t)
@@ -27,38 +26,35 @@ local filter = {
 	function GetVersion()
 	 return 2, 'UTF-8'
 	end
-	local function showMess(str, color)
-		local t = {text = str, color = color, showTime = 1000 * 5, id = 'channelName'}
-		m_simpleTV.OSD.ShowMessageT(t)
-	end
 	function LoadFromSite()
-		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:85.0) Gecko/20100101 Firefox/85.0')
+		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 8000)
-		local url = decode64('aHR0cHM6Ly92aXRyaW5hLnR2L2NvbmZpZ3MvY29uZmlnLmpzb24')
+		local url = decode64('aHR0cHM6Ly9zdGF0aWMtYXBpLm1lZGlhdml0cmluYS5ydS92MS92aXRyaW5hdHZfYXBwL3dlYi8zL2NvbmZpZy5qc29u')
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 		m_simpleTV.Http.Close(session)
 			if rc ~= 200 then return end
+		answer = answer:gsub('\\', '\\\\')
+		answer = answer:gsub('\\"', '\\\\"')
+		answer = answer:gsub('\\/', '/')
+		answer = answer:gsub('%[%]', '""')
+		answer = unescape3(answer)
 		require 'json'
-		answer = answer:gsub(':%[%]', ':""')
-		answer = answer:gsub('%[%]', ' ')
-		local tab = json.decode(answer)
+		local err, tab = pcall(json.decode, answer)
 			if not tab
 				or not tab.result
 				or not tab.result.channels
 			then
 			 return
 			end
-		local host = url:match('https?://[^/]+')
-		local t, i = {}, 1
-			while tab.result.channels[i] do
-				t[i] = {}
-				t[i].name = tab.result.channels[i].channel_title
-				t[i].address = tab.result.channels[i].web_player_url
-				t[i].logo = host .. tab.result.channels[i].channel_img.active
-				i = i + 1
+
+		local t = {}
+			for i = 1, #tab.result.channels do
+				t[#t + 1] = {}
+				t[#t].name = tab.result.channels[i].channel_title
+				t[#t].address = tab.result.channels[i].web_player_url
+				t[#t].logo = tab.result.channels[i].channel_img.active
 			end
-			if #t == 0 then return end
 	 return t
 	end
 	function GetList(UpdateID, m3u_file)
@@ -67,11 +63,7 @@ local filter = {
 			if not TVSources_var.tmp.source[UpdateID] then return end
 		local Source = TVSources_var.tmp.source[UpdateID]
 		local t_pls = LoadFromSite()
-			if not t_pls then
-				showMess(Source.name .. ' ошибка загрузки плейлиста', ARGB(255, 255, 102, 0))
-			 return
-			end
-		showMess(Source.name .. ' (' .. #t_pls .. ')', ARGB(255, 153, 255, 153))
+			if not t_pls or #t_pls == 0 then return end
 		t_pls = ProcessFilterTableLocal(t_pls)
 		local m3ustr = tvs_core.ProcessFilterTable(UpdateID, Source, t_pls)
 		local handle = io.open(m3u_file, 'w+')
