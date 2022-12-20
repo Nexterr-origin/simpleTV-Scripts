@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "Витрина ТВ" https://vitrina.tv (19/12/22)
+-- скрапер TVS для загрузки плейлиста "Витрина ТВ" https://vitrina.tv (20/12/22)
 -- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: mediavitrina.lua
@@ -32,7 +32,6 @@ local filter = {
 		m_simpleTV.Http.SetTimeout(session, 8000)
 		local url = decode64('aHR0cHM6Ly9zdGF0aWMtYXBpLm1lZGlhdml0cmluYS5ydS92MS92aXRyaW5hdHZfYXBwL3dlYi8zL2NvbmZpZy5qc29u')
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
-		m_simpleTV.Http.Close(session)
 			if rc ~= 200 then return end
 		answer = answer:gsub('\\', '\\\\')
 		answer = answer:gsub('\\"', '\\\\"')
@@ -47,7 +46,6 @@ local filter = {
 			then
 			 return
 			end
-
 		local t = {}
 			for i = 1, #tab.result.channels do
 				t[#t + 1] = {}
@@ -55,7 +53,27 @@ local filter = {
 				t[#t].address = tab.result.channels[i].web_player_url
 				t[#t].logo = tab.result.channels[i].channel_img.active
 			end
-	 return t
+		local t1 = {}
+			for i = 1, #t do
+				local plusCh = nil
+				local rc, answer = m_simpleTV.Http.Request(session, {url = t[i].address})
+				if rc == 200 then
+					for title, adr in answer:gmatch('{%s*"title":%s*"([^"]+)"%s*,%s*"streams_api_url":%s*"([^"]+)') do
+						t1[#t1 + 1] = {}
+						title = unescape3(title)
+						title = title:gsub('МСК', ''):gsub('Часовые пояса', ''):gsub('%.', ''):gsub('Ext', ''):gsub('%+0', '')
+						t1[#t1].name = title
+						t1[#t1].address = adr:gsub('\\/', '/')
+						t1[#t1].logo = t[i].logo
+						plusCh = true
+					end
+				end
+				if not plusCh then
+					t1[#t1 + 1] = {}
+					t1[#t1] = t[i]
+				end
+			end
+	 return t1
 	end
 	function GetList(UpdateID, m3u_file)
 			if not UpdateID then return end
