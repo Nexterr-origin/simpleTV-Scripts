@@ -5,7 +5,11 @@
 -- https://uma.media/play/embed/636ffab27c5a4a9cd5f9a40b2e70ea88
 -- https://bl.uma.media/live/410338/HLS/6307840_7,4280320_6,2703360_5,1408000_4,1070080_3,732160_2,394240_1/2/1/playlist.m3u8
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('^https?://[%w%-%.]*uma%.media') then return end
+		if not m_simpleTV.Control.CurrentAddress:match('^https?://uma%.media')
+			and not m_simpleTV.Control.CurrentAddress:match('^https?://bl%.uma%.media')
+		then
+		 return
+		end
 		if m_simpleTV.Control.CurrentAddress:match('PARAMS=umaMedia') then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	if m_simpleTV.Control.MainMode == 0 then
