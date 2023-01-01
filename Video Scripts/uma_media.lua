@@ -1,34 +1,34 @@
--- видеоскрипт для сайта https://uma.media (18/3/22)
--- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта https://uma.media (1/1/23)
+-- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
--- https://uma.media/video/dcab9b90a33239837c0f71682d6606da$OPT:http-referrer=https://2x2tv.ru/online/
+-- https://uma.media/play/embed/dcab9b90a33239837c0f71682d6606da$OPT:http-referrer=https://2x2tv.ru/online/
 -- https://uma.media/play/embed/636ffab27c5a4a9cd5f9a40b2e70ea88
--- ##
+-- https://bl.uma.media/live/410338/HLS/6307840_7,4280320_6,2703360_5,1408000_4,1070080_3,732160_2,394240_1/1613013807/79ad96b5b87fdce129191b83aaf2fb46/playlist.m3u8
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('^https?://uma%.media') then return end
+		if not m_simpleTV.Control.CurrentAddress:match('^https?://[%w%-%.]*uma%.media') then return end
+		if m_simpleTV.Control.CurrentAddress:match('PARAMS=umaMedia') then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local id = inAdr:match('/video/(%w+)') or inAdr:match('/embed/(%w+)')
-		if not id then return end
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:98.0) Gecko/20100101 Firefox/98.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
-	local refer = inAdr:match('$OPT:http%-referrer=(.+)') or inAdr
-	local retAdr = 'https://uma.media/api/play/options/' .. id .. '/?format=json'
-	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr, headers = 'Referer: ' .. refer})
+	if not inAdr:match('%.m3u8') then
+		local id = inAdr:match('/video/(%w+)') or inAdr:match('/embed/(%w+)')
+			if not id then return end
+		local refer = inAdr:match('$OPT:http%-referrer=(.+)') or inAdr
+		inAdr = 'https://uma.media/api/play/options/' .. id .. '/?format=json'
+		local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr, headers = 'Referer: ' .. refer})
+			if rc ~= 200 then return end
+		inAdr = answer:match('"hls":%[{"url":"([^"]+)')
+			if not inAdr then return end
+	end
+	local extOpt = '$OPT:INT-SCRIPT-PARAMS=umaMedia'
+	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
 		if rc ~= 200 then return end
-	retAdr = answer:match('"hls":%[{"url":"([^"]+)')
-		if not retAdr then return end
-	rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
-	m_simpleTV.Http.Close(session)
-		if rc ~= 200 then
-			m_simpleTV.Control.CurrentAddress = retAdr
-		 return
-		end
 	local t0 = {}
 		for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-\n.-)\n') do
 			local url = w:match('\n(.+)')
@@ -47,11 +47,11 @@
 				if not url:match('^http') then
 					url = retAdr:gsub('^(.+/).-%?.-$', '%1') .. url
 				end
-				t0[#t0].Address = url
+				t0[#t0].Address = url .. extOpt
 			end
 		end
 		if #t0 == 0 then
-			m_simpleTV.Control.CurrentAddress = retAdr
+			m_simpleTV.Control.CurrentAddress = inAdr .. extOpt
 		 return
 		end
 	table.sort(t0, function(a, b) return a.Id < b.Id end)
@@ -69,10 +69,6 @@
 		t[#t].Id = 20000
 		t[#t].Name = '▫ всегда высокое'
 		t[#t].Address = t[#t - 1].Address
-		t[#t + 1] = {}
-		t[#t].Id = 50000
-		t[#t].Name = '▫ адаптивное'
-		t[#t].Address = retAdr
 		index = #t
 			for i = 1, #t do
 				if t[i].Id >= lastQuality then
