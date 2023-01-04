@@ -1,5 +1,5 @@
--- скрапер TVS для загрузки плейлиста "LimeHD" https://new.info-link.ru (11/4/20)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- скрапер TVS для загрузки плейлиста "LimeHD" https://limehd.tv (4/1/23)
+-- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: limeHD.lua
 -- расширение дополнения httptimeshift: limehd-timeshift_ext.lua
@@ -108,14 +108,12 @@ local filter = {
 						and tab.channels[j].day_archive
 						and tab.channels[j].day_archive > 0
 					then
-						t[i].RawM3UString = 'catchup="flussonic" catchup-days="' .. tab.channels[j].day_archive
-												.. '" catchup-source=""'
+						t[i].RawM3UString = 'catchup="append" catchup-days="' .. tab.channels[j].day_archive .. '" catchup-source=""'
 					end
 					i = i + 1
 				end
 				j = j + 1
 			end
-			if i == 1 then return end
 	 return t
 	end
 	function GetList(UpdateID, m3u_file)
@@ -124,17 +122,7 @@ local filter = {
 			if not TVSources_var.tmp.source[UpdateID] then return end
 		local Source = TVSources_var.tmp.source[UpdateID]
 		local t_pls = LoadFromSite()
-			if not t_pls then
-				m_simpleTV.OSD.ShowMessageT({text = Source.name .. ' - ошибка загрузки плейлиста'
-											, color = 0xffff6600
-											, showTime = 1000 * 5
-											, id = 'channelName'})
-			 return
-			end
-		m_simpleTV.OSD.ShowMessageT({text = Source.name .. ' (' .. #t_pls .. ')'
-									, color = 0xff99ff99
-									, showTime = 1000 * 5
-									, id = 'channelName'})
+			if not t_pls or #t_pls == 0 then return end
 		t_pls = ProcessFilterTableLocal(t_pls)
 		local m3ustr = tvs_core.ProcessFilterTable(UpdateID, Source, t_pls)
 		local handle = io.open(m3u_file, 'w+')
