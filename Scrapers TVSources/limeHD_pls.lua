@@ -1,60 +1,13 @@
--- скрапер TVS для загрузки плейлиста "LimeHD" https://limehd.tv (4/1/23)
+-- скрапер TVS для загрузки плейлиста "LimeHD" https://limehd.tv (5/1/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: limeHD.lua
 -- расширение дополнения httptimeshift: limehd-timeshift_ext.lua
 -- ## переименовать каналы ##
 local filter = {
-	{'Солнечногорск ТВ', 'Солнечногорск ТВ (Солнечногорск)'},
-	{'Миллет (Крым)', 'Миллет (Симферополь)'},
-	{'360° Новости', '360 Новости (Москва)'},
-	{'47 канал (Санкт-Петербург)', 'Лен ТВ 24 (Санкт-Петербург)'},
-	{'Bridge TV Russian Hit', 'BRIDGE TV Русский Хит'},
-	{'O2TV', 'О2ТВ'},
-	{'rodnoe', 'Родное кино'},
-	{'Аист ТВ (Иркутск)', 'АИСТ (Иркутск)'},
-	{'БИМ ТВ', 'BIM TV'},
-	{'БСТ (Уфа)', 'БСТ (Челябинск)'},
-	{'Вся Уфа', 'Вся Уфа (Уфа)'},
-	{'Губерния 33 (Владимир)', 'Губерния-33 (Владимир)'},
-	{'Губерния Самарская', 'Губерния (Самара)'},
-	{'Губерния ТВ (Воронеж)', 'ТВ-Губерния (Воронеж)'},
-	{'Дагестан', 'Дагестан (Махачкала)'},
-	{'Дорама', 'Dorama'},
-	{'ЗабТВ (Чита)', 'Заб.TV (Чита)'},
-	{'ИКС-ТВ (Крым)', 'ИКС (Севастополь)'},
-	{'Ингушетия', 'Ингушетия (Магас)'},
-	{'Каскад24 (Калининград)', 'Каскад 24 (Калининград)'},
-	{'Катунь-24 (Барнаул)', 'Катунь 24 (Барнаул)'},
-	{'Краснодар он-лайн', 'Краснодар он-лайн (Краснодар)'},
-	{'Крик ТВ', 'Крик ТВ (Екатеринбург)'},
 	{'ЛДПР LIVE', 'ЛДПР ТВ'},
 	{'Липецкое время', 'Липецкое время (Липецк)'},
-	{'Луч (ЯНАО)', 'Луч (Тарко-Сале)'},
-	{'Метео ТВ', 'Первый Метео'},
-	{'Мордовия 24', 'Мордовия 24 (Саранск)'},
-	{'ОРТ-Планета (Оренбург)', 'ОРТ Планета (Оренбург)'},
-	{'ОТВ Екатеринбург', 'ОТВ (Екатеринбург)'},
-	{'ОТС Новосибирск', 'ОТС (Новосибирск)'},
-	{'Осетия Ирыстон (Владикавказ)', 'Осетия-Ирыстон (Владикавказ)'},
-	{'Первый Волгоградский', 'Первый Волгоградский канал/МТВ (Волгоград)'},
-	{'Первый Крымский', 'Первый Крымский (Симферополь)'},
-	{'Первый студенческий канал', 'UniverTV'},
-	{'Приморье', 'ОТВ (Приморье)'},
-	{'Русский Хит', 'Bridge TV Русский хит'},
-	{'Рыбинск-40', 'Рыбинск-40 (Рыбинск)'},
-	{'ТВ Тур', 'ТВТУР'},
-	{'ТКР Рязань', 'ТКР (Рязань)'},
-	{'ТНВ Планета', 'ТНВ-Планета (Казань)'},
-	{'ТНВ Татарстан', 'ТНВ-Татарстан (Казань)'},
-	{'Тонус ТВ', 'Здоровье'},
-	{'Тонус', 'Здоровье'},
-	{'Фреш тв', 'FreshTV'},
-	{'Чăваш Ен (Чувашия)', 'Чaваш Ен (Чебоксары)'},
-	{'ЮТВ (Чувашия)', 'ЮТВ (Чебоксары)'},
-	{'Юрган ТВ (Сыктывкар)', 'Юрган (Сыктывкар)'},
 	}
--- ##
 	module('limeHD_pls', package.seeall)
 	local my_src_name = 'LimeHD'
 	local function ProcessFilterTableLocal(t)
@@ -70,49 +23,36 @@ local filter = {
 	 return t
 	end
 	function GetSettings()
-		local scrap_settings = {name = my_src_name, sortname = '', scraper = '', m3u = 'out_' .. my_src_name .. '.m3u', logo = '..\\Channel\\logo\\Icons\\LimeHD.png', TypeSource = 1, TypeCoding = 1, DeleteM3U = 1, RefreshButton = 1, show_progress = 0, AutoBuild = 0, AutoBuildDay = {0, 0, 0, 0, 0, 0, 0}, LastStart = 0, TVS = {add = 0, FilterCH = 1, FilterGR = 1, GetGroup = 1, LogoTVG = 1}, STV = {add = 1, ExtFilter = 1, FilterCH = 1, FilterGR = 1, GetGroup = 1, HDGroup = 1, AutoSearch = 1, AutoNumber = 1, NumberM3U = 0, GetSettings = 1, NotDeleteCH = 0, TypeSkip = 1, TypeFind = 1, TypeMedia = 0}}
-	 return scrap_settings
+	 return {name = my_src_name, sortname = '', scraper = '', m3u = 'out_' .. my_src_name .. '.m3u', logo = '..\\Channel\\logo\\Icons\\limehd.png', TypeSource = 1, TypeCoding = 1, DeleteM3U = 1, RefreshButton = 1, AutoBuild = 0, AutoBuildDay = {0, 0, 0, 0, 0, 0, 0}, LastStart = 0, TVS = {add = 1, FilterCH = 1, FilterGR = 1, GetGroup = 1, LogoTVG = 1}, STV = {add = 1, ExtFilter = 1, FilterCH = 1, FilterGR = 1, GetGroup = 1, HDGroup = 0, AutoSearch = 1, AutoNumber = 0, NumberM3U = 0, GetSettings = 1, NotDeleteCH = 0, TypeSkip = 1, TypeFind = 1, TypeMedia = 0, RemoveDupCH = 1}}
 	end
 	function GetVersion()
 	 return 2, 'UTF-8'
 	end
 	local function LoadFromSite()
-		local session = m_simpleTV.Http.New(decode64('eyJwbGF0Zm9ybSI6ImFuZHJvaWQiLCJhcHAiOiJjb20uaW5mb2xpbmsubGltZWlwdHYiLCJ2ZXJzaW9uX25hbWUiOiIzLjMuMyIsInZlcnNpb25fY29kZSI6IjI1NiIsInNkayI6IjI5IiwibmFtZSI6InNka19waG9uZV94ODZfNjQrQW5kcm9pZCBTREsgYnVpbHQgZm9yIHg4Nl82NCIsImRldmljZV9pZCI6IjAwMEEwMDBBMDAwQTAwMEEifQ'))
+		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 			if not session then return end
-		m_simpleTV.Http.SetTimeout(session, 12000)
-		local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9wbC5pcHR2MjAyMS5jb20vYXBpL3YxL3BsYXlsaXN0') .. '?t=' .. os.time(), method = 'post', body = '"tz":"3"', headers = 'X-Token:'})
-		m_simpleTV.Http.Close(session)
+		m_simpleTV.Http.SetTimeout(session, 8000)
+		local url = 'https://api.iptv2021.com/v1/channels/by_group/11?locale=ru'
+		local headers = decode64('WC1BY2Nlc3MtS2V5OiAxMGFhMDkxMTQ1ODhhNWY3NTBlYWVkNWU5ZGU1MzcwNGM4NThlMTQ0')
+		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
 			if rc ~= 200 then return end
-			if not answer:match('^{') then return end
 		answer = answer:gsub('%[%]', '""')
 		require 'json'
-		local tab = json.decode(answer)
+		local err, tab = pcall(json.decode, answer)
 			if not tab
-				or not tab.channels
+				or not tab.data
 			then
 			 return
 			end
 		local t, i = {}, 1
-		local j = 1
-			while tab.channels[j] do
-				if tab.channels[j].url
-					and tab.channels[j].url ~= ''
-				then
-					t[i] = {}
-					t[i].name = tab.channels[j].name_ru
-					t[i].address = 'https://infolink/' .. tab.channels[j].id
-					-- t[i].logo = tab.channels[j].image
-					if tab.channels[j].with_archive == true
-						and tab.channels[j].url_archive
-						and tab.channels[j].url_archive ~= ''
-						and tab.channels[j].day_archive
-						and tab.channels[j].day_archive > 0
-					then
-						t[i].RawM3UString = 'catchup="append" catchup-days="' .. tab.channels[j].day_archive .. '" catchup-source=""'
-					end
-					i = i + 1
-				end
-				j = j + 1
+			while tab.data[i] do
+				t[#t + 1] = {}
+				t[#t].name = tab.data[i].attributes.name
+				t[#t].address = 'https://infolink/' .. tab.data[i].attributes.streams[1].id
+				t[#t].logo = tab.data[i].attributes.image_url
+				local archive_minutes = tab.data[i].attributes.streams[1].archive_hours * 60
+				t[#t].RawM3UString = 'catchup="append" catchup-minutes="' .. archive_minutes .. '" catchup-source=""'
+				i = i + 1
 			end
 	 return t
 	end
