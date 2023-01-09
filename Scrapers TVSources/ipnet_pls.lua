@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "Ipnet" https://ipnet.ua (10/1/23)
+-- скрапер TVS для загрузки плейлиста "Ipnet" https://tv.ipnet.ua (10/1/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## переименовать каналы ##
 local filter = {
