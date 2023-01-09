@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "Винтера" https://vintera.tv (9/1/23)
+-- видеоскрипт для плейлиста "Винтера" https://vintera.tv (10/1/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: vinteratv_pls.lua
@@ -97,6 +97,7 @@
 	local retAdr = getStream(id, t)
 		if not retAdr then return end
 	retAdr = retAdr:match('https?:[^\\"]+')
+		if not retAdr then return end
 	m_simpleTV.Control.CurrentAddress = retAdr
 	if retAdr:match('mediavitrina') then
 		m_simpleTV.Control.ChangeAddress = 'No'
