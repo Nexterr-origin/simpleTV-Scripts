@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "Inetcom" https://inetcom.tv (3/1/23)
+-- видеоскрипт для плейлиста "Inetcom" https://inetcom.tv (9/1/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: inetcom_pls.lua
@@ -23,9 +23,8 @@
 		local err, tab = pcall(json.decode, answer)
 			if not tab then return end
 		local stream
-		local t = {}
 			for i = 1, #tab do
-				if tonumber(id) == tab[i].id then
+				if tonumber(id) == tonumber(tab[i].id) then
 					stream = tab[i].streams.hls
 				 break
 				end
