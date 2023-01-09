@@ -1,43 +1,105 @@
--- видеоскрипт для плейлиста "Винтера" http://www.vintera.tv (7/3/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для плейлиста "Винтера" https://vintera.tv (9/1/23)
+-- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: vinteratv_pls.lua
+-- видоскрипт: mediavitrina.lua
 -- ## открывает подобные ссылки ##
--- http://serv25.vintera.tv:8081/restream/rusk/playlist.m3u8?wmsAuthSign=c2Vyd1pbnV0ZXM9NDgw&tvin
--- ##
+-- https://www.vinteratv.com/?channel=569
+-- https://www.vinteratv.com/?channel=726
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('&tvin$') then return end
-	local inAdr = m_simpleTV.Control.CurrentAddress
+		if not m_simpleTV.Control.CurrentAddress:match('^https?://www%.vinteratv%.com/%?channel=%d') then return end
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
 	end
-	if not m_simpleTV.User then
-		m_simpleTV.User = {}
-	end
- 	if not m_simpleTV.User.vinteraTV then
-		m_simpleTV.User.vinteraTV = {}
-	end
+	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local ua = 'Mozilla/5.0 (Linux; Android 5.1.1; Nexus 4 Build/LMY48T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.89 Mobile Safari/537.36'
-	local session = m_simpleTV.Http.New(ua)
-		if not session then return end
-	m_simpleTV.Http.SetTimeout(session, 8000)
-	local retAdr = inAdr:gsub('&tvin$', '')
-	if m_simpleTV.User.vinteraTV.token then
-		retAdr = retAdr:gsub('wmsAuthSign=.+', 'wmsAuthSign=' .. m_simpleTV.User.vinteraTV.token)
+	local function getStreamTab()
+		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
+			if not session then return end
+		m_simpleTV.Http.SetTimeout(session, 8000)
+		require 'json'
+			local function GetTab(url)
+				url = decode64(url)
+				local rc, answer = m_simpleTV.Http.Request(session, {url = url})
+					if rc ~= 200 then return end
+				answer = answer:gsub('\\', '\\\\')
+				answer = answer:gsub('\\"', '\\\\"')
+				answer = answer:gsub('\\/', '/')
+				answer = answer:gsub('%[%]', '""')
+				answer = unescape3(answer)
+				local err, tab = pcall(json.decode, answer)
+				local t = {}
+				if url:match('premium') then
+						if not tab
+							or not tab.package
+						then
+						 return
+						end
+					local j = 1
+						while tab.package[j] do
+							local i = 1
+								while tab.package[j].trackList.track[i] do
+							t[#t + 1] = {}
+							t[#t].id = tab.package[j].trackList.track[i].id
+							t[#t].address = tab.package[j].trackList.track[i].location
+							i = i + 1
+						end
+						j = j + 1
+					end
+				else
+						if not tab
+							or not tab.trackList
+							or not tab.trackList.track
+						then
+						 return
+						end
+					local i = 1
+						while tab.trackList.track[i] do
+							t[#t + 1] = {}
+							t[#t].id = tab.trackList.track[i].id
+							t[#t].address = tab.trackList.track[i].location
+							i = i + 1
+						end
+					end
+			 return t
+			end
+			local function tables_concat(t1, t2)
+				local t3 = {unpack(t1)}
+				local p = #t3
+					for i = 1, #t2 do
+						p = p + 1
+						t3[p] = t2[i]
+					end
+			 return t3
+			end
+		local tab1 = GetTab('aHR0cHM6Ly94bWwudmludGVyYS50di93aWRnZXRfYXBpL2ludGVybmV0dHYueG1sP2Zvcm1hdD1qc29uJmxhbmc9cnU') or {}
+		local tab2 = GetTab('aHR0cHM6Ly94bWwudmludGVyYS50di93aWRnZXRfYXBpL3Byb3Z0di54bWw/Zm9ybWF0PWpzb24mbGFuZz1ydQ') or {}
+		local tab3 = GetTab('aHR0cHM6Ly94bWwudmludGVyYS50di93aWRnZXRfYXBpL3ByZW1pdW0vcGFja2FnZXNfcnUueG1sP2Zvcm1hdD1qc29uJmxhbmc9cnU') or {}
+		local tab = tables_concat(tab1, tab2)
+		tab = tables_concat(tab, tab3)
+		m_simpleTV.Http.Close(session)
+	 return tab
 	end
-	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
-		if rc == 200 then
-			m_simpleTV.Http.Close(session)
-			m_simpleTV.Control.CurrentAddress = retAdr .. '$OPT:http-user-agent=' .. ua
-	 	 return
-		end
-	local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cDovL3htbC52aW50ZXJhLnR2L2FuZHJvaWRfdjA1MTcvaW50ZXJuZXR0di54bWw=')})
-	m_simpleTV.Http.Close(session)
-		if rc ~= 200 then return end
-	m_simpleTV.User.vinteraTV.token = answer:match('wmsAuthSign=(.-)</')
-		if not m_simpleTV.User.vinteraTV.token then return end
-	retAdr = retAdr:gsub('wmsAuthSign=.+', 'wmsAuthSign=' .. m_simpleTV.User.vinteraTV.token) .. '$OPT:http-user-agent=' .. ua
+	local function getStream(id, t)
+		local stream
+			for i = 1, #t do
+				if tonumber(id) == tonumber(t[i].id) then
+					stream = t[i].address
+				 break
+				end
+			end
+	 return stream
+	end
+	local t = getStreamTab()
+		if not t or #t == 0 then return end
+	local id = inAdr:match('%d+')
+	local retAdr = getStream(id, t)
+		if not retAdr then return end
+	retAdr = retAdr:match('https?:[^\\"]+')
 	m_simpleTV.Control.CurrentAddress = retAdr
+	if retAdr:match('mediavitrina') then
+		m_simpleTV.Control.ChangeAddress = 'No'
+		dofile(m_simpleTV.MainScriptDir .. 'user\\video\\video.lua')
+	end
 -- debug_in_file(retAdr .. '\n')
