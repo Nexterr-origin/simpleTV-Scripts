@@ -1,9 +1,10 @@
 -- скрапер TVS для загрузки плейлиста "Ipnet" https://tv.ipnet.ua (10/1/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- ## необходим ##
+-- видоскрипт: ipnet.lua
 -- ## переименовать каналы ##
 local filter = {
-	{'ЛДПР LIVE', 'ЛДПР ТВ'},
-	{'Липецкое время', 'Липецкое время (Липецк)'},
+	{'', ''},
 	}
 	module('ipnet_pls', package.seeall)
 	local my_src_name = 'Ipnet'
@@ -26,8 +27,7 @@ local filter = {
 	 return 2, 'UTF-8'
 	end
 	local function LoadFromSite()
-		local ua = 'Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0'
-		local session = m_simpleTV.Http.New(ua)
+		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 8000)
 		local url = decode64('aHR0cHM6Ly9hcGktdHYuaXBuZXQudWEvYXBpL3YyL29ubGluZS10di9jaGFubmVscw')
@@ -48,7 +48,7 @@ local filter = {
 			while tab.data.categories[1].channels[i] do
 				t[#t + 1] = {}
 				t[#t].name = tab.data.categories[1].channels[i].name
-				t[#t].address = tab.data.categories[1].channels[i].url .. '$OPT:http-referrer=https://tv.ipnet.ua/$OPT:http-user-agent=' .. ua
+				t[#t].address = tab.data.categories[1].channels[i].url
 				t[#t].logo = tab.data.categories[1].channels[i].icon_url
 				if tab.data.categories[1].channels[i].is_tshift_allowed == true then
 					local archive_minutes = (tab.data.categories[1].channels[i].tshift_duration or 0) / 60
