@@ -1,5 +1,5 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (19/11/22)
--- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта http://www.kinopoisk.ru , https://www.imdb.com (11/1/23)
+-- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
 -- iviru.lua, videocdn.lua, hdvb.lua, collaps.lua, cdnmovies.lua, voidboost.lua
@@ -14,6 +14,7 @@
 -- https://hd.kinopoisk.ru/film/456c0edc4049d31da56036a9ae1484f4
 -- http://rating.kinopoisk.ru/7378.gif
 -- https://www.kinopoisk.ru/series/733493/
+-- https://www.imdb.com/title/tt13456976
 -- ## сайт / зеркало filmix.ac ##
 local filmixsite = 'https://filmix.ac'
 -- 'https://filmix.life' (пример)
@@ -34,11 +35,16 @@ local tname = {
 	'Seasonvar',
 	}
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('^https?://[%w%.]*kinopoisk%.ru/.+') then return end
+		if not m_simpleTV.Control.CurrentAddress:match('^https?://[%w%.]*kinopoisk%.ru/.+')
+			and not m_simpleTV.Control.CurrentAddress:match('^https?://www%.imdb%.com/.+')
+		then
+		 return
+		end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 		if not inAdr:match('/film')
 			and not inAdr:match('//rating%.')
 			and not inAdr:match('/series/')
+			and not inAdr:match('/tt%d+')
 		then
 		 return
 		end
@@ -69,8 +75,12 @@ local tname = {
 		inAdr = 'https://www.kinopoisk.ru/film/' .. id
 	end
 	inAdr = inAdr:gsub('/watch/.+', ''):gsub('/watch%?.+', ''):gsub('/sr/.+', '')
+	local imdbId = inAdr:match('imdb%.com/title/([^/]+)')
 	local kpid = inAdr:match('.+%-(%d+)') or inAdr:match('/film//?(%d+)') or inAdr:match('%d+')
-		if not kpid then return end
+		if not (kpid or imdbId) then return end
+	if imdbId then
+		tname = {'VideoApi',}
+	end
 	local turl, svar, t, rett = {}, {}, {}, {}
 	local usvar, i, u = 1, 1, 1
 	local serial, year, title, desc, rating_kp, rating_imdb, rc, answer, retAdr, altTitle
@@ -243,11 +253,17 @@ local tname = {
 				if rc ~= 200 then return end
 			return answer:match('"path":"([^"]+)')
 		elseif url:match('videocdn%.tv') then
+			if imdbId then
+				rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly81MTYzLnN2ZXRhY2RuLmluL2FwaS9zaG9ydD9hcGlfdG9rZW49Rm5rSDlocVlwZUU0dHJINjJrYng2T293TnJpM2FhbVomaW1kYl9pZD0') .. imdbId})
+					if rc ~= 200 then return end
+				title = answer:match('"title":"([^"]+)')
+			 return answer:match('"iframe_src":"([^"]+)')
+			end
 			rc, answer = m_simpleTV.Http.Request(session, {url = url})
 				if rc ~= 200 then return end
 			local imdbid = answer:match('"imdb_id":"([^"]+)')
 				if not imdbid then return end
-				local url_videoapi = decode64('aHR0cHM6Ly81MTYzLnN2ZXRhY2RuLmluL2FwaS9zaG9ydD9hcGlfdG9rZW49Rm5rSDlocVlwZUU0dHJINjJrYng2T293TnJpM2FhbVomaW1kYl9pZD0') .. imdbid
+			local url_videoapi = decode64('aHR0cHM6Ly81MTYzLnN2ZXRhY2RuLmluL2FwaS9zaG9ydD9hcGlfdG9rZW49Rm5rSDlocVlwZUU0dHJINjJrYng2T293TnJpM2FhbVomaW1kYl9pZD0') .. imdbid
 			rc, answer = m_simpleTV.Http.Request(session, {url = url_videoapi})
 				if rc ~= 200 then return end
 			return answer:match('"iframe_src":"([^"]+)')
