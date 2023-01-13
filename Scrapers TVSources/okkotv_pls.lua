@@ -1,9 +1,13 @@
--- скрапер TVS для загрузки плейлиста "okkotv" (19/1/22)
--- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- скрапер TVS для загрузки плейлиста "okkotv" https://okko.tv (12/11/23)
+-- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- ## необходим ##
+-- видоскрипт: okkotv.lua
 -- ## переименовать каналы ##
-local filter= {
+local filter = {
 	{'TV1000 Kino', 'TV1000 Русское кино'},
 	{'МузТВ', 'Муз-ТВ'},
+	{'МузТВ', 'Муз-ТВ'},
+	{'Fox life', 'САПФИР'},
 	}
 	module('okkotv_pls', package.seeall)
 	local my_src_name = 'okkotv'
