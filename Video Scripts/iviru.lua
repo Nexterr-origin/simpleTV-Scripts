@@ -1,5 +1,5 @@
--- видеоскрипт для сайта http://www.ivi.ru (17/2/22)
--- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта http://www.ivi.ru (15/1/23)
+-- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://www.ivi.ru/watch/svaty_4
 -- https://www.ivi.ru/watch/126896
@@ -113,6 +113,10 @@ local qlty = 0 -- качество: 0 - максимал.; 1 - Низкое; 2 -
 		end
 	 return retAdr
 	end
+	local psevdotv
+	if inAdr:match('PARAMS=psevdotv') then
+		psevdotv = true
+	end
 	inAdr = inAdr:gsub('$OPT.-$', '')
 	local videoid = inAdr:match('/id=(%d+)')
 	local title
@@ -205,7 +209,7 @@ local qlty = 0 -- качество: 0 - максимал.; 1 - Низкое; 2 -
 			t1[1].Id = 1
 			t1[1].Name = title
 			t1[1].Address = 'https://www.ivi.ru/id=' .. compilation
-			if not inAdr:match('PARAMS=psevdotv') then
+			if not psevdotv then
 				t1.ExtButton0 = {ButtonEnable = true, ButtonName = '⚙', ButtonScript = 'GetMovieQuality()'}
 				t1.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
 				m_simpleTV.OSD.ShowSelect_UTF8('ivi', 0, t1, 5000, 64+32+128)
@@ -219,7 +223,7 @@ local qlty = 0 -- качество: 0 - максимал.; 1 - Низкое; 2 -
 			m_simpleTV.Control.CurrentAddress = 'https://s3.ap-south-1.amazonaws.com/ttv-videos/InVideo___This_is_where_ypprender_1554571391885.mp4'
 		 return
 		end
-	if inAdr:match('PARAMS=psevdotv') then
+	if psevdotv then
 		local t = m_simpleTV.Control.GetCurrentChannelInfo()
 		if t and t.MultiHeader then
 			title = t.MultiHeader .. ': ' .. title
@@ -229,7 +233,7 @@ local qlty = 0 -- качество: 0 - максимал.; 1 - Низкое; 2 -
 		m_simpleTV.Control.CurrentTitle_UTF8 = title
 	end
 	m_simpleTV.OSD.ShowMessageT({text = title, showTime = 1000 * 5, id = 'channelName'})
-	if inAdr:match('PARAMS=psevdotv') then
+	if psevdotv then
 		retAdr = retAdr .. '$OPT:NO-SEEKABLE'
 	end
 	retAdr = retAdr .. '$OPT:POSITIONTOCONTINUE=0'
