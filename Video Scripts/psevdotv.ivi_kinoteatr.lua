@@ -25,7 +25,7 @@
 	local tab, v = {}, 1
 	local k = 0
 		for i = 1, 22 do
-			local pls = 'https://api2.ivi.ru/mobileapi/catalogue/v7/?category=14&paid_type=AVOD&fields=id,kind,drm_only,share_link&from=' .. k .. '&to=' .. (100 + k)
+			local pls = 'https://api2.ivi.ru/mobileapi/catalogue/v7/?category=14&paid_type=AVOD&fields=kind,drm_only,share_link&from=' .. k .. '&to=' .. (100 + k)
 			local rc, answer = m_simpleTV.Http.Request(session, {url = pls})
 				if rc ~= 200 then break end
 				if not answer:match('^{"result":%[{') then break end
@@ -39,7 +39,7 @@
 				end
 			local j = 1
 				while t.result[j] do
-					if t.result[j].kind == 1 and t.result[j].id and t.result[j].drm_only == false then
+					if t.result[j].kind == 1 and t.result[j].drm_only == false then
 						tab[v] = {}
 						tab[v].Id = v
 						tab[v].Address = t.result[j].share_link .. '$OPT:INT-SCRIPT-PARAMS=psevdotv'
