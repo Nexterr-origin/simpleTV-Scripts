@@ -14,7 +14,7 @@
 		end
 	end
 	local function showError(str, color)
-		color = color or  ARGB(255, 255, 0, 0)
+		color = color or ARGB(255, 255, 0, 0)
 		m_simpleTV.OSD.ShowMessageT({text = 'ivi_kinoteatr: ' .. str, color = color, showTime = 1000 * 5, id = 'channelName'})
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
