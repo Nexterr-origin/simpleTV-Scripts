@@ -1,4 +1,4 @@
--- видеоскрипт "иви Кинотеатр" [псевдо тв] http://www.ivi.ru (15/1/23)
+-- видеоскрипт "Иви Кинотеатр" [псевдо тв] http://www.ivi.ru (22/1/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: psevdotv_pls.lua
@@ -10,12 +10,12 @@
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = '', UseLogo = 0, Once = 1})
 		if m_simpleTV.Control.ChannelID == 268435455 then
-			m_simpleTV.Control.ChangeChannelLogo('https://gambit-parent.dfs.ivi.ru/static/23.01.02/images/favicon/favicon.svg', m_simpleTV.Control.ChannelID)
+			m_simpleTV.Control.ChangeChannelLogo('https://gambit-parent.dfs.ivi.ru/static/23.01.04/images/apple/192x192-precomposed.png', m_simpleTV.Control.ChannelID)
 		end
 	end
 	local function showError(str, color)
 		color = color or ARGB(255, 255, 0, 0)
-		m_simpleTV.OSD.ShowMessageT({text = 'ivi_kinoteatr: ' .. str, color = color, showTime = 1000 * 5, id = 'channelName'})
+		m_simpleTV.OSD.ShowMessageT({text = 'Иви Кинотеатр: ' .. str, color = color, showTime = 1000 * 5, id = 'channelName'})
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
@@ -59,7 +59,7 @@
 	tab.ExtParams.PlayMode = 1
 	tab.ExtParams.StopOnError = 0
 	local plstIndex = math.random(#tab)
-	m_simpleTV.OSD.ShowSelect_UTF8('иви Кинотеатр', plstIndex - 1, tab, 0, 64 + 256)
+	m_simpleTV.OSD.ShowSelect_UTF8('Иви Кинотеатр', plstIndex - 1, tab, 0, 64 + 256)
 	m_simpleTV.Control.ChangeAddress = 'No'
 	m_simpleTV.Control.CurrentAddress = tab[plstIndex].Address
 	dofile(m_simpleTV.MainScriptDir .. 'user\\video\\video.lua')
