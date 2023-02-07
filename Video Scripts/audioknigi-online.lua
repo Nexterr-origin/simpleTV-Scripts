@@ -1,13 +1,10 @@
--- аудиоскрипт для сайта https://aknigionline.ru (7/3/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- аудиоскрипт для сайта https://aknigionline.ru (7/2/23)
+-- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
--- https://aknigionline.ru/31114-korshunov-pavel-zhestokaja-igra-ten-vojny.html
 -- https://audioknigi-online.ru/19544-aleksandr-djuma-tri-mushketera.html
--- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://audioknigi%-online%.ru')
 			and not m_simpleTV.Control.CurrentAddress:match('^$audioknigiOnline')
-			and not m_simpleTV.Control.CurrentAddress:match('^https?://aknigionline%.ru')
 		then
 		 return
 		end
@@ -22,7 +19,6 @@
 	local function showError(str)
 		m_simpleTV.OSD.ShowMessageT({text = 'audioknigi-online ошибка: ' .. str, showTime = 8000, color = 0xffff6600, id = 'channelName'})
 	end
-	inAdr = inAdr:gsub('//audioknigi%-online%.', '//aknigionline.')
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = ''
 		if inAdr:match('^$audioknigiOnline') then
@@ -41,11 +37,8 @@
 		 return
 		end
 	m_simpleTV.User.audioknigiOnline.DelayedAddress = nil
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.3945.121 Safari/537.36')
-		if not session then
-			showError('1')
-		 return
-		end
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
+		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local function ShowInfo(s)
 		local q = {}
@@ -81,7 +74,7 @@
 			local m3ustr = '#EXTM3U $ExtFilter="audioknigiOnline"\n'
 				for i = 1, #t do
 					name = t[i].Name
-					adr = t[i].Address:gsub('$audioknigiOnline', ''):gsub('$OPT.-$', '')
+					adr = t[i].Address:gsub('$audioknigiOnline', '')
 					m3ustr = m3ustr
 					.. '#EXTINF:-1 group-title="' .. header .. '"'
 					.. ' tvg-logo="' .. m_simpleTV.User.audioknigiOnline.logo .. '"'
@@ -92,7 +85,7 @@
 			header = m_simpleTV.Common.UTF8ToMultiByte(header)
 			header = header:gsub('%c', ''):gsub('[\\/"%*:<>%|%?]+', ' '):gsub('%s+', ' '):gsub('^%s*', ''):gsub('%s*$', '')
 			local fileEnd = ' (audioknigi-online ' .. os.date('%d.%m.%y') ..').m3u'
-			local folder = m_simpleTV.Common.GetMainPath(2) .. m_simpleTV.Common.UTF8ToMultiByte('сохраненые плейлисты/')
+			local folder = m_simpleTV.Common.GetMainPath(1) .. m_simpleTV.Common.UTF8ToMultiByte('сохраненые плейлисты/')
 			lfs.mkdir(folder)
 			local folderAk = folder .. 'audioknigi-online/'
 			lfs.mkdir(folderAk)
@@ -108,7 +101,7 @@
 		end
 	end
 	function OnMultiAddressOk_audioknigiOnline(Object, id)
-		if id == 0 then
+		if id == 1 then
 			OnMultiAddressCancel_audioknigiOnline(Object)
 		else
 			m_simpleTV.User.audioknigiOnline.DelayedAddress = nil
@@ -170,6 +163,7 @@
 						.. w:gsub('%c', ''):gsub('%s', '%%20'):gsub('\\', '/'):gsub('%?.-$', '')
 						.. '$OPT:POSITIONTOCONTINUE=0'
 						.. '$OPT:NO-STIMESHIFT'
+						.. '$OPT:http-referrer=https://audioknigi-online.ru/'
 			i = i + 1
 		end
 		if i == 1 then
@@ -192,6 +186,7 @@
 		m_simpleTV.User.audioknigiOnline.DelayedAddress = t[1].Address
 		retAdr = 'wait'
 		pl = 0
+		t.ExtParams.PlayMode = 1
 	end
 	m_simpleTV.OSD.ShowSelect_UTF8(header, 0, t, 10000, 2 + pl)
 	m_simpleTV.Control.CurrentTitle_UTF8 = header
