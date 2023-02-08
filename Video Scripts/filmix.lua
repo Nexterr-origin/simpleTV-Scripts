@@ -1,5 +1,5 @@
--- видеоскрипт для сайта https://filmix.ac (9/3/22)
--- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта https://filmix.ac (8/2/23)
+-- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## авторизация ##
 -- логин, пароль установить в 'Password Manager', для id - filmix
 -- ## необходим ##
@@ -240,7 +240,7 @@ local zer = ''
 		 return
 		end
 	inAdr = inAdr:gsub('&kinopoisk.+', '')
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:97.0) Gecko/20100101 Firefox/97.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 		if not session then
 			showError('5')
 		 return
@@ -288,7 +288,7 @@ local zer = ''
 		 return
 		end
 	playerjs_url = host .. playerjs_url
-	local url = host .. 'api/movies/player_data'
+	local url = host .. 'api/movies/player-data'
 	local rc, answer0 = m_simpleTV.Http.Request(session, {url = url, method = 'post', headers = 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8\nX-Requested-With: XMLHttpRequest\nReferer: ' .. inAdr, body = 'post_id=' .. id .. '&showfull=true' })
 		if rc ~= 200 then
 			m_simpleTV.Http.Close(session)
