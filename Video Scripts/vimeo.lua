@@ -1,5 +1,5 @@
--- видеоскрипт для сайта https://vimeo.com/watch (4/12/22)
--- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта https://vimeo.com/watch (24/2/23)
+-- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://vimeo.com/channels/musicvideoland/368152561
 -- https://vimeo.com/channels/staffpicks/204150149?autoplay=1
@@ -8,8 +8,8 @@
 -- https://player.vimeo.com/video/344303837?wmode=transparent$OPT:http-referrer=https://www.clubbingtv.com/video/play/4194/live-dj-set-with-dan-lo/
 -- https://vimeo.com/27945056
 -- https://vimeo.com/showcase/3717822/video/329792082
--- https://vimeo.com/718108412
 -- https://vimeo.com/771846252
+-- https://vimeo.com/801794678
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://[%a%.]*vimeo%.com/.+') then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
@@ -92,13 +92,24 @@
 		 return
 		end
 	local retAdr
-	if tab.request.files.hls.cdns.akamai_live then
-		retAdr = tab.request.files.hls.cdns.akamai_live.url
-	elseif tab.request.files.hls.cdns.akfire_interconnect_quic then
-		retAdr = tab.request.files.hls.cdns.akfire_interconnect_quic.avc_url
+	local noProgressive = true
+	if not tab.request.files.progressive
+		or not tab.request.files.progressive[1]
+		or not tab.request.files.progressive[1].url
+	then
+		if tab.request.files.hls.cdns.akamai_live then
+			retAdr = tab.request.files.hls.cdns.akamai_live.url
+		elseif tab.request.files.hls.cdns.akfire_interconnect_quic	then
+			retAdr = tab.request.files.hls.cdns.akfire_interconnect_quic.avc_url
+		else
+			retAdr = false
+		end
+	else
+		retAdr = true
+		noProgressive = false
 	end
 		if not retAdr then
-			showError('3')
+			showError('видео не найдено')
 		 return
 		end
 	local function Thumbs(thumbsInfo)
@@ -182,25 +193,34 @@
 			title = addTitle .. ' - ' .. title
 		end
 	end
-	rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
-	m_simpleTV.Http.Close(session)
-		if rc ~= 200 then
-			showError('нет видео')
-		 return
-		end
 	local t = {}
-	local extOpt = '$OPT:adaptive-use-avdemux'
+	if noProgressive then
+		retAdr = retAdr:gsub('\\u0026', '&')
+		rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
+		m_simpleTV.Http.Close(session)
+			if rc ~= 200 then
+				showError('3.1')
+			 return
+			end
 		for w in answer:gmatch('EXT%-X%-STREAM%-INF.-\n') do
 			local bw = w:match('[^%-]BANDWIDTH=(%d+)')
 			local res = w:match('RESOLUTION=%d+x(%d+)')
 			if bw and res then
-				bw = math.ceil(bw / 100000) * 100
-					t[#t + 1] = {}
-					t[#t].Id = bw
-					t[#t].Name = res .. 'p (' .. bw .. ' кбит/с)'
-					t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s%s', retAdr, bw, extOpt)
+				bw = bw / 1000
+				t[#t + 1] = {}
+				t[#t].Id = tonumber(res)
+				t[#t].Name = res .. 'p'
+				t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s', retAdr, bw)
 			end
 		end
+	else
+		for i = 1, #tab.request.files.progressive do
+			t[#t + 1] = {}
+			t[#t].Id = tonumber(tab.request.files.progressive[i].height)
+			t[#t].Name = tab.request.files.progressive[i].quality
+			t[#t].Address = tab.request.files.progressive[i].url
+		end
+	end
 		if #t == 0 then
 			showError('5')
 		 return
@@ -214,10 +234,6 @@
 		t[#t].Id = 20000
 		t[#t].Name = '▫ всегда высокое'
 		t[#t].Address = t[#t - 1].Address
-		t[#t + 1] = {}
-		t[#t].Id = 50000
-		t[#t].Name = '▫ адаптивное'
-		t[#t].Address = retAdr .. extOpt
 		index = #t
 			for i = 1, #t do
 				if t[i].Id >= lastQuality then
