@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "ОХ-АХ" http://oxax.tv (15/2/23)
+-- видеоскрипт для плейлиста "ОХ-АХ" http://oxax.tv (3/3/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: oxax_pls.lua
@@ -20,16 +20,16 @@
 	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
 		if rc ~= 200 then return end
 	answer = answer:gsub('%s', '')
-	local url = answer:match('%.get%(([^}]+)')
-		if not url then return end
-	url = url:gsub(':', '='):gsub('",{', '?'):gsub('"', '')
 	local host = inAdr:match('https?://[^/]+/')
 	local playerjs_url = answer:match('src="/([^"]+)"></script></head>')
 		if not playerjs_url then return end
-	url = host .. url
-	rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: ' .. inAdr})
-		if rc ~= 200 then return end
-	answer = answer:gsub('%s', '')
+	-- local url = answer:match('%.get%(([^}]+)')
+		-- if not url then return end
+	-- url = url:gsub(':', '='):gsub('",{', '?'):gsub('"', '')
+	-- url = host .. url
+	-- rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: ' .. inAdr})
+		-- if rc ~= 200 then return end
+	-- answer = answer:gsub('%s', '')
 	local retAdr = answer:match('Playerjs%("([^"]+)')
 		if not retAdr then return end
 	playerjs_url = host .. playerjs_url
