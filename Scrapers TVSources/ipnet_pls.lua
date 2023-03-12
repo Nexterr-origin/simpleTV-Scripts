@@ -1,7 +1,5 @@
--- скрапер TVS для загрузки плейлиста "Ipnet" https://tv.ipnet.ua (11/1/23)
+-- скрапер TVS для загрузки плейлиста "Ipnet" https://tv.ipnet.ua (12/3/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
--- ## необходим ## (если гео-блок)
--- видоскрипт: ipnet.lua
 -- ## переименовать каналы ##
 local filter = {
 	{'', ''},
@@ -44,19 +42,16 @@ local filter = {
 			then
 			 return
 			end
-		require 'lfs'
-		local videoScript = lfs.attributes(m_simpleTV.MainScriptDir_UTF8 .. '/user/video/ipnet.lua', 'size')
 		local t, i = {}, 1
 			while tab.data.categories[1].channels[i] do
 				t[#t + 1] = {}
 				t[#t].name = tab.data.categories[1].channels[i].name
 				t[#t].address = tab.data.categories[1].channels[i].url
 				t[#t].logo = tab.data.categories[1].channels[i].icon_url
-				if not videoScript then
-					if tab.data.categories[1].channels[i].is_tshift_allowed == true then
-						local archive_minutes = (tab.data.categories[1].channels[i].tshift_duration or 0) / 60
-						t[#t].RawM3UString = 'catchup="append" catchup-minutes="' .. archive_minutes .. ' catchup-source="?timeshift=${start}"'
-					end
+
+				if tab.data.categories[1].channels[i].is_tshift_allowed == true then
+					local archive_minutes = (tab.data.categories[1].channels[i].tshift_duration or 0) / 60
+					t[#t].RawM3UString = 'catchup="append" catchup-minutes="' .. archive_minutes .. ' catchup-source="?timeshift=${start}"'
 				end
 				i = i + 1
 			end
