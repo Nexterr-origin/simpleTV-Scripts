@@ -1,5 +1,5 @@
--- видеоскрипт для видеобазы "kodik" http://kodik.cc (22/8/22)
--- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для видеобазы "kodik" http://kodik.cc (20/3/23)
+-- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://hdrise.com/video/31756/445f20d7950d3df08f7574311e82521e/720p
 -- http://kodik.cc/serial/37405/ab75ddfb810d744aae16eb202f3a5330/720
@@ -39,7 +39,7 @@
 		m_simpleTV.User.kodik.qlty = tonumber(m_simpleTV.Config.GetValue('Kodik_qlty') or '10000')
 	end
 	local title
-	local refer = 'http://the-cinema.online/'
+	local refer = 'https://the-cinema.online/'
 	if m_simpleTV.User.kodik.Tabletitle and not psevdotv then
 		local index = m_simpleTV.Control.GetMultiAddressIndex()
 		if index then
@@ -85,7 +85,7 @@
 	 return index or 1
 	end
 	local function GetAddress(retAdr)
-		retAdr = retAdr:gsub('^//', 'http://')
+		retAdr = retAdr:gsub('^//', 'https://')
 		local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr, headers = 'Referer: ' .. refer})
 			if rc ~= 200 then return end
 		answer = answer:gsub('<!%-%-.-%-%->', '')
@@ -112,7 +112,7 @@
 			local script = answer:match('type="text/javascript".-src="([^"]+)')
 				if not script then return end
 			if not script:match('^http') then
-				script = 'http://' .. pd .. script
+				script = 'https://' .. pd .. script
 			end
 			rc, answer = m_simpleTV.Http.Request(session, {url = script, headers = 'Referer: ' .. refer})
 			local url = answer:match('url:atob%("([^"]+)')
@@ -130,7 +130,7 @@
 				.. '&type=' .. typ
 				.. '&hash=' .. hash
 				.. '&id=' .. id
-		rc, answer = m_simpleTV.Http.Request(session, {url = 'http://' .. pd .. m_simpleTV.User.kodik.url, method = 'post', headers = headers, body = body})
+		rc, answer = m_simpleTV.Http.Request(session, {url = 'https://' .. pd .. m_simpleTV.User.kodik.url, method = 'post', headers = headers, body = body})
 			if rc ~= 200 then return end
 	 return answer
 	end
@@ -142,7 +142,7 @@
 					t[#t].qlty = qlty
 					adr = string.reverse(adr)
 					adr = decode64(adr)
-					t[#t].Address = adr:gsub('^//', 'http://')
+					t[#t].Address = adr:gsub('^//', 'https://')
 				end
 			end
 			if #t == 0 then return end
