@@ -1,27 +1,24 @@
--- видеоскрипт для сайта https://more.tv (5/11/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта https://more.tv (21/3/23)
+-- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
--- https://more.tv/den_vyborov_2
--- https://more.tv/otel_eleon
+-- https://more.tv/kuriosa
+-- https://more.tv/eto_zhe_uchitel
+-- https://more.tv/marusya_trudnye_vzroslye
 -- https://more.tv/slava_bogu_ty_prishel/1_sezon/3_vypusk
--- ##
+-- https://more.tv/kuhnya
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-	local inAdr = m_simpleTV.Control.CurrentAddress
-		if not inAdr then return end
-		if not inAdr:match('^https?://more%.tv/')
-			and not inAdr:match('^$moretv')
+		if not m_simpleTV.Control.CurrentAddress:match('^https?://more%.tv/')
+			and not m_simpleTV.Control.CurrentAddress:match('^$moretv')
 		then
 		 return
 		end
 	local logo = 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/moretv.png'
 	m_simpleTV.OSD.ShowMessageT({text = '', showTime = 1000, id = 'channelName'})
-	if m_simpleTV.Control.MainMode == 0
-		and not inAdr:match('$moretv')
-		and not inAdr:match('PARAMS=psevdotv')
-	then
-		m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = logo, UseLogo = 1, Once = 1})
-	else
-		m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = '', UseLogo = 0, Once = 1})
+	local inAdr = m_simpleTV.Control.CurrentAddress
+	if not inAdr:match('^$moretv') then
+		if m_simpleTV.Control.MainMode == 0 then
+			m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = logo, UseLogo = 1, Once = 1})
+		end
 	end
 	if not m_simpleTV.User then
 		m_simpleTV.User = {}
@@ -32,7 +29,7 @@
 	require 'json'
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:94.0) Gecko/20100101 Firefox/94.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 12000)
 	local function moreIndex(t)
@@ -113,6 +110,23 @@
 		local index = moreIndex(t)
 	 return t[index].Address
 	end
+	local function getAdr(retAdr)
+		retAdr = retAdr:gsub('\\/', '/'):gsub('^$moretv', '')
+		retAdr = retAdr:gsub('/player/', '/playlist/')
+		local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
+			if rc ~= 200 then return end
+		retAdr = answer:match('"protocol":"HLS"[^}]+"url":%s*"([^"]+)') or answer:match('"hls_url":%s*"([^"]+)')
+	 return retAdr
+	end
+	local function play(retAdr, title)
+			if not retAdr then return end
+		retAdr = getAdr(retAdr)
+			if not retAdr then return end
+		retAdr = moreAdr(retAdr)
+			if not retAdr then return end
+		m_simpleTV.Control.CurrentAddress = retAdr
+-- debug_in_file(retAdr .. '\n')
+	end
 	function Qlty_more()
 		local t = m_simpleTV.User.more.Tab
 			if not t or #t == 0 then return end
@@ -125,183 +139,105 @@
 			m_simpleTV.Control.SetNewAddress(t[id].Address, m_simpleTV.Control.GetPosition())
 		end
 	end
-	local url = inAdr:gsub('more%.tv/', 'more.tv/api/v3/web/PageData?url=/')
-	url = url:gsub('$OPT.-$', '')
-	url = url:gsub('^$moretv', '')
-	local rc, answer = m_simpleTV.Http.Request(session, {url = url})
-		if rc ~= 200 then
-			m_simpleTV.Http.Close(session)
+		if inAdr:match('^$moretv') then
+			play(inAdr, title)
 		 return
 		end
+	local url = inAdr:gsub('more%.tv/', 'more.tv/api/v7/web/PageData?url=/')
+	local rc, answer = m_simpleTV.Http.Request(session, {url = url})
+		if rc ~= 200 then return end
+		if answer:match('"type":"CHANNEL"') then return end
 	local path = answer:match('"path":"([^"]+)')
 		if not path then return end
 	path = 'https://more.tv/api' .. path:gsub('\\/', '/')
 	rc, answer = m_simpleTV.Http.Request(session, {url = path})
-		if rc ~= 200 then
-			m_simpleTV.Http.Close(session)
-		 return
-		end
+		if rc ~= 200 then return end
 	answer = answer:gsub(':%[%]', ':""')
 	answer = answer:gsub('%[%]', ' ')
 	local tab = json.decode(answer)
 		if not tab or not tab.data then return end
 	local title = tab.data.title
-	local hubId
-	if tab.data.gallery and tab.data.gallery[1] then
-		logo = tab.data.gallery[1].link or logo
-	end
+	logo = answer:match('"url":"([^"]+%.jpg)') or logo
+	logo = logo:gsub('\\/', '/')
 	m_simpleTV.Control.ChangeChannelLogo(logo, m_simpleTV.Control.ChannelID)
+	local playerLink
 	if answer:match('"type":"MOVIE"') then
 		local id = answer:match('"id":(%d+)')
 			if not id then return end
 		url = 'https://more.tv/api/web/Projects/' .. id .. '/CurrentTrack'
 		rc, answer = m_simpleTV.Http.Request(session, {url = url})
-			if rc ~= 200 then
-				m_simpleTV.Http.Close(session)
-			 return
-			end
+			if rc ~= 200 then return end
+		m_simpleTV.Control.SetTitle(title)
 		local t = {}
 		t[1] = {}
 		t[1].Id = 1
 		t[1].Name = title
 		t[1].Address = inAdr
-		if not inAdr:match('PARAMS=psevdotv') then
-			t.ExtButton0 = {ButtonEnable = true, ButtonName = '⚙', ButtonScript = 'Qlty_more()'}
-			t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
-			m_simpleTV.OSD.ShowSelect_UTF8('more.tv', 0, t, 5000, 32 + 64 + 128)
-		end
-		hubId = answer:match('"hubId":"(%d+)')
+		t.ExtButton0 = {ButtonEnable = true, ButtonName = '⚙', ButtonScript = 'Qlty_more()'}
+		t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
+		m_simpleTV.OSD.ShowSelect_UTF8('more.tv', 0, t, 5000, 64 + 32 + 128)
+		playerLink = answer:match('"playerLink":"([^"]+)')
 	else
 		m_simpleTV.Control.SetTitle(title)
-		if not inAdr:match('%$moretv') and not inAdr:match('https://more.tv/.-/(%w+)') then
-			local id = answer:match('"id":(%d+)')
-				if not id then return end
-			url = 'https://more.tv/api/web/projects/' .. id .. '/seasons'
-			rc, answer = m_simpleTV.Http.Request(session, {url = url})
-				if rc ~= 200 then
-					m_simpleTV.Http.Close(session)
-				 return
-				end
-			answer = answer:match('%[(.-)%]')
-				if not answer then return end
-			local tt, i = {}, 1
-				for w in answer:gmatch('{.-}') do
-					tt[i] = {}
-					tt[i].Id = i
-					tt[i].Name = w:match('"title":"(.-)",')
-					tt[i].Address = w:match('"id":(%d+)')
+		local id = answer:match('"id":(%d+)')
+			if not id then return end
+		url = 'https://more.tv/api/web/projects/' .. id .. '/seasons'
+		rc, answer = m_simpleTV.Http.Request(session, {url = url})
+			if rc ~= 200 then return end
+		answer = answer:match('%[(.-)%]')
+			if not answer then return end
+		local tt, i = {}, 1
+			for w in answer:gmatch('{.-}') do
+				tt[i] = {}
+				tt[i].Id = i
+				tt[i].Name = w:match('"title":"(.-)",')
+				tt[i].Address = w:match('"id":(%d+)')
+				i = i + 1
+			end
+			if i == 1 then return end
+		local id_seson
+		if i > 2 then
+			local _, id = m_simpleTV.OSD.ShowSelect_UTF8('Выберете сезон - ' .. title, 0, tt, 5000, 1 + 4 + 2)
+			id = id or 1
+			id_seson = tt[id].Address
+		else
+			id_seson = tt[1].Address
+		end
+		url = 'https://more.tv/api/web/seasons/' .. id_seson .. '/tracks'
+		rc, answer = m_simpleTV.Http.Request(session, {url = url})
+			if rc ~= 200 then return end
+		answer = answer:gsub(':%[%]', ':""')
+		answer = answer:gsub('%[%]', ' ')
+		local tab = json.decode(answer)
+			if not tab or not tab.data[1] then return end
+		local t, i = {}, 1
+		local j = 1
+			while true do
+					if not tab.data[j] then break end
+				local adr = tab.data[j].trackVod.playerLink
+				if adr then
+					t[i] = {}
+					t[i].Id = i
+					t[i].Name = tab.data[i].title
+					t[i].Address = '$moretv' .. adr
+					t[i].InfoPanelName = tab.data[i].title
+					t[i].InfoPanelShowTime = 8000
+					if tab.data[i].description and tab.data[i].description ~= '' then
+						t[i].InfoPanelTitle = tab.data[i].description
+					end
+					if tab.data[i].gallery[1] then
+						t[i].InfoPanelLogo = tab.data[i].gallery[1].link or logo
+					end
 					i = i + 1
 				end
-				if i == 1 then return end
-			local Adr
-			if i > 2 then
-				local _, id = m_simpleTV.OSD.ShowSelect_UTF8('Выберете сезон - ' .. title, 0, tt, 5000, 1 + 4 + 2)
-				if not id then id = 1 end
-				Adr = tt[id].Address
-			else
-				Adr = tt[1].Address
+				j = j + 1
 			end
-			url = 'https://more.tv/api/web/seasons/' .. Adr .. '/tracks'
-			rc, answer = m_simpleTV.Http.Request(session, {url = url})
-				if rc ~= 200 then
-					m_simpleTV.Http.Close(session)
-				 return
-				end
-			answer = answer:gsub(':%[%]', ':""')
-			answer = answer:gsub('%[%]', ' ')
-			local tab = json.decode(answer)
-				if not tab or not tab.data[1] then return end
-			local t, i = {}, 1
-			local j = 1
-			local adr
-				while true do
-						if not tab.data[j] then break end
-					adr = tab.data[j].canonicalUrl
-					if adr then
-						t[i] = {}
-						t[i].Id = i
-						t[i].Name = tab.data[i].title
-						t[i].Address = '$moretvhttps://more.tv' .. adr:gsub('\\/', '/')
-						t[i].InfoPanelName = tab.data[i].title
-						t[i].InfoPanelShowTime = 8000
-						if tab.data[i].description and tab.data[i].description ~= '' then
-							t[i].InfoPanelTitle = tab.data[i].description
-						end
-						if tab.data[i].gallery[1] then
-							t[i].InfoPanelLogo = tab.data[i].gallery[1].link or logo
-						end
-						i = i + 1
-					end
-					j = j + 1
-				end
-				if i == 1 then return end
-			t.ExtParams = {FilterType = 2}
-			t.ExtButton0 = {ButtonEnable = true, ButtonName = '⚙', ButtonScript = 'Qlty_more()'}
-			t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
-			local p = 0
-			if i == 2 then
-				p = 32
-			end
-			local _, id = m_simpleTV.OSD.ShowSelect_UTF8(title, 0, t, 8000, p)
-			id = id or 1
-			Adr = t[id].Address
-			m_simpleTV.Http.Close(session)
-			m_simpleTV.Control.ChangeAddress = 'No'
-			m_simpleTV.Control.CurrentAddress = Adr
-			dofile(m_simpleTV.MainScriptDir .. 'user\\video\\video.lua')
-		 return
-		end
-		if not inAdr:match('%$moretv') then
-			local t = {}
-			t[1] = {}
-			t[1].Id = 1
-			t[1].Name = title
-			t[1].Address = inAdr
-			t.ExtButton0 = {ButtonEnable = true, ButtonName = '⚙', ButtonScript = 'Qlty_more()'}
-			t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
-			m_simpleTV.OSD.ShowSelect_UTF8('more.tv', 0, t, 5000, 32 + 64 + 128)
-		end
-		hubId = answer:match('"hubId":"(%d+)')
+			if i == 1 then return end
+		t.ExtParams = {FilterType = 2}
+		t.ExtButton0 = {ButtonEnable = true, ButtonName = '⚙', ButtonScript = 'Qlty_more()'}
+		t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
+		local _, id = m_simpleTV.OSD.ShowSelect_UTF8(title, 0, t, 8000)
+		id = id or 1
+		playerLink = t[id].Address
 	end
-		if not hubId then return end
-	url = 'https://more.tv/api/web/TrackVOD/' .. hubId
-	rc, answer = m_simpleTV.Http.Request(session, {url = url})
-		if rc ~= 200 then
-			m_simpleTV.Http.Close(session)
-		 return
-		end
-	local playerLink = answer:match('"playerLink":"([^"]+)')
-		if not playerLink then return end
-	playerLink = playerLink:gsub('\\/', '/')
-	rc, answer = m_simpleTV.Http.Request(session, {url = playerLink})
-		if rc ~= 200 then
-			m_simpleTV.Http.Close(session)
-		 return
-		end
-	local retAdr = answer:match('"protocol":"HLS"[^}]+"url":%s*"([^"]+)') or answer:match('"hls_url":%s*"([^"]+)')
-		if not retAdr
-			and not inAdr:match('PARAMS=psevdotv')
-		then
-			local err = 'more.tv: Недоступно'
-			m_simpleTV.Control.CurrentTitle_UTF8 = err
-			m_simpleTV.OSD.ShowMessageT({text = err, color = ARGB(255, 255, 102, 0), showTime = 1000 * 3, id = 'channelName'})
-		 return
-		end
-		if not retAdr then return end
-	retAdr = moreAdr(retAdr)
-	m_simpleTV.Http.Close(session)
-		if not retAdr then return end
-	if inAdr:match('PARAMS=psevdotv') then
-		local t = m_simpleTV.Control.GetCurrentChannelInfo()
-		if t and t.MultiHeader then
-			title = t.MultiHeader .. ': ' .. title
-		end
-		retAdr = retAdr .. '$OPT:NO-SEEKABLE'
-		m_simpleTV.Control.SetTitle(title)
-		m_simpleTV.OSD.ShowMessageT({text = title, showTime = 1000 * 5, id = 'channelName'})
-	else
-		m_simpleTV.Control.CurrentTitle_UTF8 = title
-		m_simpleTV.OSD.ShowMessageT({text = title, color = 0xff9999ff, showTime = 1000 * 5, id = 'channelName'})
-	end
-	m_simpleTV.Control.CurrentAddress = retAdr
--- debug_in_file(retAdr .. '\n')
+	play(playerLink, title)
