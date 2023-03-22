@@ -1,10 +1,11 @@
--- видеоскрипт для сайта https://more.tv (22/3/23)
+-- видеоскрипт для сайта https://more.tv (23/3/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://more.tv/kuriosa
 -- https://more.tv/marusya_trudnye_vzroslye
 -- https://more.tv/vokrug_sveta_za_80_dnei/sezon_1/3_seriya
 -- https://more.tv/pap
+-- https://more.tv/pap/5_sezon
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://more%.tv/')
 			and not m_simpleTV.Control.CurrentAddress:match('^$moretv')
@@ -50,23 +51,27 @@
 	local function moreAdr(url)
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 			if rc ~= 200 then return end
-		local t = {}
+		local t0 = {}
 		local base = url:match('.+/')
 			for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-\n.-)\n') do
 				local adr = w:match('\n(.+)')
 				local name = w:match('RESOLUTION=%d+x(%d+)')
-				t[#t + 1] = {}
-				t[#t].Id = #t
-				t[#t].qlty = tonumber(name)
-				if not adr:match('^https?') then
-					adr = base .. adr
+				local btr = w:match('BANDWIDTH=(%d+)')
+				if adr and name and btr then
+					t0[#t0 + 1] = {}
+					t0[#t0].qlty = name
+					if not adr:match('^https?') then
+						adr = base .. adr
+					end
+					t0[#t0].Address = adr
+					t0[#t0].btr = tonumber(btr)
 				end
-				t[#t].Address = adr
 			end
-			if #t == 0 then
+			if #t0 == 0 then
 			 return url
 			end
-			for _, v in pairs(t) do
+			for _, v in pairs(t0) do
+				v.qlty = tonumber(v.qlty)
 				if v.qlty > 0 and v.qlty <= 180 then
 					v.qlty = 144
 				elseif v.qlty > 180 and v.qlty <= 300 then
@@ -88,7 +93,19 @@
 				end
 				v.Name = v.qlty .. 'p'
 			end
+		table.sort(t0, function(a, b) return a.btr > b.btr end)
+		local hash, t = {}, {}
+			for i = 1, #t0 do
+				if not hash[t0[i].Name] then
+					t[#t + 1] = t0[i]
+					hash[t0[i].Name] = true
+				end
+			end
 		table.sort(t, function(a, b) return a.qlty < b.qlty end)
+		for i = 1, #t do
+			t[i].Id = i
+			t[i].Address = t[i].Address .. '$OPT:NO-STIMESHIFT'
+		end
 		m_simpleTV.User.more.Tab = t
 		local index = moreIndex(t)
 	 return t[index].Address
@@ -97,7 +114,7 @@
 		retAdr = retAdr:gsub('\\/', '/'):gsub('^$moretv', ''):gsub('/player/', '/playlist/')
 		local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 			if rc ~= 200 then return end
-		retAdr = answer:match('"protocol":"HLS"[^}]+"url":%s*"([^"]+)') or answer:match('"hls_url":%s*"([^"]+)')
+		retAdr = answer:match('"protocol":"HLS"[^}]+"url":%s*"([^"]+)')
 	 return retAdr
 	end
 	local function play(retAdr, title)
@@ -132,6 +149,8 @@
 			m_simpleTV.OSD.ShowMessageT({text = 'Недоступно для просмотра', showTime = 5000, id = 'channelName'})
 		 return
 		end
+	local track = answer:match('"type":"TRACK"')
+	local movie = answer:match('"type":"MOVIE"')
 	local path = answer:match('"path":"([^"]+)')
 		if not path then return end
 	path = 'https://more.tv/api' .. path:gsub('\\/', '/')
@@ -145,16 +164,15 @@
 	logo = answer:match('"url":"([^"]+%.jpg)') or logo
 	logo = logo:gsub('\\/', '/')
 	m_simpleTV.Control.ChangeChannelLogo(logo, m_simpleTV.Control.ChannelID)
-	local id = answer:match('"id":(%d+)')
-		if not id then return end
-	local playerLink
-	local seria = inAdr:match('https://more.tv/[^/]+/.')
-	if answer:match('"type":"MOVIE"') or seria then
-		if seria then
-			id = answer:match('"hubId":"(%d+)') or ''
-			url = 'https://more.tv/api/web/TrackVOD/' .. id
+	local ids = answer:match('"id":(%d+)')
+		if not ids then return end
+	local playerLink, id_tracks
+	if movie or track then
+		if track then
+			ids = answer:match('"hubId":"(%d+)') or ''
+			url = 'https://more.tv/api/web/TrackVOD/' .. ids
 		else
-			url = 'https://more.tv/api/web/Projects/' .. id .. '/CurrentTrack'
+			url = 'https://more.tv/api/web/Projects/' .. ids .. '/CurrentTrack'
 		end
 		rc, answer = m_simpleTV.Http.Request(session, {url = url})
 			if rc ~= 200 then return end
@@ -170,29 +188,33 @@
 		playerLink = answer:match('"playerLink":"([^"]+)')
 	else
 		m_simpleTV.Control.SetTitle(title)
-		url = 'https://more.tv/api/web/projects/' .. id .. '/seasons'
-		rc, answer = m_simpleTV.Http.Request(session, {url = url})
-			if rc ~= 200 then return end
-		answer = answer:match('%[(.-)%]')
-			if not answer then return end
-		local tt, i = {}, 1
-			for w in answer:gmatch('{.-}') do
-				tt[i] = {}
-				tt[i].Id = i
-				tt[i].Name = w:match('"title":"(.-)",')
-				tt[i].Address = w:match('"id":(%d+)')
-				i = i + 1
-			end
-			if i == 1 then return end
-		local id_seson
-		if i > 2 then
-			local _, id = m_simpleTV.OSD.ShowSelect_UTF8('Выберете сезон - ' .. title, 0, tt, 5000, 1 + 4 + 2)
-			id = id or 1
-			id_seson = tt[id].Address
+		debug_in_file(inAdr .. '\n')
+		if inAdr:match('https://more.tv/[^/]+/[^/]+') then
+			id_tracks = ids
 		else
-			id_seson = tt[1].Address
+			url = 'https://more.tv/api/web/projects/' .. ids .. '/seasons'
+			rc, answer = m_simpleTV.Http.Request(session, {url = url})
+				if rc ~= 200 then return end
+			answer = answer:match('%[(.-)%]')
+				if not answer then return end
+			local t, i = {}, 1
+				for w in answer:gmatch('{.-}') do
+					t[i] = {}
+					t[i].Id = i
+					t[i].Name = w:match('"title":"(.-)",')
+					t[i].Address = w:match('"id":(%d+)')
+					i = i + 1
+				end
+				if i == 1 then return end
+			if i > 2 then
+				local _, id = m_simpleTV.OSD.ShowSelect_UTF8('Выберете сезон - ' .. title, 0, t, 5000, 1 + 4 + 2)
+				id = id or 1
+				id_tracks = t[id].Address
+			else
+				id_tracks = t[1].Address
+			end
 		end
-		url = 'https://more.tv/api/web/seasons/' .. id_seson .. '/tracks'
+		url = 'https://more.tv/api/web/seasons/' .. id_tracks .. '/tracks'
 		rc, answer = m_simpleTV.Http.Request(session, {url = url})
 			if rc ~= 200 then return end
 		answer = answer:gsub(':%[%]', ':""')
