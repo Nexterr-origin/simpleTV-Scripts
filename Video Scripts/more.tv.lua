@@ -188,7 +188,6 @@
 		playerLink = answer:match('"playerLink":"([^"]+)')
 	else
 		m_simpleTV.Control.SetTitle(title)
-		debug_in_file(inAdr .. '\n')
 		if inAdr:match('https://more.tv/[^/]+/[^/]+') then
 			id_tracks = ids
 		else
