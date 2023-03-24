@@ -1,27 +1,38 @@
--- видеоскрипт для сайта http://www.ivi.ru (15/1/23)
+-- видеоскрипт для сайта http://www.ivi.ru (24/3/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
--- https://www.ivi.ru/watch/svaty_4
--- https://www.ivi.ru/watch/126896
--- https://www.ivi.ru/kinopoisk=136465
--- https://www.ivi.ru/watch/sklifosovskij_2
--- https://www.ivi.ru/watch/eralash/season46
+-- https://www.ivi.ru/watch/52895
+-- https://www.ivi.ru/watch/kin-dza-dza
+-- https://www.ivi.ru/watch/sled
+-- https://www.ivi.ru/watch/sled/season7
 local qlty = 0 -- качество: 0 - максимал.; 1 - Низкое; 2 - Высокое; 3 - Отличное; 4 - HD 720
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-	local inAdr = m_simpleTV.Control.CurrentAddress
-		if not inAdr then return end
-		if not inAdr:find('^https?://www%.ivi%.ru') then return end
+		if not m_simpleTV.Control.CurrentAddress:match('^https?://www%.ivi%.ru')
+		then
+		 return
+		end
 	require 'json'
 	m_simpleTV.OSD.ShowMessageT({text = '', showTime = 1000, id = 'channelName'})
+	local inAdr = m_simpleTV.Control.CurrentAddress
+	local logo = 'https://solea-parent.dfs.ivi.ru/picture/ea003d,ffffff/reposition_iviLogoPlateRounded.svg'
+	local psevdotv, useLogo
+	if inAdr:match('PARAMS=psevdotv') then
+		psevdotv = true
+		useLogo = 0
+	else
+		useLogo = 1
+	end
 	if not inAdr:match('&kinopoisk') then
-		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
+		if m_simpleTV.Control.MainMode == 0 then
+			m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = logo, UseLogo = useLogo, Once = 1})
+		end
 	end
 	local function showError(str)
 		m_simpleTV.OSD.ShowMessageT({text = 'ivi ошибка: ' .. str, showTime = 5000, color = 0xffff6600, id = 'channelName'})
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
-	m_simpleTV.Control.CurrentAddress = ''
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (SmartHub; SMART-TV; U; Linux/SmartTV) AppleWebKit/531.2+ (KHTML, like Gecko) WebBrowser/1.0 SmartTV Safari/531.2+')
+	m_simpleTV.Control.CurrentAddress = 'error'
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	if not m_simpleTV.User then
@@ -113,10 +124,6 @@ local qlty = 0 -- качество: 0 - максимал.; 1 - Низкое; 2 -
 		end
 	 return retAdr
 	end
-	local psevdotv
-	if inAdr:match('PARAMS=psevdotv') then
-		psevdotv = true
-	end
 	inAdr = inAdr:gsub('$OPT.-$', '')
 	local videoid = inAdr:match('/id=(%d+)')
 	local title
@@ -136,15 +143,16 @@ local qlty = 0 -- качество: 0 - максимал.; 1 - Низкое; 2 -
 					showError('1')
 				 return
 				end
-			compilation = answer:match('data%-compilation="(%d+)"') or answer:match('data%-id="(%d+)"')
+			compilation = inAdr:match('/watch/(%d+)') or answer:match('"compilation":{[^{}]+"id":(%d+)')
 				if not compilation then
 					m_simpleTV.Http.Close(session)
 					showError('2')
 				 return
 				end
-			title = answer:match('data%-title="(.-)"') or 'ivi'
+			title = answer:match('</noscript><title>([^<]+)') or 'ivi'
+			title = title:gsub('смотреть онлайн.+', ''):gsub('(Фильм ', '')
 		end
-		local rc, answer = m_simpleTV.Http.Request(session, {url = 'https://api.ivi.ru/mobileapi/compilationinfo/v5/?fields=seasons,title&id=' .. compilation})
+		local rc, answer = m_simpleTV.Http.Request(session, {url = 'https://api2.ivi.ru/mobileapi/compilationinfo/v6/?fields=seasons,title&id=' .. compilation})
 			if rc ~= 200 then return m_simpleTV.Http.Close(session) end
 		if not answer:match('"error"') then
 			local tab = json.decode(answer:gsub('(%[%])', '"nil"'))
@@ -197,6 +205,7 @@ local qlty = 0 -- качество: 0 - максимал.; 1 - Низкое; 2 -
 			t.ExtButton0 = {ButtonEnable = true, ButtonName = '⚙', ButtonScript = 'GetMovieQuality()'}
 			t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
 			if i > 2 then
+				t.ExtParams = {AutoNumberFormat = '%1. %2'}
 				local _, id = m_simpleTV.OSD.ShowSelect_UTF8(title .. nameses, 0, t, 5000)
 				if not id then id = 1 end
 				videoid = t[id].Address
