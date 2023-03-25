@@ -1,5 +1,5 @@
--- видеоскрипт для сайта https://smotrim.ru (1/9/22)
--- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта https://smotrim.ru (25/3/23)
+-- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## Необходим ##
 -- видеоскприпт: mediavitrina.lua
 -- ## открывает подобные ссылки ##
@@ -31,7 +31,7 @@
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:103.0) Gecko/20100101 Firefox/103.0', nil, true)
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0', nil, true)
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 10000)
 	m_simpleTV.User.smotrim_ru.ThumbsInfo = nil
@@ -236,12 +236,12 @@
 	local extOpt = '$OPT:no-spu'
 	local duration = answer:match('"duration":(%d+)')
 	Thumbs(answer)
-	m_simpleTV.Http.SetRedirectAllow(session, false)
 	if retAdr:match('vesti%.ru') then
 		retAdr = retAdr:gsub('?.+', '')
 	end
+	m_simpleTV.Http.SetRedirectAllow(session, false)
 	rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
-	if rc == 301 then
+	if rc ~= 200 then
 		local raw = m_simpleTV.Http.GetRawHeader(session)
 			if not raw then return end
 		local adr = raw:match('Location: (.-)\n')
@@ -250,9 +250,6 @@
 		retAdr = host0 .. adr
 		rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 			if rc ~= 200 then return end
-	elseif rc ~= 200 then
-		showErr(7)
-	 return
 	end
 	m_simpleTV.Http.Close(session)
 	local host = retAdr:match('.+%.smil/') or retAdr:match('.+/')
@@ -262,10 +259,10 @@
 			local adr = w:match('\n(.+)')
 			local name = w:match('BANDWIDTH=(%d+)')
 			if adr and name then
-				name = tonumber(name)
+				name = tonumber(name) / 1000
 				t[i] = {}
 				t[i].Id = name
-				t[i].Name = math.ceil(name / 10000) * 10 .. ' кбит/с'
+				t[i].Name = name  .. ' кбит/с'
 				if not adr:match('^http') then
 					if adr:match('^/hls') then
 						adr = host2 .. adr
@@ -282,15 +279,15 @@
 		 return
 		end
 	table.sort(t, function(a, b) return a.Id < b.Id end)
-	local lastQuality = tonumber(m_simpleTV.Config.GetValue('smotrim_ru_qlty') or 100000000)
+	local lastQuality = tonumber(m_simpleTV.Config.GetValue('smotrim_ru_qlty') or 30000)
 	local index = #t
 	if #t > 1 then
 		t[#t + 1] = {}
-		t[#t].Id = 100000000
+		t[#t].Id = 30000
 		t[#t].Name = '▫ всегда высокое'
 		t[#t].Address = t[#t - 1].Address
 		t[#t + 1] = {}
-		t[#t].Id = 500000000
+		t[#t].Id = 50000
 		t[#t].Name = '▫ адаптивное'
 		t[#t].Address = retAdr .. extOpt
 		index = #t
