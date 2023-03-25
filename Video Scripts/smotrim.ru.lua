@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://smotrim.ru (25/3/23)
+-- видеоскрипт для сайта https://smotrim.ru (26/3/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## Необходим ##
 -- видеоскприпт: mediavitrina.lua
@@ -33,7 +33,7 @@
 	m_simpleTV.Control.CurrentAddress = 'error'
 	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0', nil, true)
 		if not session then return end
-	m_simpleTV.Http.SetTimeout(session, 10000)
+	m_simpleTV.Http.SetTimeout(session, 14000)
 	m_simpleTV.User.smotrim_ru.ThumbsInfo = nil
 	local function showErr(str)
 		local t = {text = 'smotrim.ru ошибка: ' .. str, color = ARGB(255, 255, 102, 0), showTime = 1000 * 5, id = 'channelName'}
@@ -190,9 +190,6 @@
 		 return
 		end
 		if dataUrlAudio then
-			if not dataUrlAudio:match('%.m3u8') then
-				dataUrlAudio = dataUrlAudio .. '$OPT:demux=avdemux'
-			end
 			m_simpleTV.Control.CurrentAddress = dataUrlAudio
 		 return
 		end
@@ -236,21 +233,11 @@
 	local extOpt = '$OPT:no-spu'
 	local duration = answer:match('"duration":(%d+)')
 	Thumbs(answer)
-	if retAdr:match('vesti%.ru') then
-		retAdr = retAdr:gsub('?.+', '')
-	end
-	m_simpleTV.Http.SetRedirectAllow(session, false)
-	rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
-	if rc ~= 200 then
-		local raw = m_simpleTV.Http.GetRawHeader(session)
-			if not raw then return end
-		local adr = raw:match('Location: (.-)\n')
-			if not adr then return end
-		local host0 = retAdr:match('https?://[^/]+')
-		retAdr = host0 .. adr
-		rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
-			if rc ~= 200 then return end
-	end
+	rc, answer = m_simpleTV.Http.Request(session, {url = retAdr, headers = 'Referer: https://player.smotrim.ru/'})
+		if rc ~= 200 then
+			showErr(7)
+		 return
+		end
 	m_simpleTV.Http.Close(session)
 	local host = retAdr:match('.+%.smil/') or retAdr:match('.+/')
 	local host2 = retAdr:match('https?://[^/]+')
