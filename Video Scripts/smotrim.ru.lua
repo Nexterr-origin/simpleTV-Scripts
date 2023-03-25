@@ -259,7 +259,7 @@
 			local adr = w:match('\n(.+)')
 			local name = w:match('BANDWIDTH=(%d+)')
 			if adr and name then
-				name = tonumber(name) / 1000
+				name = math.ceil(tonumber(name) / 10000) * 10
 				t[i] = {}
 				t[i].Id = name
 				t[i].Name = name  .. ' кбит/с'
