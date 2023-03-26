@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://smotrim.ru (27/3/23)
+-- видеоскрипт для сайта https://smotrim.ru (28/3/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## Необходим ##
 -- видеоскприпт: mediavitrina.lua
@@ -31,7 +31,7 @@
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0', nil, true)
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 14000)
 	m_simpleTV.User.smotrim_ru.ThumbsInfo = nil
@@ -194,8 +194,8 @@
 		 return
 		end
 	dataUrl = dataUrl:gsub('^//', 'https://')
-	local isVod = answer:match('isVod=0')
-	if isVod then
+	local islive = answer:match('isVod=0')
+	if islive then
 		dataUrl = dataUrl:gsub('datavideo', 'datalive')
 	end
 	rc, answer = m_simpleTV.Http.Request(session, {url = dataUrl, headers = 'Referer: ' .. embedUrl})
@@ -230,17 +230,18 @@
 		title = addTitle .. ' - ' .. title
 	end
 	m_simpleTV.Control.CurrentTitle_UTF8 = title
-	local extOpt = '$OPT:no-spu$OPT:no-gnutls-system-trust'
 	local duration = answer:match('"duration":(%d+)')
-	Thumbs(answer)
-	rc, answer = m_simpleTV.Http.Request(session, {url = retAdr:gsub('^https', 'http'), headers = 'Referer: https://player.smotrim.ru/'})
+	if not islive then
+		Thumbs(answer)
+	end
+	rc, answer = m_simpleTV.Http.Request(session, {url = retAdr, headers = 'Referer: https://player.smotrim.ru/'})
 		if rc ~= 200 then
 			showErr(7)
 		 return
 		end
-	m_simpleTV.Http.Close(session)
 	local host = retAdr:match('.+%.smil/') or retAdr:match('.+/')
 	local host2 = retAdr:match('https?://[^/]+')
+	local extOpt = '$OPT:no-spu'
 	local t, i = {}, 1
 		for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-\n.-)\n') do
 			local adr = w:match('\n(.+)')
@@ -249,7 +250,7 @@
 				name = math.ceil(tonumber(name) / 10000) * 10
 				t[i] = {}
 				t[i].Id = name
-				t[i].Name = name  .. ' кбит/с'
+				t[i].Name = name .. ' кбит/с'
 				if not adr:match('^http') then
 					if adr:match('^/hls') then
 						adr = host2 .. adr
