@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://smotrim.ru (26/3/23)
+-- видеоскрипт для сайта https://smotrim.ru (27/3/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## Необходим ##
 -- видеоскприпт: mediavitrina.lua
@@ -230,10 +230,10 @@
 		title = addTitle .. ' - ' .. title
 	end
 	m_simpleTV.Control.CurrentTitle_UTF8 = title
-	local extOpt = '$OPT:no-spu'
+	local extOpt = '$OPT:no-spu$OPT:no-gnutls-system-trust'
 	local duration = answer:match('"duration":(%d+)')
 	Thumbs(answer)
-	rc, answer = m_simpleTV.Http.Request(session, {url = retAdr, headers = 'Referer: https://player.smotrim.ru/'})
+	rc, answer = m_simpleTV.Http.Request(session, {url = retAdr:gsub('^https', 'http'), headers = 'Referer: https://player.smotrim.ru/'})
 		if rc ~= 200 then
 			showErr(7)
 		 return
