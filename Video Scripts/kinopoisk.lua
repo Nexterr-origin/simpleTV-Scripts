@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru , https://www.imdb.com (11/1/23)
+-- видеоскрипт для сайта http://www.kinopoisk.ru , https://www.imdb.com (30/3/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
@@ -29,8 +29,8 @@ local tname = {
 	'Collaps',
 	'Hdvb',
 	-- 'CDN Movies',
-	'VideoApi',
-	'Kodik',
+	-- 'VideoApi',
+	-- 'Kodik',
 	'ivi',
 	'Seasonvar',
 	}
@@ -61,7 +61,7 @@ local tname = {
 	m_simpleTV.Control.CurrentAddress = 'error'
 	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 		if not session then return end
-	m_simpleTV.Http.SetTimeout(session, 10000)
+	m_simpleTV.Http.SetTimeout(session, 16000)
 	if inAdr:match('hd%.kinopoisk%.ru') then
 		local id = inAdr:match('hd%.kinopoisk%.ru/film/(%x+)')
 			if not id then return end
@@ -369,7 +369,7 @@ local tname = {
 		m_simpleTV.Control.ChangeChannelLogo(logo_k, m_simpleTV.Control.ChannelID)
 		for i = 1, #tname do
 			if tname[i] == 'Videoframe' then
-				turl[i] = {adr = decode64('aHR0cHM6Ly9pZnJhbWUudmlkZW8vYXBpL3YyL3NlYXJjaD9rcD0') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
+				turl[i] = {adr = decode64('aHR0cDovL2lmcmFtZS52aWRlby9hcGkvdjIvc2VhcmNoP2twPQ') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
 			elseif tname[i] == 'Kodik' then
 				turl[i] = {adr = decode64('aHR0cDovL2tvZGlrYXBpLmNvbS9nZXQtcGxheWVyP3Rva2VuPTQ0N2QxNzllODc1ZWZlNDQyMTdmMjBkMWVlMjE0NmJlJmtpbm9wb2lza0lEPQ') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
 			elseif tname[i] == 'Filmix' then
