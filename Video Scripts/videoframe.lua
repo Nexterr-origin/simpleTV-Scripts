@@ -1,14 +1,14 @@
--- видеоскрипт для видеобалансера "videoframe" (11/2/22)
--- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для видеобалансера "videoframe" (30/3/23)
+-- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
--- https://videoframe.space/frameindex.php?kp=5928
+-- http://videoframe.space/frameindex.php?kp=5928
 -- https://videoframe.at/movie/4204258p119/iframe
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 		if not inAdr then return end
 		if not inAdr:match('^https?://videoframe%.') and not inAdr:match('^$videoframe') then return end
 	require 'json'
-	inAdr = inAdr:gsub('videoframe%.at', 'videoframe.space')
+	inAdr = inAdr:gsub('videoframe%.at', 'videoframe.space'):gsub('^https', 'http')
 	if inAdr:match('^$videoframe') then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, BackColorEnd = 255, PictFileName = '', TypeBackColor = 0, UseLogo = 3, Once = 1})
 	end
