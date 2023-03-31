@@ -1,5 +1,5 @@
--- видеоскрипт для плейлиста "24часаТВ" https://app.24h.tv (18/11/22)
--- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для плейлиста "24часаТВ" https://app.24h.tv (31/3/23)
+-- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: tv24h_pls.lua
 -- расширение дополнения httptimeshift: tv24h-timeshift_ext.lua
@@ -7,6 +7,7 @@
 -- https://tv24h/10170/stream?access_token=2b4eb39d93b021c3e24a2c6dd5b2f3845b66e06d
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://tv24h/%d') then return end
+	if m_simpleTV.Control.CurrentAddress:match('PARAMS=tv24h') then return end
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
 	end
@@ -26,19 +27,18 @@
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local rc, answer = m_simpleTV.Http.Request(session, {url = url .. '&format=json'})
 		if rc ~= 200 then return end
-	local retAdr = answer:match('"hls_mbr":"([^"]+)') or answer:match('"hls":"([^"]+)')
+	local retAdr = answer:match('"stream_info":"([^"]+)')
 		if not retAdr then return end
-	retAdr = retAdr:gsub('^https://', 'http://')
+	retAdr = retAdr:gsub('^https://', 'http://'):gsub('data.json', 'index.m3u8')
 	rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 		if rc ~= 200 then return end
-	local extOpt = ''
+	local extOpt = '$OPT:INT-SCRIPT-PARAMS=tv24h'
 	local t = {}
-		for w in string.gmatch(answer,'EXT%-X%-STREAM%-INF(.-)\n') do
+		for w in string.gmatch(answer, 'EXT%-X%-STREAM%-INF(.-)\n') do
 			local res = w:match('RESOLUTION=%d+x(%d+)')
 			local bw = w:match('BANDWIDTH=(%d+)')
 			if bw and res then
-				bw = tonumber(bw)
-				bw = math.ceil(bw / 100000) * 100
+				bw = math.ceil(tonumber(bw) / 10000) * 10
 				t[#t + 1] = {}
 				t[#t].Id = bw
 				t[#t].Name = res .. 'p (' .. bw .. ' кбит/с)'
