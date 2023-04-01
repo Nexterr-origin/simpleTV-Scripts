@@ -1,11 +1,10 @@
--- скрапер TVS для загрузки плейлиста "24часаТВ" https://app.24h.tv (31/3/23)
+-- скрапер TVS для загрузки плейлиста "24часаТВ" https://app.24h.tv (1/4/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: tv24h.lua
 -- расширение дополнения httptimeshift: tv24h-timeshift_ext.lua
 -- ## авторизация ##
 local access_token = '4d3e29d908873a02ccb622c5ee0a30ec8c17f2af'
-local isFree = true
 -- ## переименовать каналы ##
 local filter = {
 	{'Мир-ТВ', 'МИР'},
@@ -38,9 +37,8 @@ local filter = {
 		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 8000)
-		local url = decode64('aHR0cHM6Ly8yNGh0di5wbGF0Zm9ybTI0LnR2L3YyL2NoYW5uZWxzP2Zvcm1hdD1qc29uJmFjY2Vzc190b2tlbj0') .. access_token
+		local url = decode64('aHR0cHM6Ly8yNGh0di5wbGF0Zm9ybTI0LnR2L3YyL2NoYW5uZWxzL2NoYW5uZWxfbGlzdD9mb3JtYXQ9anNvbiZhY2Nlc3NfdG9rZW49') .. access_token
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
-		m_simpleTV.Http.Close(session)
 			if rc ~= 200 then
 				answer = answer or ''
 			 return answer:match('"message":"([^"]+)') or 'Недопустимый токен'
@@ -49,20 +47,15 @@ local filter = {
 		require 'json'
 		local err, tab = pcall(json.decode, answer)
 			if not tab then return end
-		local archived_days
-		if isFree then
-			archived_days = 1
-		end
-		local t, i, j = {}, 1, 1
-			while tab[j] do
-				if tab[j].is_purchased == true then
-					t[i] = {}
-					t[i].name = tab[j].name
-					t[i].address = string.format('https://tv24h/%s/stream?access_token=%s', tab[j].id, access_token)
-					t[i].RawM3UString = string.format('catchup="append" catchup-days="%s" catchup-source=""', (archived_days or tab[j].real_archived_days or 0))
-					i = i + 1
+		local t = {}
+			for i = 1, #tab do
+				if tab[i].is_free == true then
+					t[#t + 1] = {}
+					t[#t].name = tab[i].name
+					t[#t].address = string.format('https://tv24h/%s/stream?access_token=%s', tab[i].id, access_token)
+					t[#t].RawM3UString = string.format('catchup="append" catchup-days="%s" catchup-source=""', tab[i].archived_days)
+					t[#t].logo = tab[i].cover.light_bg
 				end
-				j = j + 1
 			end
 	 return t
 	end
