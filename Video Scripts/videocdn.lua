@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (4/3/23)
+-- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (2/4/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://7741.annacdn.cc/fnXOUDB9nNSO/tv-series/92
@@ -225,6 +225,7 @@ local proxy = ''
 	local transl
 	local tr = answer:match('<div class="translations".-</div>')
 	if tr then
+		tr = tr:gsub('<template class="__cf_email__" data%-cfemail="%x+">%[email.-%]</template>', 'MUZOBOZ@')
 		local t = {}
 		local selected
 			for w in tr:gmatch('<option.-</option>') do
@@ -232,7 +233,7 @@ local proxy = ''
 				local name = w:match('>([^<]+)')
 				if adr and name and not name:match('^%s*@%s*$') then
 					t[#t + 1] = {}
-					t[#t].Name = name:gsub('<template.-template>', 'неизвестно'):gsub('&amp;', '&')
+					t[#t].Name = name:gsub('<template.-template>', 'неизвестно'):gsub('&amp;', '&'):gsub('@', '')
 					t[#t].Address = adr
 					if w:match('"selected"') then
 						selected = #t - 1
