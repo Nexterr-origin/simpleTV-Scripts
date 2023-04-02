@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (3/4/23)
+-- видеоскрипт для сайта http://www.kinopoisk.ru (4/4/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
@@ -50,7 +50,7 @@ local tname = {
 		m_simpleTV.User = {}
 	end
 	require 'json'
-	htmlEntities = require 'htmlEntities'
+	local htmlEntities = require 'htmlEntities'
 	m_simpleTV.Control.ChangeAddress= 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
 	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
@@ -73,7 +73,7 @@ local tname = {
 		if not kpid then return end
 	local turl, svar, t, rett = {}, {}, {}, {}
 	local usvar, i, u = 1, 1, 1
-	local serial, year, title, desc, rating_kp, rating_imdb, rc, answer, retAdr, altTitle
+	local serial, year, title, desc, rating_kp, rating_imdb, rc, answer, retAdr
 	local function unescape_html(str)
 	 return htmlEntities.decode(str)
 	end
@@ -100,23 +100,13 @@ local tname = {
 		end
 	 return	tonumber(serial), tonumber(year), title, desc, tonumber(rating_kp), tonumber(rating_imdb)
 	end
-	local function getInfo_bazon(kpid)
-		local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9iYXpvbi5jYy9hcGkvc2VhcmNoP3Rva2VuPWMxMThlYjVmOGQzNjU2NWIyYjA4YjUzNDJkYTk3Zjc5JmtwPQ') .. kpid})
-			if rc ~= 200 then return end
-		answer = answer:gsub('%[%]', '""'):gsub(string.char(239, 187, 191), '')
-		local tab = json.decode(answer)
-			if not tab or not tab.results or not tab.results[1] or not tab.results[1].info or not tab.results[1].info or not tab.results[1].info.rating then return end
-		local serial = tab.results[1].serial or 10
-		local year = tab.results[1].info.year or 0
-		local title = tab.results[1].info.rus
-		local desc = tab.results[1].info.description or ''
-		local rating_kp = tab.results[1].info.rating.rating_kp or 0
-		local rating_imdb = tab.results[1].info.rating.rating_imdb or 0
-	 return	tonumber(serial), tonumber(year), title, desc, tonumber(rating_kp), tonumber(rating_imdb)
-	end
 	local function requestUrl(url)
-		if url:match('ivi%.ru') then
-				local iviTitle = title or altTitle
+		if url:match('videocdn%.tv') then
+				rc, answer = m_simpleTV.Http.Request(session, {url = url})
+					if rc ~= 200 then return end
+			return answer:match('"iframe_src":"([^"]+)')
+		elseif url:match('ivi%.ru') then
+			local iviTitle = title
 				if not iviTitle then return end
 			rc, answer = m_simpleTV.Http.Request(session, {url = url .. m_simpleTV.Common.toPercentEncoding(iviTitle) ..'&from=0&to=5&app_version=870&paid_type=AVOD'})
 				if rc ~= 200 or (rc == 200 and not answer:match('^{')) then return end
@@ -133,10 +123,6 @@ local tname = {
 					i = i + 1
 				end
 			return Adrivi
-		elseif url:match('videocdn%.tv') then
-				rc, answer = m_simpleTV.Http.Request(session, {url = url})
-					if rc ~= 200 then return end
-			return answer:match('"iframe_src":"([^"]+)')
 		elseif url:match('kodikapi%.com') then
 			rc, answer = m_simpleTV.Http.Request(session, {url = url})
 				if rc ~= 200 then return end
@@ -420,9 +406,6 @@ local tname = {
 		end
 	end
 	serial, year, title, desc, rating_kp, rating_imdb = getInfo_zona(kpid)
-	if not title then
-		serial, year, title, desc, rating_kp, rating_imdb = getInfo_bazon(kpid)
-	end
 	getlogo()
 	setMenu()
 	menu()
@@ -436,10 +419,6 @@ local tname = {
 	if not title or title == '' then
 		title = nil
 	end
-	if not altTitle or altTitle == '' then
-		altTitle = nil
-	end
-	title = title or altTitle
 	local title_retAdr
 	if not title then
 		title = 'КиноПоиск'
