@@ -1,11 +1,10 @@
--- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv , "videoapi" https://videoapi.tv (17/11/22)
--- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (4/3/23)
+-- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://7741.annacdn.cc/fnXOUDB9nNSO/tv-series/92
 -- https://7741.annacdn.cc/fnXOUDB9nNSO/movie/22080
 -- https://7741.annacdn.cc/fnXOUDB9nNSO?kp_id=5928
--- https://5102.svetacdn.in/kNKj47MkBgLS/movie/664
--- https://5102.svetacdn.in/kNKj47MkBgLS?imdb_id=tt0120663
+-- http://38972.svetacdn.in/fnXOUDB9nNSO/movie/65312
 -- ## прокси ##
 local proxy = ''
 -- '' - нет
@@ -18,7 +17,8 @@ local proxy = ''
 		 return
 		end
 	local inAdr = m_simpleTV.Control.CurrentAddress
-	htmlEntities = require 'htmlEntities'
+	local htmlEntities = require 'htmlEntities'
+	require 'json'
 	m_simpleTV.OSD.ShowMessageT({text = '', showTime = 1000, id = 'channelName'})
 	if inAdr:match('^$videocdn') or not inAdr:match('&kinopoisk') then
 		if m_simpleTV.Control.MainMode == 0 then
@@ -88,44 +88,16 @@ local proxy = ''
 		end
 	 return index or 1
 	end
-	local function decodeUrl(n)
-		local t, j = {}, 1
-			for i = 1, #n, 3 do
-				t[j] = {}
-				t[j] = n:sub(i, i + 2)
-				j = j + 1
-			end
-		n = '\\u0' .. table.concat(t, '\\u0')
-	 return	unescape3(n)
-	end
 	local function GetQualityFromAddress(url, title)
 		url = url:gsub('^$videocdn', '')
-		local du = url:match('#(%w+)')
-		if du then
-			url = decodeUrl(du)
-		else
-			url = url:gsub('^%[', '')
-		end
-		url = url:gsub('%.m3u8', '.mp4')
 		local t = {}
-			for adr in url:gmatch('%](//[^%s]+%.mp4)') do
-				local qlty = adr:match('/(%d+)%.mp4')
-				if qlty then
-					t[#t + 1] = {}
-					t[#t].qlty = tonumber(qlty)
-					t[#t].Address = adr:gsub('^//', 'http://')
-					t[#t].Name = qlty .. 'p'
-				end
+			for qlty, adr in url:gmatch('%[(%d+)%w+%]+(//[^%s,]+)') do
+				t[#t + 1] = {}
+				t[#t].qlty = tonumber(qlty)
+				t[#t].Address = adr:gsub('^//', 'http://')
+				t[#t].Name = qlty .. 'p'
 			end
 			if #t == 0 then return end
-		local adr1080 = t[1].Address:gsub('/%d+.mp4', '/1080.mp4')
-		local rc, answer = m_simpleTV.Http.Request(session, {url = adr1080, method = 'head'})
-		if rc == 200 then
-			t[#t + 1] = {}
-			t[#t].qlty = 1080
-			t[#t].Address = adr1080
-			t[#t].Name = '1080p'
-		end
 		table.sort(t, function(a, b) return a.qlty < b.qlty end)
 		local hash, tab = {}, {}
 			for i = 1, #t do
@@ -136,7 +108,7 @@ local proxy = ''
 			end
 			for i = 1, #tab do
 				tab[i].Id = i
-				tab[i].Address = tab[i].Address .. '$OPT:NO-STIMESHIFT$OPT:meta-description=https://github.com/Nexterr-origin/simpleTV-Scripts'
+				tab[i].Address = tab[i].Address .. '$OPT:meta-description=https://github.com/Nexterr-origin/simpleTV-Scripts'
 				if psevdotv then
 					local videoTitle = title:gsub('.-:', '')
 					local k = tab[i].qlty
@@ -183,9 +155,12 @@ local proxy = ''
 		end
 	end
 	local function play(retAdr, title)
+		local extOpt = ''
+		if retAdr:match('^$') then
+			extOpt = '$OPT:NO-STIMESHIFT'
+		end
 		retAdr = GetQualityFromAddress(retAdr, title)
 			if not retAdr then return end
-		local extOpt
 		if psevdotv then
 			m_simpleTV.OSD.ShowMessageT({text = title, showTime = 1000 * 5, id = 'channelName'})
 			m_simpleTV.Control.SetTitle(title)
@@ -193,6 +168,7 @@ local proxy = ''
 			m_simpleTV.OSD.ShowMessageT({text = title, color = 0xff9999ff, showTime = 1000 * 5, id = 'channelName'})
 			m_simpleTV.Control.CurrentTitle_UTF8 = title
 		end
+		retAdr = retAdr .. extOpt
 		m_simpleTV.Control.CurrentAddress = retAdr
 -- debug_in_file(retAdr .. '\n')
 	end
@@ -231,7 +207,7 @@ local proxy = ''
 		end
 	local url = inAdr:gsub('&kinopoisk.+', ''):gsub('%?block=%w+', ''):gsub('$OPT:.+', '')
 	m_simpleTV.User.Videocdn.Tabletitle = nil
-	local rc, answer = m_simpleTV.Http.Request(session, {url = url})
+	local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: https://the-cinema.online/'})
 		if rc ~= 200 then return end
 	answer = htmlEntities.decode(answer)
 	answer = answer:gsub('\\\\\\/', '/')
@@ -249,7 +225,6 @@ local proxy = ''
 	local transl
 	local tr = answer:match('<div class="translations".-</div>')
 	if tr then
-		tr = tr:gsub('<template class="__cf_email__" data%-cfemail="%x+">%[email.-%]</template>', 'MUZOBOZ@')
 		local t = {}
 		local selected
 			for w in tr:gmatch('<option.-</option>') do
@@ -288,26 +263,21 @@ local proxy = ''
 			transl = t[1].Address
 		end
 	end
-	transl = transl or '%d+'
-	local answer = answer:match('id="files" value="(.+)')
-		if not answer then return end
+	transl = transl or answer:match('"translation_id" value="(%d+)"') or 0
 	if tv_series then
-		answer = answer:match('"' .. transl .. '":"(.-)">')
+		answer = answer:match('id="files" value=\'([^\']+)')
 			if not answer then return end
-		require 'json'
-		local du = answer:match('#(%w+)')
-		if du then
-			answer = decodeUrl(du)
-		end
+		answer = answer:match('"' .. transl .. '":%[(.-}%]),') or answer:match('"' .. transl .. '":%[(.-}%])')
+			if not answer then return end
 		answer = answer:gsub('%[%]', '""')
+		answer = '[' .. answer .. '}]'
 		local tab = json.decode(answer)
 			if not tab then return end
 		local season_title = ''
 		local t, i = {}, 1
-		if tab[1].folder then
+		if not tab.folder then
 			local s, j, seson = {}, 1
-				while true do
-						if not tab[j] then break end
+				while tab[j] do
 					s[j] = {}
 					s[j].Id = j
 					s[j].Name = unescape3(tab[j].comment)
@@ -327,8 +297,7 @@ local proxy = ''
 					season_title = ' (' .. s[1].Name .. ')'
 				end
 			end
-				while true do
-						if not tab[seson].folder[i] then break end
+				while tab[seson].folder[i] do
 					t[i] = {}
 					t[i].Id = i
 					t[i].Name = tab[seson].folder[i].comment:gsub('<i>.-</i>', ''):gsub('<br>', '')
@@ -337,12 +306,11 @@ local proxy = ''
 				end
 				if i == 1 then return end
 		else
-				while true do
-						if not tab[i] then break end
+				while tab.folder[i] do
 					t[i] = {}
 					t[i].Id = i
-					t[i].Name = tab[i].comment:gsub('<i>.-</i>', ''):gsub('<br>', '')
-					t[i].Address = '$videocdn' .. tab[i].file
+					t[i].Name = tab.folder[i].comment:gsub('<i>.-</i>', ''):gsub('<br>', '')
+					t[i].Address = '$videocdn' .. tab.folder[i].file
 					i = i + 1
 				end
 				if i == 1 then return end
@@ -373,7 +341,9 @@ local proxy = ''
 		m_simpleTV.User.Videocdn.title = title
 		title = title .. ' - ' .. m_simpleTV.User.Videocdn.Tabletitle[1].Name
 	else
-		inAdr = answer:match('"' .. transl .. '":"([^"]+)')
+		inAdr = answer:match('id="files" value=\'([^\']+)')
+			if not inAdr then return end
+		inAdr = answer:match('"' .. transl .. '":"(.-)"[,}]')
 			if not inAdr then return end
 		if psevdotv then
 			local t = m_simpleTV.Control.GetCurrentChannelInfo()
