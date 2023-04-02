@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (4/4/23)
+-- видеоскрипт для сайта http://www.kinopoisk.ru (2/4/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
@@ -20,15 +20,15 @@ local filmixsite = 'https://filmix.ac'
 local tname = {
 -- сортировать: поменять порядок строк
 -- отключить: поставить в начале строки --
-	'VideoCdn',
 	'Voidboost',
-	'Hdvb',
+	'VideoCdn',
 	'Videoframe',
-	'Filmix',
+	'Hdvb',
 	'Collaps',
+	'Filmix',
+	'Seasonvar',
 	-- 'Kodik',
 	'ivi',
-	'Seasonvar',
 	}
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://[%w%.]*kinopoisk%.ru/.+')
