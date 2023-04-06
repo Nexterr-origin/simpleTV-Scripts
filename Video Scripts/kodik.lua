@@ -1,7 +1,8 @@
--- видеоскрипт для видеобазы "kodik" http://kodik.cc (5/4/23)
+-- видеоскрипт для видеобазы "kodik" http://kodik.cc (6/4/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://hdrise.com/video/31756/445f20d7950d3df08f7574311e82521e/720p
+-- http://kodik.info/video/27565/0f93e7a7ce4c247c3b66b47b1b8910b2/720p
 -- http://kodik.cc/serial/37405/ab75ddfb810d744aae16eb202f3a5330/720
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
@@ -34,9 +35,6 @@
 	end
 	if not m_simpleTV.User.kodik then
 		m_simpleTV.User.kodik = {}
-	end
-	if not m_simpleTV.User.kodik.qlty then
-		m_simpleTV.User.kodik.qlty = tonumber(m_simpleTV.Config.GetValue('Kodik_qlty') or '10000')
 	end
 	local title
 	local refer = 'https://the-cinema.online/'
@@ -77,12 +75,20 @@
 		m_simpleTV.OSD.RemoveElement('K_INFO_TEXT')
 	end
 	local function GetMaxResolutionIndex(t)
-		local index
-		for u = 1, #t do
-				if t[u].qlty and m_simpleTV.User.kodik.qlty < t[u].qlty then break end
-			index = u
+		local lastQuality = tonumber(m_simpleTV.Config.GetValue('Kodik_qlty') or 5000)
+		local index = #t
+			for i = 1, #t do
+				if t[i].qlty >= lastQuality then
+					index = i
+				 break
+				end
+			end
+		if index > 1 then
+			if t[index].qlty > lastQuality then
+				index = index - 1
+			end
 		end
-	 return index or 1
+	 return index
 	end
 	local function decode_kodik(data)
 		local t = {}
@@ -159,43 +165,45 @@
 			for qlty, adr in answer:gmatch('"(%d+)":%[{"src":"([^"]+)') do
 				if qlty and adr then
 					t[#t +1] = {}
-					t[#t].qlty = qlty
 					adr = decode_kodik(adr)
+					qlty = adr:match('/(%d+)%.mp4') or qlty
+					t[#t].qlty = tonumber(qlty)
+					t[#t].Name = qlty .. 'p'
 					t[#t].Address = adr:gsub('^//', 'https://')
 				end
 			end
 			if #t == 0 then return end
-			for _, v in pairs(t) do
-				v.qlty = tonumber(v.qlty)
-				if v.qlty > 0 and v.qlty <= 180 then
-					v.qlty = 144
-				elseif v.qlty > 180 and v.qlty <= 300 then
-					v.qlty = 240
-				elseif v.qlty > 300 and v.qlty <= 400 then
-					v.qlty = 360
-				elseif v.qlty > 400 and v.qlty <= 500 then
-					v.qlty = 480
-				elseif v.qlty > 500 and v.qlty <= 780 then
-					v.qlty = 720
-				elseif v.qlty > 780 and v.qlty <= 1200 then
-					v.qlty = 1080
-				elseif v.qlty > 1200 and v.qlty <= 1500 then
-					v.qlty = 1444
-				elseif v.qlty > 1500 and v.qlty <= 2800 then
-					v.qlty = 2160
-				elseif v.qlty > 2800 and v.qlty <= 4500 then
-					v.qlty = 4320
+		local hash, t1 = {}, {}
+			for i = 1, #t do
+				if not hash[t[i].Address] then
+					t1[#t1 + 1] = t[i]
+					hash[t[i].Address] = true
 				end
-				v.Name = v.qlty .. 'p'
 			end
-		table.sort(t, function(a, b) return a.qlty < b.qlty end)
-		for i = 1, #t do
-			t[i].Id = i
+		table.sort(t1, function(a, b) return a.qlty < b.qlty end)
+		if #t1 > 2 then
+			if not t1[#t1].Address:match('/720%.mp4') then
+				local adr = t1[#t1].Address:gsub('/%d+%.mp4', '/720.mp4')
+				local rc, answer = m_simpleTV.Http.Request(session, {url = adr, method = 'HEAD'})
+				if rc == 200 then
+					t1[#t1 + 1] = {qlty = 1080, Name = '720p', Address = adr}
+				end
+			end
+			if t1[#t1].Address:match('/720%.mp4') then
+				local adr = t1[#t1].Address:gsub('/720%.mp4', '/1080.mp4')
+				local rc, answer = m_simpleTV.Http.Request(session, {url = adr, method = 'HEAD'})
+				if rc == 200 then
+					t1[#t1 + 1] = {qlty = 1080, Name = '1080p', Address = adr}
+				end
+			end
 		end
-		m_simpleTV.User.kodik.Table = t
-		local index = GetMaxResolutionIndex(t)
+		for i = 1, #t1 do
+			t1[i].Id = i
+		end
+		m_simpleTV.User.kodik.Table = t1
+		local index = GetMaxResolutionIndex(t1)
 		m_simpleTV.User.kodik.Index = index
-	 return t[index].Address
+	 return t1[index].Address
 	end
 	function SavePlst_kodik()
 		if m_simpleTV.User.kodik.Tabletitle and m_simpleTV.User.kodik.title then
@@ -215,7 +223,7 @@
 			header = m_simpleTV.Common.UTF8ToMultiByte(header)
 			header = header:gsub('%c', ''):gsub('[\\/"%*:<>%|%?]+', ' '):gsub('%s+', ' '):gsub('^%s*', ''):gsub('%s*$', '')
 			local fileEnd = ' (Kodik ' .. os.date('%d.%m.%y') ..').m3u'
-			local folder = m_simpleTV.Common.GetMainPath(2) .. m_simpleTV.Common.UTF8ToMultiByte('сохраненые плейлисты/')
+			local folder = m_simpleTV.Common.GetMainPath(1) .. m_simpleTV.Common.UTF8ToMultiByte('сохраненые плейлисты/')
 			lfs.mkdir(folder)
 			local folderAk = folder .. 'Kodik/'
 			lfs.mkdir(folderAk)
