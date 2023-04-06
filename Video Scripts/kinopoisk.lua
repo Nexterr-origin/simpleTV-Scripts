@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (2/4/23)
+-- видеоскрипт для сайта http://www.kinopoisk.ru (5/4/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
@@ -27,7 +27,7 @@ local tname = {
 	'Collaps',
 	'Filmix',
 	'Seasonvar',
-	-- 'Kodik',
+	'Kodik',
 	'ivi',
 	}
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
