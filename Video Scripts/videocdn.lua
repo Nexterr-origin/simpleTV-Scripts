@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (2/4/23)
+-- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (6/4/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://7741.annacdn.cc/fnXOUDB9nNSO/tv-series/92
@@ -40,9 +40,6 @@ local proxy = ''
 	if not m_simpleTV.User.Videocdn then
 		m_simpleTV.User.Videocdn = {}
 	end
-	if not m_simpleTV.User.Videocdn.qlty then
-		m_simpleTV.User.Videocdn.qlty = tonumber(m_simpleTV.Config.GetValue('Videocdn_qlty') or '10000')
-	end
 	local title
 	if m_simpleTV.User.Videocdn.Tabletitle and not psevdotv then
 		local index = m_simpleTV.Control.GetMultiAddressIndex()
@@ -81,12 +78,20 @@ local proxy = ''
 		m_simpleTV.OSD.RemoveElement('AK_INFO_TEXT')
 	end
 	local function GetMaxResolutionIndex(t)
-		local index
-		for u = 1, #t do
-				if t[u].qlty and m_simpleTV.User.Videocdn.qlty < t[u].qlty then break end
-			index = u
+		local lastQuality = tonumber(m_simpleTV.Config.GetValue('Videocdn_qlty') or 5000)
+		local index = #t
+			for i = 1, #t do
+				if t[i].qlty >= lastQuality then
+					index = i
+				 break
+				end
+			end
+		if index > 1 then
+			if t[index].qlty > lastQuality then
+				index = index - 1
+			end
 		end
-	 return index or 1
+	 return index
 	end
 	local function GetQualityFromAddress(url, title)
 		url = url:gsub('^$videocdn', '')
