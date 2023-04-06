@@ -1,4 +1,4 @@
--- видеоскрипт для видеобазы "kodik" http://kodik.cc (20/3/23)
+-- видеоскрипт для видеобазы "kodik" http://kodik.cc (5/4/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://hdrise.com/video/31756/445f20d7950d3df08f7574311e82521e/720p
@@ -84,6 +84,26 @@
 		end
 	 return index or 1
 	end
+	local function decode_kodik(data)
+		local t = {}
+			for i = 1, #data do
+				local s = data:sub(i, i)
+				s = string.byte(s)
+				if s >= 65 and s <= 77 then
+					s = s + 13
+				elseif s >= 78 and s <= 90 then
+					s = s - 13
+				elseif s >= 97 and s <= 109 then
+					s = s + 13
+				elseif s >= 110 and s <= 122 then
+					s = s - 13
+				end
+				t[i] = string.char(s)
+			end
+		data = table.concat(t)
+		data = decode64(data)
+	 return data
+	end
 	local function GetAddress(retAdr)
 		retAdr = retAdr:gsub('^//', 'https://')
 		local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr, headers = 'Referer: ' .. refer})
@@ -140,8 +160,7 @@
 				if qlty and adr then
 					t[#t +1] = {}
 					t[#t].qlty = qlty
-					adr = string.reverse(adr)
-					adr = decode64(adr)
+					adr = decode_kodik(adr)
 					t[#t].Address = adr:gsub('^//', 'https://')
 				end
 			end
@@ -234,7 +253,7 @@
 		end
 	end
 	local function play(Adr, title)
-		local answer = GetAddress(Adr:gsub('^%$kodiks', ''))
+		local answer = GetAddress(Adr:gsub('^$kodiks', ''))
 			if not answer then
 				m_simpleTV.Http.Close(session)
 			 return
@@ -261,10 +280,7 @@
 	m_simpleTV.User.kodik.url = nil
 	local url = inAdr:gsub('&kinopoisk.+', '')
 	local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: ' .. refer})
-		if rc ~= 200 then
-			m_simpleTV.Http.Close(session)
-		 return
-		end
+		if rc ~= 200 then return end
 	local season_title = ''
 	local seson = ''
 	m_simpleTV.User.kodik.Tabletitle = nil
