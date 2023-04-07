@@ -1,19 +1,18 @@
--- видеоскрипт для видеобазы "kodik" http://kodik.cc (6/4/23)
+-- видеоскрипт для видеобалансера "kodik" http://kodik.cc (8/4/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://hdrise.com/video/31756/445f20d7950d3df08f7574311e82521e/720p
 -- http://kodik.info/video/27565/0f93e7a7ce4c247c3b66b47b1b8910b2/720p
 -- http://kodik.cc/serial/37405/ab75ddfb810d744aae16eb202f3a5330/720
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-	local inAdr = m_simpleTV.Control.CurrentAddress
-		if not inAdr then return end
-		if not inAdr:match('^https?://kodik%.')
-			and not inAdr:match('^https?://hdrise%.com')
-			and not inAdr:match('^https?://hdlizor%.com')
-			and not inAdr:match('^$kodiks')
+		if not m_simpleTV.Control.CurrentAddress:match('^https?://kodik%.')
+			and not m_simpleTV.Control.CurrentAddress:match('^https?://hdrise%.com')
+			and not m_simpleTV.Control.CurrentAddress:match('^https?://hdlizor%.com')
+			and not m_simpleTV.Control.CurrentAddress:match('^$kodiks')
 		then
 		 return
 		end
+	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.OSD.ShowMessageT({text = '', showTime = 1000, id = 'channelName'})
 	if inAdr:match('^$kodiks') or not inAdr:match('&kinopoisk') then
 		if m_simpleTV.Control.MainMode == 0 then
@@ -27,7 +26,7 @@
 	inAdr = inAdr:gsub('/$', '')
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:103.0) Gecko/20100101 Firefox/103.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	if not m_simpleTV.User then
@@ -248,7 +247,7 @@
 		end
 		t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
 		if #t > 0 then
-			local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('⚙ Качество', index - 1, t, 5000, 1 + 4 + 2)
+			local ret, id = m_simpleTV.OSD.ShowSelect_UTF8('⚙ Качество', index - 1, t, 5000, 1 + 4 + 2 + 8)
 			if ret == 1 then
 				m_simpleTV.User.kodik.Index = id
 				m_simpleTV.User.kodik.qlty = t[id].qlty
@@ -380,10 +379,9 @@
 		end
 		t.ExtParams = {FilterType = 2}
 		title = title .. season_title
+		t.ExtParams.PlayMode = 1
 		local _, id = m_simpleTV.OSD.ShowSelect_UTF8(title, 0, t, 5000, p)
-		if not id then
-			id = 1
-		end
+		id = id or 1
 		inAdr = t[id].Address
 		m_simpleTV.User.kodik.title = title
 		title = title .. ' - ' .. m_simpleTV.User.kodik.Tabletitle[1].Name
