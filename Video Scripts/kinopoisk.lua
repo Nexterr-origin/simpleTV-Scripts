@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (5/4/23)
+-- видеоскрипт для сайта http://www.kinopoisk.ru (9/4/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
@@ -101,7 +101,7 @@ local tname = {
 	 return	tonumber(serial), tonumber(year), title, desc, tonumber(rating_kp), tonumber(rating_imdb)
 	end
 	local function requestUrl(url)
-		if url:match('videocdn%.tv') then
+		if url:match('videocdn') then
 				rc, answer = m_simpleTV.Http.Request(session, {url = url})
 					if rc ~= 200 then return end
 			return answer:match('"iframe_src":"([^"]+)')
@@ -123,7 +123,7 @@ local tname = {
 					i = i + 1
 				end
 			return Adrivi
-		elseif url:match('kodikapi%.com') then
+		elseif url:match('kodikapi') then
 			rc, answer = m_simpleTV.Http.Request(session, {url = url})
 				if rc ~= 200 then return end
 			return answer:match('"link":"([^"]+)')
@@ -164,7 +164,7 @@ local tname = {
 				 return
 				end
 			return answer
-		elseif url:match('seasonvar%.ru') then
+		elseif url:match('seasonvar') then
 				if not title then return end
 				if serial ~= 1 then return end
 			local svarnamei = title:gsub('[!?]', ' '):gsub('ё', 'е')
@@ -221,13 +221,11 @@ local tname = {
 			rc, answer = m_simpleTV.Http.Request(session, {url = url})
 				if rc ~= 200 then return end
 			return answer:match('"path":"([^"]+)')
-		elseif url:match('kinogram') then
-			rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: https://the-cinema.online/'})
+		elseif url:match('apicollaps') then
+			rc, answer = m_simpleTV.Http.Request(session, {url = url})
 				if rc ~= 200 then return end
-				if answer:match('embedHost') then
-				 return url
-				end
-		elseif url:match('vb17121coramclean') then
+			return answer:match('"iframe_url":"([^"]+)')
+		elseif url:match('apivb%.info') then
 			rc, answer = m_simpleTV.Http.Request(session, {url = url})
 				if rc ~= 200 then return end
 			return answer:match('"iframe_url":"([^"]+)')
@@ -243,13 +241,13 @@ local tname = {
 			return answer
 		elseif url:match('ivi%.ru') then
 			return answer
-		elseif url:match('videocdn%.tv') then
+		elseif url:match('videocdn') then
 			return answer
-		elseif url:match('kodikapi%.com') then
+		elseif url:match('kodikapi') then
 			return answer
-		elseif url:match('kinogram') then
-			return url
-		elseif url:match('vb17121coramclean') then
+		elseif url:match('apicollaps') then
+			return answer
+		elseif url:match('apivb%.info') then
 			return answer
 		elseif url:match('voidboost') then
 			return answer
@@ -277,7 +275,7 @@ local tname = {
 				end
 			id = id or 1
 			return f[id].Address
-		elseif url:match('seasonvar%.ru') then
+		elseif url:match('seasonvar') then
 			if m_simpleTV.User.paramScriptForSkin_buttonOk then
 				svar.OkButton = {ButtonImageCx = 30, ButtonImageCy= 30, ButtonImage = m_simpleTV.User.paramScriptForSkin_buttonOk}
 			end
@@ -331,9 +329,9 @@ local tname = {
 			elseif tname[i] == 'VideoCdn' then
 				turl[i] = {adr = decode64('aHR0cHM6Ly92aWRlb2Nkbi50di9hcGkvc2hvcnQ/YXBpX3Rva2VuPW9TN1d6dk5meGU0SzhPY3NQanBBSVU2WHUwMVNpMGZtJmtpbm9wb2lza19pZD0') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
 			elseif tname[i] == 'Collaps' then
-				turl[i] = {adr = 'http://api' .. os.time() .. decode64('Lmtpbm9ncmFtLmJlc3QvZW1iZWQva3Av') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
+				turl[i] = {adr = decode64('aHR0cHM6Ly9hcGljb2xsYXBzLmNjL2xpc3Q/dG9rZW49ZjJhMjQyMDcxOTNmZDJhNWNlZDZlMTdkZTExYmJlOTUma2lub3BvaXNrX2lkPQ') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
 			elseif tname[i] == 'Hdvb' then
-				turl[i] = {adr = decode64('aHR0cHM6Ly92YjE3MTIxY29yYW1jbGVhbi5wdy9hcGkvdmlkZW9zLmpzb24/dG9rZW49Yzk5NjZiOTQ3ZGEyZjNjMjliMzBjMGUwZGNjYTZjZjQmaWRfa3A9') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
+				turl[i] = {adr = decode64('aHR0cHM6Ly9hcGl2Yi5pbmZvL2FwaS92aWRlb3MuanNvbj90b2tlbj05MTlmM2QxMzBiNTZkOGJmMDZiZWY2ZDkxZjY5NDU3MiZpZF9rcD0') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
 			elseif tname[i] == 'Voidboost' then
 				turl[i] = {adr = decode64('aHR0cHM6Ly92b2lkYm9vc3QubmV0L2VtYmVkLw') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
 			end
