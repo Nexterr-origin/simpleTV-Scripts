@@ -1,13 +1,10 @@
--- видеоскрипт для видеобалансера "Collaps" https://collaps.org (30/3/23)
+-- видеоскрипт для видеобалансера "Collaps" https://collaps.org (9/4/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
--- http://api1656248141.synchroncode.com/embed/kp/460586
--- https://api1603044906.kinogram.best/embed/kp/5928
--- http://api1663028625.synchroncode.com/embed/kp/1394275
+-- https://api.strvid.ws/embed/movie/3253
 -- https://api.strvid.ws/embed/kp/46225
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('^https?://api[%d]*%[^/]+/embed/movie/%d+')
-			and not m_simpleTV.Control.CurrentAddress:match('^https?://api[%d]*[^/]+/embed/kp/%d+')
+		if not m_simpleTV.Control.CurrentAddress:match('^https?://api%.strvid%.ws/embed')
 			and not m_simpleTV.Control.CurrentAddress:match('^$collaps')
 		then
 		 return
@@ -288,7 +285,7 @@
 		if i == 2 then
 			p = 32 + 128
 		end
-		t.ExtParams = {FilterType = 2}
+		t.ExtParams = {FilterType = 2, PlayMode = 1}
 		local _, id = m_simpleTV.OSD.ShowSelect_UTF8(title .. season_title, 0, t, 15000, p + 64)
 		id = id or 1
 		inAdr = t[id].Address
