@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "kodik" http://kodik.cc (8/4/23)
+-- видеоскрипт для видеобалансера "kodik" http://kodik.cc (9/4/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://hdrise.com/video/31756/445f20d7950d3df08f7574311e82521e/720p
@@ -377,9 +377,8 @@
 			p = 32 + 128
 			m_simpleTV.User.kodik.isVideo = true
 		end
-		t.ExtParams = {FilterType = 2}
+		t.ExtParams = {FilterType = 2, PlayMode = 1}
 		title = title .. season_title
-		t.ExtParams.PlayMode = 1
 		local _, id = m_simpleTV.OSD.ShowSelect_UTF8(title, 0, t, 5000, p)
 		id = id or 1
 		inAdr = t[id].Address
