@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "kodik" http://kodik.cc (9/4/23)
+-- видеоскрипт для видеобалансера "kodik" http://kodik.cc (16/4/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://hdrise.com/video/31756/445f20d7950d3df08f7574311e82521e/720p
@@ -185,7 +185,7 @@
 				local adr = t1[#t1].Address:gsub('/%d+%.mp4', '/720.mp4')
 				local rc, answer = m_simpleTV.Http.Request(session, {url = adr, method = 'HEAD'})
 				if rc == 200 then
-					t1[#t1 + 1] = {qlty = 1080, Name = '720p', Address = adr}
+					t1[#t1 + 1] = {qlty = 720, Name = '720p', Address = adr}
 				end
 			end
 			if t1[#t1].Address:match('/720%.mp4') then
