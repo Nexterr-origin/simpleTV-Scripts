@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://smotrim.ru (28/3/23)
+-- видеоскрипт для сайта https://smotrim.ru (25/4/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## Необходим ##
 -- видеоскприпт: mediavitrina.lua
@@ -152,7 +152,6 @@
 	end
 	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr:gsub('smotrim_podcast=', '')})
 		if rc ~= 200 then
-			m_simpleTV.Http.Close(session)
 			showErr(1)
 		 return
 		end
@@ -165,7 +164,7 @@
 		 return
 		end
 	answer = answer:gsub('\\/', '/'):gsub('&quot;', '"'):gsub('&amp;', '&')
-	local embedUrl = answer:match('http[^\'\"<>]+player%.[^<>\'\"]+') or answer:match('http[^\'\"<>]+icecast%-[^<>\'\"]+')
+	local embedUrl = answer:match('http[^\'\"<>]+player%.[^<>\'\"]+') or answer:match('http[^\'\"<>]+/iframe/[^/]+/id/[^<>\'\"]+') or answer:match('http[^\'\"<>]+icecast%-[^<>\'\"]+')
 		if not embedUrl then
 			showErr('Медиа контент не найден')
 		 return
@@ -176,27 +175,13 @@
 			dofile(m_simpleTV.MainScriptDir .. 'user/video/video.lua')
 		 return
 		end
-	rc, answer = m_simpleTV.Http.Request(session, {url = embedUrl, headers = 'Referer: ' .. inAdr})
-		if rc ~= 200 then
-			m_simpleTV.Http.Close(session)
-			showErr(3)
-		 return
-		end
 	answer = answer:gsub('%s+', '')
-	local dataUrl = answer:match('dataUrl=\'([^\']+)')
-	local dataUrlAudio = answer:match('window%.pl%.audio_url=[\'"]([^\'"]+)')
-		if not dataUrl and not dataUrlAudio then
-			showErr(4)
-		 return
-		end
-		if dataUrlAudio then
-			m_simpleTV.Control.CurrentAddress = dataUrlAudio
-		 return
-		end
+	local dataUrl = embedUrl:gsub('[%w_]+/false/?', ''):gsub('[%w_]+/true/?', ''):gsub('%?.+', '')
 	dataUrl = dataUrl:gsub('^//', 'https://')
-	local islive = answer:match('isVod=0')
-	if islive then
-		dataUrl = dataUrl:gsub('datavideo', 'datalive')
+	local islive = dataUrl:match('/live/')
+	dataUrl = dataUrl:gsub('/live/', '/datalive/'):gsub('/video/', '/datavideo/'):gsub('/audio/', '/dataaudio/'):gsub('/audio/', '/dataaudio/'):gsub('/audio%-live/', '/dataaudiolive/')
+	if not dataUrl:match('/sid/') then
+		dataUrl = dataUrl:gsub('/$', '') .. '/sid/smotrim'
 	end
 	rc, answer = m_simpleTV.Http.Request(session, {url = dataUrl, headers = 'Referer: ' .. embedUrl})
 		if rc ~= 200 then
@@ -204,8 +189,9 @@
 			showErr(5)
 		 return
 		end
+	local audio_url = answer:match('"audio_url":"([^"]+)')
 	local retAdr = answer:match('"auto":"([^"]+)')
-		if not retAdr then
+		if not retAdr and not audio_url then
 			local err = answer:match('%[{"errors":"([^"]+)')
 			if err and err ~= '' then
 				err = unescape3(err)
@@ -230,6 +216,10 @@
 		title = addTitle .. ' - ' .. title
 	end
 	m_simpleTV.Control.CurrentTitle_UTF8 = title
+		if (retAdr and retAdr:match('icecast')) or audio_url then
+			m_simpleTV.Control.CurrentAddress = retAdr or audio_url
+		 return
+		end
 	local duration = answer:match('"duration":(%d+)')
 	if not islive then
 		Thumbs(answer)
