@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://smotrim.ru (25/4/23)
+-- видеоскрипт для сайта https://smotrim.ru (8/5/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## Необходим ##
 -- видеоскприпт: mediavitrina.lua
@@ -229,29 +229,24 @@
 			showErr(7)
 		 return
 		end
-	local host = retAdr:match('.+%.smil/') or retAdr:match('.+/')
-	local host2 = retAdr:match('https?://[^/]+')
 	local extOpt = '$OPT:no-spu'
 	local t, i = {}, 1
-		for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-\n.-)\n') do
-			local adr = w:match('\n(.+)')
-			local name = w:match('BANDWIDTH=(%d+)')
-			if adr and name then
-				name = math.ceil(tonumber(name) / 10000) * 10
-				t[i] = {}
-				t[i].Id = name
-				t[i].Name = name .. ' кбит/с'
-				if not adr:match('^http') then
-					if adr:match('^/hls') then
-						adr = host2 .. adr
-					else
-						adr = host .. adr
-					end
+		for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-)\n') do
+			local res = w:match('RESOLUTION=%d+x(%d+)')
+			local bw = w:match('BANDWIDTH=(%d+)')
+			if bw then
+				bw = tonumber(bw)
+				bw = math.ceil(bw / 10000) * 10
+				t[#t + 1] = {}
+				if res then
+					t[#t].Name = res .. 'p (' .. bw .. ' кбит/с)'
+				else
+					t[#t].Name = bw .. ' кбит/с'
 				end
-				t[i].Address = adr .. extOpt
-				i = i + 1
+				t[#t].Id = bw
+				t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s%s', retAdr, bw, extOpt)
+				end
 			end
-		end
 		if #t == 0 then
 			m_simpleTV.Control.CurrentAddress = retAdr .. extOpt
 		 return
