@@ -1,5 +1,5 @@
--- видеоскрипт для сайта http://www.lostfilm.tv (15/10/20)
--- Copyright © 2017-2020 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта http://www.lostfilm.tv (9/5/23)
+-- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- Acestream
 -- ## Авторизация ##
@@ -9,13 +9,13 @@
 -- https://www.lostfilm.tv/series/Star_Trek_Discovery/seasons/
 -- https://www.lostfilm.tv/series/Game_of_Thrones/season_8
 -- https://www.lostfilm.tv/series/American_Horror_Story/season_6/episode_10/
--- http://n.tracktor.site/td.php?s=FhI7t4 ...
--- http://www.lostfilm.tv/series/The_Night_Manager
+-- https://n.tracktor.site/td.php?s=ttRSVULjB3lapqj%2FQhOPKr0Ek%2B4j0FjCT5tt6osaFfCjjumTVj1CHAmnpXnnMMmAhFuzLPwfsuuebi6P7Fyt3VcLVK3J%2F3kpjk3vSbX2A3rHNxq3F2Q9yeKsrLHZdFq6gwEagA%3D%3D
 -- http://www.lostfilm.tv/series/The_Punisher/video/2
+-- https://www.lostfilmtv5.site/series/Silo
 -- ## зеркало ##
 local zer = ''
 -- '' = нет
--- 'https://www.lostfilmtv1.site' (пример)
+-- 'https://www.lostfilmtv5.site' (пример)
 -- ## прокси ##
 local prx = ''
 -- '' - нет
@@ -38,7 +38,10 @@ local prx = ''
 		m_simpleTV.User.lostfilm = {}
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
-	m_simpleTV.Control.CurrentAddress = ''
+	m_simpleTV.Control.CurrentAddress = 'error'
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0', proxy, false)
+		if not session then return end
+	m_simpleTV.Http.SetTimeout(session, 12000)
 		if inAdr:match('https?://n%.tracktor%.') then
 			local title = 'lostfilm'
 			if inAdr:match('%$TORRENTINDEX=%d') and m_simpleTV.User.lostfilm.title then
@@ -52,7 +55,10 @@ local prx = ''
 				posterUrl = m_simpleTV.User.lostfilm.posterUrl
 			end
 			m_simpleTV.Interface.SetBackground({BackColor = 0, BackColorEnd = 255, PictFileName = posterUrl, TypeBackColor = 0, UseLogo = 3, Once = 1})
-			local retAdr = 'torrent://' .. inAdr:gsub('^torrent://', '')
+			inAdr = inAdr:gsub('^torrent://', '')
+			local rc, torFile = m_simpleTV.Http.Request(session, {url = inAdr, writeinfile = true, filename = 'torrent_lostfilm.torrent'})
+				if rc ~= 200 then return end
+			local retAdr = 'torrent://' .. torFile
 			m_simpleTV.Control.CurrentAddress = retAdr
 		 return
 		end
@@ -82,9 +88,6 @@ local prx = ''
 	if not m_simpleTV.User.lostfilm.qlty then
 		m_simpleTV.User.lostfilm.qlty = tonumber(m_simpleTV.Config.GetValue('lostfilm_qlty') or '3')
 	end
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:93.0) Gecko/20100101 Firefox/93.0', proxy, false)
-		if not session then return end
-	m_simpleTV.Http.SetTimeout(session, 12000)
 	local function trim(str)
 		str = string.match(str,'^%s*(.-)%s*$')
 	 return str
