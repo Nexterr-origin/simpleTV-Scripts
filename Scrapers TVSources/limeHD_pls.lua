@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "LimeHD" https://limehd.tv (6/1/23)
+-- скрапер TVS для загрузки плейлиста "LimeHD" https://limehd.tv (25/5/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: limeHD.lua
@@ -46,17 +46,21 @@ local filter = {
 			end
 		local t, i = {}, 1
 			while tab.data[i] do
-				if tab.data[i].attributes
-					and tab.data[i].attributes.streams
-					and tab.data[i].attributes.streams[1]
-					and tab.data[i].attributes.streams[1].id
-				then
-					t[#t + 1] = {}
-					t[#t].name = tab.data[i].attributes.name
-					t[#t].address = 'https://limehd.tv/' .. tab.data[i].attributes.streams[1].id
-					t[#t].logo = tab.data[i].attributes.image_url
-					local archive_minutes = (tab.data[i].attributes.streams[1].archive_hours or 0) * 60
-					t[#t].RawM3UString = 'catchup="append" catchup-minutes="' .. archive_minutes .. '"'
+				local k = 1
+				while tab.data[i].attributes.streams[k] do
+					if tab.data[i].attributes.streams[k].content_type then
+						t[#t + 1] = {}
+						local time_zone = tab.data[i].attributes.streams[k].time_zone
+						time_zone = time_zone:match('%d+')
+						time_zone = tonumber(time_zone) - 3
+						time_zone = '(+' .. time_zone .. ')'
+						time_zone = time_zone:gsub('%(%+0%)', '')
+						t[#t].name = tab.data[i].attributes.name .. ' ' .. url_encode(time_zone)
+						t[#t].address = 'https://limehd.tv/' .. tab.data[i].attributes.streams[k].id
+						t[#t].logo = tab.data[i].attributes.image_url
+						t[#t].RawM3UString = 'catchup="append" catchup-minutes="' .. (tab.data[i].attributes.streams[k].archive_hours * 60) .. '"'
+					end
+					k = k + 1
 				end
 				i = i + 1
 			end
