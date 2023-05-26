@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "beetvkz" https://beetv.kz (26/5/23)
+-- видеоскрипт для плейлиста "beetvkz" https://beetv.kz (27/5/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: beetvkz_pls.lua
@@ -14,7 +14,7 @@
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local session = m_simpleTV.Http.New(userAgent, proxy, false)
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local extOpt = '$OPT:INT-SCRIPT-PARAMS=beetvkz'
@@ -74,7 +74,7 @@
 	if m_simpleTV.Control.MainMode == 0 then
 		t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
 		t.ExtParams = {LuaOnOkFunName = 'beetvkzSaveQuality'}
-		m_simpleTV.OSD.ShowSelect_UTF8('⚙ Качество', index - 1, t, 5000, 32 + 64 + 128 +8)
+		m_simpleTV.OSD.ShowSelect_UTF8('⚙ Качество', index - 1, t, 5000, 32 + 64 + 128 + 8)
 	end
 	m_simpleTV.Control.CurrentAddress = t[index].Address
 -- debug_in_file(m_simpleTV.Control.CurrentAddress .. '\n')
