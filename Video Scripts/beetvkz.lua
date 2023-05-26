@@ -5,7 +5,7 @@
 -- ## открывает подобные ссылки ##
 -- http://edge05.beetv.kz/btv/SWM/FOX/FOX.m3u8
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('https?://edge%d+%.beetv%.kz')then return
+		if not m_simpleTV.Control.CurrentAddress:match('https?://edge%d+%.beetv%.kz') then return
 		end
 		if m_simpleTV.Control.CurrentAddress:match('PARAMS=beetvkz') then return end
 	if m_simpleTV.Control.MainMode == 0 then
