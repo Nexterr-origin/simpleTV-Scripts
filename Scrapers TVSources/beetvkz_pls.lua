@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "beetvkz" https://beetv.kz (26/5/23)
+-- скрапер TVS для загрузки плейлиста "beetvkz" https://beetv.kz (27/5/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: beetvkz.lua
@@ -26,26 +26,53 @@ local filter = {
 	function GetVersion()
 	 return 2, 'UTF-8'
 	end
+	function LoadFromSite()
+		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
+			if not session then return end
+		m_simpleTV.Http.SetTimeout(session, 8000)
+		local url = decode64('aHR0cHM6Ly9hcGkuYmVldHYua3ovdjMvY2hhbm5lbHMuanNvbj9jbGllbnRfaWQ9M2UyODY4NWMtZmNlMC00OTk0LTlkM2EtMWRhZDI3NzZlMTZhJmNsaWVudF92ZXJzaW9uPTQuMy4wLTEwMyZsb2NhbGU9cnUtUlUmdGltZXpvbmU9MTA4MDAmZXhwYW5kW2NoYW5uZWxdPWxpdmVfcHJldmlldyxjYXRjaHVwX2F2YWlsYWJpbGl0eSZwYWdlW2xpbWl0XT01MDA')
+		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
+			if rc ~= 200 then return end
+		answer = answer:gsub('%[%]', '""')
+		require 'json'
+		local err, tab = pcall(json.decode, answer)
+			if not tab or not tab.data then return end
+		local t = {}
+			for i = 1, #tab.data do
+				if tab.data[i].live_preview
+					and tab.data[i].live_preview.url_template
+					and tab.data[i].live_preview.url_template:match('/btv/SWM/')
+				then
+					local canal = tab.data[i].live_preview.url_template:match('/btv/SWM/([^/]+)/')
+					t[#t + 1] = {}
+					t[#t].name = tab.data[i].name
+					t[#t].address = string.format('http://edge01.beetv.kz/btv/SWM/%s/%s.m3u8', canal, canal)
+					-- if tab.data[i].catchup_availability
+						-- and tab.data[i].catchup_availability.period
+						-- and tab.data[i].catchup_availability.period.value
+						-- and tab.data[i].catchup_availability.period.unit
+						-- and tab.data[i].catchup_availability.period.unit == 'days'
+					-- then
+						-- local period = tab.data[i].catchup_availability.period.value
+						-- t[#t].RawM3UString = 'catchup="append" catchup-days="' .. period .. '" catchup-source="?stream_start_offset=${offset}000000"'
+					-- end
+				end
+			end
+	 return t
+	end
 	function GetList(UpdateID, m3u_file)
 			if not UpdateID then return end
 			if not m3u_file then return end
 			if not TVSources_var.tmp.source[UpdateID] then return end
 		local Source = TVSources_var.tmp.source[UpdateID]
-		local outm3u, err = tvs_func.get_m3u(decode64('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL05leHRlcnItb3JpZ2luL3NpbXBsZVRWLVBsYXlsaXN0cy9tYWluL2JlZXR2a3o'))
-		if err ~= '' then
-			tvs_core.tvs_ShowError(err)
-			m_simpleTV.Common.Sleep(1000)
-		end
-			if not outm3u or outm3u == '' then
-			 return ''
-			end
-		local t_pls = tvs_core.GetPlsAsTable(outm3u)
+		local t_pls = LoadFromSite()
+			if not t_pls or #t_pls == 0 then return end
 		t_pls = ProcessFilterTableLocal(t_pls)
 		local m3ustr = tvs_core.ProcessFilterTable(UpdateID, Source, t_pls)
 		local handle = io.open(m3u_file, 'w+')
-			if not handle then return nil end
+			if not handle then return end
 		handle:write(m3ustr)
 		handle:close()
 	 return 'ok'
 	end
--- debug_in_file(#t .. '\n')
+-- debug_in_file(#t_pls .. '\n')
