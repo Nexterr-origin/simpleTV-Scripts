@@ -1,50 +1,37 @@
--- видеоскрипт для плейлиста "beetvkz" https://beetv.kz (27/5/23)
+-- видеоскрипт для плейлиста "beetvkz" https://beetv.kz (28/5/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: beetvkz_pls.lua
 -- ## открывает подобные ссылки ##
--- http://edge05.beetv.kz/btv/SWM/FOX/FOX.m3u8
+-- https://beetvkz/100006592
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('https?://edge%d+%.beetv%.kz') then return
-		end
-		if m_simpleTV.Control.CurrentAddress:match('PARAMS=beetvkz') then return end
+		if not m_simpleTV.Control.CurrentAddress:match('https?://beetvkz/%d') then return end
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
 	end
-	local inAdr = m_simpleTV.Control.CurrentAddress
+	local inAdr = m_simpleTV.Control.CurrentAddress:match('%d+')
+	inAdr = decode64('aHR0cHM6Ly91Y2RuLmJlZXR2Lmt6L2J0di9saXZlL2hscy8') .. inAdr .. '.m3u8'
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
 	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
-	local extOpt = '$OPT:INT-SCRIPT-PARAMS=beetvkz'
-	local function streamsTab(answer, extOpt)
-		local t = {}
-			for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-)\n') do
-				local bw = w:match('BANDWIDTH=(%d+)')
-				local res = w:match('RESOLUTION=%d+x(%d+)')
-				if bw then
-					bw = tonumber(bw)
-					bw = math.ceil(bw / 100000) * 100
-					t[#t + 1] = {}
-					t[#t].Id = bw
-					if res then
-						t[#t].Name = res .. 'p (' .. bw .. ' кбит/с)'
-					else
-						t[#t].Name = bw .. ' кбит/с'
-					end
-					t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s%s', inAdr, bw, extOpt)
-				end
-			end
-	 return t
-	end
-	function beetvkzSaveQuality(obj, id)
-		m_simpleTV.Config.SetValue('beetvkz_qlty', id)
-	end
 	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
-	m_simpleTV.Http.Close(session)
 		if rc ~= 200 then return end
-	local t = streamsTab(answer, extOpt)
+	local extOpt = ''
+	local t = {}
+		for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-)\n') do
+			local bw = w:match('BANDWIDTH=(%d+)')
+			local res = w:match('RESOLUTION=%d+x(%d+)')
+			if bw and res then
+				bw = tonumber(bw)
+				bw = math.ceil(bw / 100000) * 100
+				t[#t + 1] = {}
+				t[#t].Id = bw
+				t[#t].Name = res .. 'p (' .. bw .. ' кбит/с)'
+				t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s%s', inAdr, bw, extOpt)
+			end
+		end
 		if #t == 0 then
 			m_simpleTV.Control.CurrentAddress = inAdr .. extOpt
 		 return
@@ -77,4 +64,7 @@
 		m_simpleTV.OSD.ShowSelect_UTF8('⚙ Качество', index - 1, t, 5000, 32 + 64 + 128 + 8)
 	end
 	m_simpleTV.Control.CurrentAddress = t[index].Address
+	function beetvkzSaveQuality(obj, id)
+		m_simpleTV.Config.SetValue('beetvkz_qlty', id)
+	end
 -- debug_in_file(m_simpleTV.Control.CurrentAddress .. '\n')
