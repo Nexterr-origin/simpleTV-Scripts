@@ -1,10 +1,10 @@
--- скрапер TVS для загрузки плейлиста "beetvkz" https://beetv.kz (28/5/23)
+-- скрапер TVS для загрузки плейлиста "beetvkz" https://beetv.kz (29/5/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: beetvkz.lua
 -- ## переименовать каналы ##
 local filter = {
-	{'TV1000 Kino', 'TV1000 Русское кино'},
+	{'', ''},
 	}
 	module('beetvkz_pls', package.seeall)
 	local my_src_name = 'beetvkz'
@@ -30,7 +30,7 @@ local filter = {
 		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 8000)
-		local url = decode64('aHR0cHM6Ly9hcGkuYmVldHYua3ovdjMvY2hhbm5lbHMuanNvbj9jbGllbnRfaWQ9M2UyODY4NWMtZmNlMC00OTk0LTlkM2EtMWRhZDI3NzZlMTZhJmNsaWVudF92ZXJzaW9uPTQuMy4wLTEwMyZsb2NhbGU9cnUtUlUmdGltZXpvbmU9MTA4MDAmZXhwYW5kW2NoYW5uZWxdPWxpdmVfc3RyZWFtLGNhdGNodXBfYXZhaWxhYmlsaXR5JnBhZ2VbbGltaXRdPTUwMA')
+		local url = decode64('aHR0cHM6Ly9hcGkuYmVldHYua3ovdjMvY2hhbm5lbHMuanNvbj9jbGllbnRfaWQ9M2UyODY4NWMtZmNlMC00OTk0LTlkM2EtMWRhZDI3NzZlMTZhJmNsaWVudF92ZXJzaW9uPTQuMy4wLTEwMyZsb2NhbGU9cnUtUlUmdGltZXpvbmU9MTA4MDAmZXhwYW5kW2NoYW5uZWxdPWxpdmVfc3RyZWFtJnBhZ2VbbGltaXRdPTUwMA')
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 			if rc ~= 200 then return end
 		answer = answer:gsub('%[%]', '""')
@@ -43,15 +43,6 @@ local filter = {
 					t[#t + 1] = {}
 					t[#t].name = tab.data[i].name
 					t[#t].address = 'https://beetvkz/' .. tab.data[i].live_stream.streaming_uid
-					-- if tab.data[i].catchup_availability
-						-- and tab.data[i].catchup_availability.period
-						-- and tab.data[i].catchup_availability.period.value
-						-- and tab.data[i].catchup_availability.period.unit
-						-- and tab.data[i].catchup_availability.period.unit == 'days'
-					-- then
-						-- local period = tab.data[i].catchup_availability.period.value
-						-- t[#t].RawM3UString = 'catchup="append" catchup-days="' .. period .. '" catchup-source="?stream_start_offset=${offset}000000"'
-					-- end
 				end
 			end
 	 return t
