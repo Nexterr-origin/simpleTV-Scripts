@@ -18,13 +18,15 @@
 ### ★ Scripts for simpleTV
 
 ---
-
+<details>
 
 
 📌 **Installation**
  - video scripts to folder _`..\luaScr\user\video`_
  - scrapers [![addon TVSources][badge-tvsources]][TVSources] to folder _`..\luaScr\user\TVSources\AutoSetup`_
 
+</details> 
+ 
 [discussions]: https://github.com/Nexterr-origin/Nexterr-origin/discussions "discussions"
 [YT]: ../../../simpleTV-YouTube "YouTube Script"
 [addons]: ../../../simpleTV-Addons "Addons"
