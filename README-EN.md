@@ -13,13 +13,9 @@
 [![Lua][badge-lua]][Lua]
 [![License][badge-license]][License]
 
----
-
 ### ★ Scripts for simpleTV
 
----
 <details>
-
 
 📌 **Installation**
  - video scripts to folder _`..\luaScr\user\video`_
