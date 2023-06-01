@@ -28,7 +28,7 @@
 
 📌 **Installation**
  - video scripts to folder _`..\luaScr\user\video`_
- - scrapers _`TVSources`_ to folder _`..\luaScr\user\TVSources\AutoSetup`_
+ - scrapers [![addon TVSources][badge-tvsources]][TVSources] to folder _`..\luaScr\user\TVSources\AutoSetup`_
 
 <!---
 📌 **В некоторых скриптах возможно указать**
