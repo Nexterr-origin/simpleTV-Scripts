@@ -1,11 +1,11 @@
--- видеоскрипт для плейлиста "beetvkz" https://beetv.kz (28/5/23)
+-- видеоскрипт для плейлиста "beetvkz" https://beetv.kz (1/6/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: beetvkz_pls.lua
 -- ## открывает подобные ссылки ##
 -- https://beetvkz/100006592
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('https?://beetvkz/%d') then return end
+		if not m_simpleTV.Control.CurrentAddress:match('^https?://beetvkz/%d') then return end
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
 	end
