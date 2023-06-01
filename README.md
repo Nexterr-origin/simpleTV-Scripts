@@ -14,6 +14,7 @@
 [![License][badge-license]][License]
 
 ### ★ Скрипты для simpleTV
+
 <details>
 
 📌 **Установка**
