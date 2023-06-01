@@ -57,7 +57,7 @@
 [simpleTV API]: http://iptv.gen12.net/dokuwiki/doku.php?id=mantis:simpletv:api "simpleTV API"
 [Lua]: https://www.lua.org/manual/5.1 "Lua 5.1"
 [License]: ../../blob/master/LICENSE "License GPL 3.0"
-[TVSources]: https://www.mediafire.com/folder/y4aqacseb5zee/TVSources3 "Addon TVSources by BM"
+[TVSources]: https://github.com/BMSimple/SimpleTV/releases/tag/TVSources "Addon TVSources by BM"
 [PM]: http://iptv.gen12.net/bugtracker/view.php?id=1485 "Addon Password Manager"
 [simpleTV homepage]: http://iptv.gen12.net "simpleTV homepage"
 
