@@ -13,7 +13,7 @@
 [![Lua][badge-lua]][Lua]
 [![License][badge-license]][License]
 
-### ★ <span id="a1">[Scripts for simpleTV](#1 "")</span>
+### ★ <span id="a1">[Scripts](#1 "")</span>
 
 <details>
 
