@@ -1,12 +1,16 @@
--- видеоскрипт для плейлиста "okkotv" https://okko.tv (12/1/23)
+-- видеоскрипт для плейлиста "okkotv" https://okko.tv (1/6/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: okkotv_pls.lua
 -- ## открывает подобные ссылки ##
 -- https://okkotv-live.cdnvideo.ru/channel/Match_OTT_HD.m3u8
 -- https://okkotv-live.cdnvideo.ru/dash/start_triumph_hd/playlist.mpd
+-- https://live-okkotv.cdnvideo.ru/okkotv/1tv.smil/playlist.m3u8
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('https?://okkotv%-live%.')then return
+		if not m_simpleTV.Control.CurrentAddress:match('^https?://okkotv%-live%.')
+			and not m_simpleTV.Control.CurrentAddress:match('^https?://live%-okkotv%.')
+		 then
+		return
 		end
 		if m_simpleTV.Control.CurrentAddress:match('PARAMS=okkotv') then return end
 	if m_simpleTV.Control.MainMode == 0 then
@@ -15,14 +19,14 @@
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local session = m_simpleTV.Http.New(userAgent, proxy, false)
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local extOpt = '$OPT:INT-SCRIPT-PARAMS=okkotv'
 	local function streamsTab(answer, extOpt)
 		local t = {}
-			for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-\n.-)\n') do
-				local bw = w:match('BANDWIDTH=(%d+)')
+			for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-)\n') do
+				local bw = w:match('[^%-]BANDWIDTH=(%d+)')
 				local res = w:match('RESOLUTION=%d+x(%d+)')
 				if bw then
 					bw = tonumber(bw)
