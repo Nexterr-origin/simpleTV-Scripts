@@ -1,5 +1,5 @@
--- скрапер TVS для загрузки плейлиста "Витрина ТВ" https://vitrina.tv (20/12/22)
--- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- скрапер TVS для загрузки плейлиста "Витрина ТВ" https://vitrina.tv (3/6/23)
+-- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: mediavitrina.lua
 -- ## переименовать каналы ##
@@ -58,7 +58,7 @@ local filter = {
 				local plusCh = nil
 				local rc, answer = m_simpleTV.Http.Request(session, {url = t[i].address})
 				if rc == 200 then
-					for title, adr in answer:gmatch('{%s*"title":%s*"([^"]+)"%s*,%s*"streams_api_url":%s*"([^"]+)') do
+					for title, adr in answer:gmatch('{%s*"title":%s*"([^"]+)"%s*,%s*"streams_api_url":%s*"([^"%?]+)') do
 						t1[#t1 + 1] = {}
 						title = unescape3(title)
 						title = title:gsub('МСК', ''):gsub('Часовые пояса', ''):gsub('%.', ''):gsub('Ext', ''):gsub('%+0', '')
