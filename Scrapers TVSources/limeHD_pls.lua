@@ -1,12 +1,11 @@
--- скрапер TVS для загрузки плейлиста "LimeHD" https://limehd.tv (25/5/23)
+-- скрапер TVS для загрузки плейлиста "LimeHD" https://limehd.tv (4/6/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: limeHD.lua
 -- расширение дополнения httptimeshift: limehd-timeshift_ext.lua
 -- ## переименовать каналы ##
 local filter = {
-	{'ЛДПР LIVE', 'ЛДПР ТВ'},
-	{'Липецкое время', 'Липецкое время (Липецк)'},
+	{'', ''},
 	}
 	module('limeHD_pls', package.seeall)
 	local my_src_name = 'LimeHD'
@@ -32,35 +31,25 @@ local filter = {
 		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 8000)
-		local url = decode64('aHR0cHM6Ly9hcGkuaXB0djIwMjEuY29tL3YxL2NoYW5uZWxzL2J5X2dyb3VwLzExP2xvY2FsZT1ydQ')
-		local headers = decode64('WC1BY2Nlc3MtS2V5OiAxMGFhMDkxMTQ1ODhhNWY3NTBlYWVkNWU5ZGU1MzcwNGM4NThlMTQ0')
-		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
+		local url = decode64('aHR0cHM6Ly9saW1laGQudHYvYXBpL3Y0L3BsYXlsaXN0P3BhZ2U9MSZsaW1pdD0xMDAwJm9ubHlhdmFpbGFibGU9MCZlcGc9MA')
+		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 			if rc ~= 200 then return end
 		answer = answer:gsub('%[%]', '""')
 		require 'json'
 		local err, tab = pcall(json.decode, answer)
 			if not tab
-				or not tab.data
+				or not tab.channels
 			then
 			 return
 			end
 		local t, i = {}, 1
-			while tab.data[i] do
-				local k = 1
-				while tab.data[i].attributes.streams[k] do
-					if tab.data[i].attributes.streams[k].content_type then
-						t[#t + 1] = {}
-						local time_zone = tab.data[i].attributes.streams[k].time_zone
-						time_zone = time_zone:match('%d+')
-						time_zone = tonumber(time_zone) - 3
-						time_zone = '(+' .. time_zone .. ')'
-						time_zone = time_zone:gsub('%(%+0%)', '')
-						t[#t].name = tab.data[i].attributes.name .. ' ' .. url_encode(time_zone)
-						t[#t].address = 'https://limehd.tv/' .. tab.data[i].attributes.streams[k].id
-						t[#t].logo = tab.data[i].attributes.image_url
-						t[#t].RawM3UString = 'catchup="append" catchup-minutes="' .. (tab.data[i].attributes.streams[k].archive_hours * 60) .. '"'
-					end
-					k = k + 1
+			while tab.channels[i] do
+				if tab.channels[i].public then
+					t[#t + 1] = {}
+					t[#t].name = tab.channels[i].title
+					t[#t].address = 'https://limehd.tv/channel/' .. tab.channels[i].address
+					t[#t].logo = tab.channels[i].image
+					t[#t].RawM3UString = 'catchup="append" catchup-days="' .. tab.channels[i].day_archive .. '"'
 				end
 				i = i + 1
 			end
