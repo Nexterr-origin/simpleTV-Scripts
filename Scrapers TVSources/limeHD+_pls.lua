@@ -32,7 +32,7 @@ local filter = {
 		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 8000)
-		local url = decode64('aHR0cHM6Ly9hcGkuaXB0djIwMjEuY29tL3YxL2NoYW5uZWxzP2xvY2FsZT1ydQ')
+		local url = decode64('aHR0cHM6Ly9hcGkuaXB0djIwMjEuY29tL3YxL2NoYW5uZWxz')
 		local headers = decode64('WC1BY2Nlc3MtS2V5OiAxMGFhMDkxMTQ1ODhhNWY3NTBlYWVkNWU5ZGU1MzcwNGM4NThlMTQ0')
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
 			if rc ~= 200 then return end
