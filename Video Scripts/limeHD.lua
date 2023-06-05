@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "LimeHD", "LimeHD+" https://limehd.tv (4/6/23)
+-- видеоскрипт для плейлиста "LimeHD", "LimeHD+" https://limehd.tv (5/6/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: LimeHD_pls.lua, LimeHD+_pls.lua
@@ -18,7 +18,6 @@
 	if not m_simpleTV.User.limehd then
 		m_simpleTV.User.limehd = {}
 	end
-	m_simpleTV.User.limehd.url_archive = nil
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
 	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
@@ -36,10 +35,10 @@
 	local function getStreamFromSite(inAdr)
 		local channel = inAdr:match('/channel/([^&/%?$]+)')
 			if not channel then return end
-		local url = decode64('aHR0cHM6Ly9saW1laGQudHYvYXBpL3Y0L2NoYW5uZWwv') .. channel .. '?epg=0&tz=3'
+		local url = decode64('aHR0cHM6Ly9saW1laGQudHYvYXBpL3Y0L2NoYW5uZWwv') .. channel
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 			if rc ~= 200 then return end
-	 return answer:match('"cdn":"([^"]+)'), answer:match('"archive":"([^"]+)')
+	 return answer:match('"common":"([^"]+)'), answer:match('"archive":"([^"]+)')
 	end
 	local retAdr, url_archive
 	if inAdr:match('/channel/') then
@@ -50,30 +49,22 @@
 	else
 		retAdr, url_archive = getStream(inAdr)
 	end
-	m_simpleTV.User.limehd.url_archive = 	url_archive
+	m_simpleTV.User.limehd.url_archive = url_archive
 		if not retAdr then return end
 	local extOpt = ''
 	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 		if rc ~= 200 then return end
 	local t = {}
-		for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-\n.-)\n') do
-			local adr = w:match('\n(.+)')
-			local bw = w:match('BANDWIDTH=(%d+)')
+		for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-)\n') do
+			local bw = w:match('[^%-]BANDWIDTH=(%d+)')
 			local res = w:match('RESOLUTION=%d+x(%d+)')
-			if bw and adr then
+			if bw and res then
 				bw = tonumber(bw)
-				bw = math.ceil(bw / 100000) * 100
+				bw = bw / 1000
 				t[#t + 1] = {}
-				t[#t].Id = bw
-				if res then
-					t[#t].Name = res .. 'p (' .. bw .. ' кбит/с)'
-				else
-					t[#t].Name = bw .. ' кбит/с'
-				end
-				if not adr:match('^http') then
-					adr = retAdr:match('.+/') .. adr
-				end
-				t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s%s', adr, bw, extOpt)
+				t[#t].Id = tonumber(res)
+				t[#t].Name = res .. 'p (' .. bw .. ' кбит/с)'
+				t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s%s', retAdr, bw, extOpt)
 			end
 		end
 		if #t == 0 then
