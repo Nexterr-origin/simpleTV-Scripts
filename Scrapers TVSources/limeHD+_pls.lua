@@ -7,6 +7,17 @@
 local filter = {
 	{'No title for channel #12040', 'Timeless Dizi Channel'},
 	{'No title for channel #12043', 'Eromania 4K'},
+	{'No title for channel #11187', 'Шалун'},
+	{'No title for channel #12622', 'Red Lips'},
+	{'TV XXI', 'ТВ XXI'},
+	{'Рыбинск-40 (Рыбинск)', 'Рыбинск 40 (Рыбинск)'},
+	{'Катунь-24 (Барнаул)', 'Катунь 24 (Барнаул)'},
+	{'ТВ-3', 'ТВ 3'},
+	{'ТВ-3 (+2)', 'ТВ 3 (+2)'},
+	{'ТВ-3 (+4)', 'ТВ 3 (+4)'},
+	{'ТВ-3 (+6)', 'ТВ 3 (+6)'},
+	{'Мир-24', 'Мир 24'},
+	{'RU-TV', 'RU TV'},
 	}
 	module('limeHD+_pls', package.seeall)
 	local my_src_name = 'LimeHD+'
@@ -21,6 +32,23 @@ local filter = {
 			end
 		end
 	 return t
+	end
+	local function tableClean(t)
+		local n = {'%(%a%a', '%-%d', '%.%a%a', '#%d%d', '^TV%s', 'Brasil', '^Rede', '^REDE', '^NOVA', 'Eurosport'}
+		local t1 = {}
+			for i = 1, #t do
+				local h = true
+					for k = 1, #n do
+						if t[i].name:match(n[k]) then
+							h = false
+						 break
+						end
+					end
+				if h then
+					t1[#t1 + 1] = t[i]
+				end
+			end
+	 return t1
 	end
 	function GetSettings()
 	 return {name = my_src_name, sortname = '', scraper = '', m3u = 'out_' .. my_src_name .. '.m3u', logo = '..\\Channel\\logo\\Icons\\limehd.png', TypeSource = 1, TypeCoding = 1, DeleteM3U = 1, show_progress = 0, RefreshButton = 1, AutoBuild = 0, AutoBuildDay = {0, 0, 0, 0, 0, 0, 0}, LastStart = 0, TVS = {add = 1, FilterCH = 1, FilterGR = 1, GetGroup = 1, LogoTVG = 1}, STV = {add = 1, ExtFilter = 1, FilterCH = 1, FilterGR = 1, GetGroup = 1, HDGroup = 0, AutoSearch = 1, AutoNumber = 0, NumberM3U = 0, GetSettings = 1, NotDeleteCH = 0, TypeSkip = 1, TypeFind = 1, TypeMedia = 0, RemoveDupCH = 1}}
@@ -74,6 +102,7 @@ local filter = {
 		local t_pls = LoadFromSite()
 			if not t_pls or #t_pls == 0 then return end
 		t_pls = ProcessFilterTableLocal(t_pls)
+		t_pls = tableClean(t_pls)
 		local m3ustr = tvs_core.ProcessFilterTable(UpdateID, Source, t_pls)
 		local handle = io.open(m3u_file, 'w+')
 			if not handle then return end
