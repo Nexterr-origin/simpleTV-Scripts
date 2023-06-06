@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "LimeHD+" https://limehd.tv (6/6/23)
+-- скрапер TVS для загрузки плейлиста "LimeHD+" https://limehd.tv (7/6/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: limeHD.lua
@@ -9,15 +9,17 @@ local filter = {
 	{'No title for channel #12043', 'Eromania 4K'},
 	{'No title for channel #11187', 'Шалун'},
 	{'No title for channel #12622', 'Red Lips'},
-	{'TV XXI', 'ТВ XXI'},
-	{'Рыбинск-40 (Рыбинск)', 'Рыбинск 40 (Рыбинск)'},
-	{'Катунь-24 (Барнаул)', 'Катунь 24 (Барнаул)'},
-	{'ТВ-3', 'ТВ 3'},
-	{'ТВ-3 (+2)', 'ТВ 3 (+2)'},
-	{'ТВ-3 (+4)', 'ТВ 3 (+4)'},
-	{'ТВ-3 (+6)', 'ТВ 3 (+6)'},
-	{'Мир-24', 'Мир 24'},
-	{'RU-TV', 'RU TV'},
+	{'No title for channel #10634', 'Gagsnetwork'},
+	{'No title for channel #10622', 'Хит'},
+	{'No title for channel #10624', 'Комеди'},
+	{'No title for channel #10645', 'MMA-TV'},
+	{'No title for channel #10647', 'АКВА ТВ'},
+	{'No title for channel #10659', 'Хоккейный'},
+	{'No title for channel #10672', 'Спортивный'},
+	{'No title for channel #10704', 'Звезда плюс'},
+	{'No title for channel #11908', 'Футбольный'},
+	{'No title for channel #12125', 'Ностальгия'},
+	{'No title for channel #13490', 'KinoLiving'},
 	}
 	module('limeHD+_pls', package.seeall)
 	local my_src_name = 'LimeHD+'
@@ -34,7 +36,7 @@ local filter = {
 	 return t
 	end
 	local function tableClean(t)
-		local n = {'%(%a%a', '%-%d', '%.%a%a', '#%d%d', '^TV%s', 'Brasil', '^Rede', '^REDE', '^NOVA', 'Eurosport'}
+		local n = {'%(%a%a', '%-%d%p', '%.%a%a', '#%d%d', '^TV%s', 'Brasil', '^Rede', '^REDE', '^NOVA', 'Eurosport', 'Дождь', 'National Geographic', 'Russian America TV', 'МИР PREMIUM', 'Евроновости'}
 		local t1 = {}
 			for i = 1, #t do
 				local h = true
@@ -82,8 +84,8 @@ local filter = {
 						time_zone = time_zone:match('%d+')
 						time_zone = tonumber(time_zone) - 3
 						time_zone = '(+' .. time_zone .. ')'
-						time_zone = time_zone:gsub('%(%+0%)', '')
-						t[#t].name = tab.data[i].attributes.name .. ' ' .. url_encode(time_zone)
+						time_zone = time_zone:gsub('%(%+0%)', ''):gsub('%(%+1%)', '')
+						t[#t].name = tab.data[i].attributes.name .. ' ' .. m_simpleTV.Common.toPercentEncoding(time_zone)
 						t[#t].address = 'https://limehd.tv/' .. tab.data[i].attributes.streams[k].id
 						t[#t].logo = tab.data[i].attributes.image_url
 						t[#t].RawM3UString = 'catchup="append" catchup-minutes="' .. (tab.data[i].attributes.streams[k].archive_hours * 60) .. '"'
