@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "LimeHD", "LimeHD+" https://limehd.tv (5/6/23)
+-- видеоскрипт для плейлиста "LimeHD", "LimeHD+" https://limehd.tv (7/6/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: LimeHD_pls.lua, LimeHD+_pls.lua
@@ -20,7 +20,8 @@
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
+	local userAgent = 'Mozilla/5.0 (iPad; CPU OS 16_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.4 Mobile/15E148 Safari/605.1.15'
+	local session = m_simpleTV.Http.New(userAgent)
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local function getStream(inAdr)
@@ -51,7 +52,7 @@
 	end
 	m_simpleTV.User.limehd.url_archive = url_archive
 		if not retAdr then return end
-	local extOpt = ''
+	local extOpt = '$OPT:adaptive-livedelay=60000$OPT:adaptive-minbuffer=50000$OPT:adaptive-maxbuffer=100000$OPT:http-user-agent=' .. userAgent
 	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 		if rc ~= 200 then return end
 	local t = {}
