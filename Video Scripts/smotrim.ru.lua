@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://smotrim.ru (8/5/23)
+-- видеоскрипт для сайта https://smotrim.ru (10/6/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## Необходим ##
 -- видеоскприпт: mediavitrina.lua
@@ -18,8 +18,12 @@
 		 return
 		end
 	local logo = 'https://cdnmg-st.smotrim.ru/smotrimru/smotrimru/i/logo-main-white.svg'
+	local UseLogo = 1
+	if m_simpleTV.Control.ChannelID ~= 268435455 then
+		UseLogo = 0
+	end
 	if m_simpleTV.Control.MainMode == 0 then
-		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = logo, TypeBackColor = 0, UseLogo = 1, Once = 1})
+		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = logo, TypeBackColor = 0, UseLogo = UseLogo, Once = 1})
 	end
 	require 'json'
 	if not m_simpleTV.User then
@@ -201,6 +205,7 @@
 		 return
 		end
 	answer = answer:gsub('\\"', '%%22')
+	if not islive then
 	local addTitle = 'Смотрим'
 	local title = answer:match('"title":"([^"]+)')
 	if not title then
@@ -216,6 +221,7 @@
 		title = addTitle .. ' - ' .. title
 	end
 	m_simpleTV.Control.CurrentTitle_UTF8 = title
+	end
 		if (retAdr and retAdr:match('icecast')) or audio_url then
 			m_simpleTV.Control.CurrentAddress = retAdr or audio_url
 		 return
