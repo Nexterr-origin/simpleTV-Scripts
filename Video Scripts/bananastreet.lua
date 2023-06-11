@@ -1,9 +1,10 @@
--- аудиоскрипт для сайта https://bananastreet.ru (10/6/23)
+-- аудиоскрипт для сайта https://bananastreet.ru (11/6/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://bananastreet.ru/98376-vadim-adamov-vadim-adamov-hardphol-ft-alena-roxis-lady-hear-me-tonight
 -- https://bananastreet.ru/charts/weekly
 -- https://bananastreet.ru/playlists/serenity
+-- https://bananastreet.ru/74433-alex-hart-bolshaya-pop-vecherinka-vypusk-21
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://bananastreet%.ru/.+')
 			and not m_simpleTV.Control.CurrentAddress:match('^$bananastreet')
@@ -120,5 +121,5 @@
 	m_simpleTV.OSD.ShowSelect_UTF8(header, 0, t, 10000, 32)
 	m_simpleTV.OSD.ShowMessageT({text = t[1].Name, color = ARGB(255, 155, 255, 255), showTime = 1000 * 5, id = 'channelName'})
 	m_simpleTV.Control.CurrentTitle_UTF8 = title
-	m_simpleTV.Control.CurrentAddress = t[1].Address:gsub('^$bananastreet', '')
+	m_simpleTV.Control.CurrentAddress = m_simpleTV.Common.UTF8ToMultiByte(t[1].Address):gsub('^$bananastreet', '')
 -- debug_in_file(t[1].Address .. '\n')
