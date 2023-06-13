@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "LimeHD+" https://limehd.tv (7/6/23)
+-- скрапер TVS для загрузки плейлиста "LimeHD+" https://limehd.tv (13/6/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: limeHD.lua
@@ -85,7 +85,7 @@ local filter = {
 						time_zone = tonumber(time_zone) - 3
 						time_zone = '(+' .. time_zone .. ')'
 						time_zone = time_zone:gsub('%(%+0%)', ''):gsub('%(%+1%)', '')
-						t[#t].name = tab.data[i].attributes.name .. ' ' .. m_simpleTV.Common.toPercentEncoding(time_zone)
+						t[#t].name = tab.data[i].attributes.name .. ' ' .. time_zone
 						t[#t].address = 'https://limehd.tv/' .. tab.data[i].attributes.streams[k].id
 						t[#t].logo = tab.data[i].attributes.image_url
 						t[#t].RawM3UString = 'catchup="append" catchup-minutes="' .. (tab.data[i].attributes.streams[k].archive_hours * 60) .. '"'
