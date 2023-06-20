@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://smotrim.ru (10/6/23)
+-- видеоскрипт для сайта https://smotrim.ru (20/6/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## Необходим ##
 -- видеоскприпт: mediavitrina.lua
@@ -11,6 +11,7 @@
 -- https://smotrim.ru/channel/248 -- радио
 -- https://smotrim.ru/podcast/45
 -- https://smotrim.ru/audio/2650807
+-- https://smotrim.ru/video/2633986
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://smotrim%.ru')
 			and not m_simpleTV.Control.CurrentAddress:match('^smotrim_podcast=')
@@ -206,21 +207,21 @@
 		end
 	answer = answer:gsub('\\"', '%%22')
 	if not islive then
-	local addTitle = 'Смотрим'
-	local title = answer:match('"title":"([^"]+)')
-	if not title then
-		title = addTitle
-	else
-		if m_simpleTV.Control.MainMode == 0 then
+		local addTitle = 'Смотрим'
+		local title = answer:match('%d,"title":"([^"]+)')
+		if not title then
+			title = addTitle
+		else
 			title = unescape3(title)
 			title = title:gsub('%%22', '"')
-			m_simpleTV.Control.ChangeChannelName(title, m_simpleTV.Control.ChannelID, false)
-			local poster = answer:match('"pictures":{"[^}]+"16:9":"([^"]+)') or 'https://smotrim.ru/i/smotrim_logo_soc.png'
-			m_simpleTV.Control.ChangeChannelLogo(poster, m_simpleTV.Control.ChannelID, 'CHANGE_IF_NOT_EQUAL')
+			if m_simpleTV.Control.MainMode == 0 then
+				m_simpleTV.Control.ChangeChannelName(title, m_simpleTV.Control.ChannelID, false)
+				local poster = answer:match('"pictures":{"[^}]+"16:9":"([^"]+)') or 'https://smotrim.ru/i/smotrim_logo_soc.png'
+				m_simpleTV.Control.ChangeChannelLogo(poster, m_simpleTV.Control.ChannelID, 'CHANGE_IF_NOT_EQUAL')
+			end
+			title = addTitle .. ' - ' .. title
 		end
-		title = addTitle .. ' - ' .. title
-	end
-	m_simpleTV.Control.CurrentTitle_UTF8 = title
+		m_simpleTV.Control.CurrentTitle_UTF8 = title
 	end
 		if (retAdr and retAdr:match('icecast')) or audio_url then
 			m_simpleTV.Control.CurrentAddress = retAdr or audio_url
