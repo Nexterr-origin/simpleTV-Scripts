@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (21/6/23)
+-- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (22/6/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- модуль: /core/playerjs.lua
@@ -59,10 +59,10 @@
 	local function getAdr(url)
 			if not url then return end
 		url = url:gsub('^$cdnmovies', '')
-		url = url:gsub('%d+%.m3u8', 'hls.m3u8')
+		local base = url:match('.+/')
+		url = base .. 'hls.m3u8'
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 			if rc ~= 200 then return end
-		local base = url:match('.+/')
 		local t = {}
 			for w in answer:gmatch('#EXT%-X%-STREAM.-\n.-\n') do
 				local qlty = w:match('RESOLUTION=%d+x(%d+)')
