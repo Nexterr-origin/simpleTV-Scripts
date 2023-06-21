@@ -27,7 +27,7 @@
 	if not m_simpleTV.User.cdnmovies then
 		m_simpleTV.User.cdnmovies = {}
 	end
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:103.0) Gecko/20100101 Firefox/103.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	m_simpleTV.User.cdnmovies.DelayedAddress = nil
@@ -59,6 +59,7 @@
 	local function getAdr(url)
 			if not url then return end
 		url = url:gsub('^$cdnmovies', '')
+		url = url:gsub('%d+%.m3u8', 'hls.m3u8')
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 			if rc ~= 200 then return end
 		local base = url:match('.+/')
