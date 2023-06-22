@@ -1,12 +1,12 @@
--- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (23/6/23)
+-- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (24/6/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- модуль: /core/playerjs.lua
 -- ## открывает подобные ссылки ##
--- http://640f39bd678cb.sarnage.cc/movie/1493
+-- http://640f39bd678cb.sarnage.cc/movie/66674
 -- https://640f39bd678cb.sarnage.cc/serial/12503
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('^https?://[^.]-%.?sarnage%.cc')
+		if not m_simpleTV.Control.CurrentAddress:match('^https?://[^.]+%.sarnage%.cc')
 			and not m_simpleTV.Control.CurrentAddress:match('^$cdnmovies')
 		then
 		 return
@@ -71,22 +71,23 @@
 		url = url:gsub('^$cdnmovies', '')
 		local subt = subtitle(url) or ''
 		url = url:gsub('%[.+', '')
-		local base = url:match('.+/')
-		url = base .. 'hls.m3u8'
+		url = url:gsub('/%d+%.', '/hls.'):gsub('/%d+%-', '/hls-')
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 			if rc ~= 200 then return end
+		local extOpt = '$OPT:NO-STIMESHIFT'
+		local base = url:match('.+/')
 		local t = {}
-			for w in answer:gmatch('#EXT%-X%-STREAM.-\n.-\n') do
+			for w in answer:gmatch('#EXT%-X%-STREAM.-\n') do
 				local qlty = w:match('RESOLUTION=%d+x(%d+)')
-				local adr = w:match('\n(.+)')
-				if qlty and adr then
+				local bw = w:match('[^%-]BANDWIDTH=(%d+)')
+				if qlty and bw then
+					bw = tonumber(bw)
+					bw = bw / 1000
 					t[#t + 1] = {}
 					t[#t].Id = #t
 					t[#t].qlty = tonumber(qlty)
-					adr = adr:gsub('^[/.]+', base)
-					adr = adr:gsub(':hls:manifest.-$', '')
-					t[#t].Address = adr .. subt
 					t[#t].Name = qlty .. 'p'
+					t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s%s%s', url, bw,subt, extOpt)
 				end
 			end
 			if #t == 0 then return end
@@ -245,7 +246,7 @@
 	end
 	local function getData()
 		local url = inAdr:gsub('&kinopoisk.+', ''):gsub('^http:', 'https:')
-		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: https://cdnmovies.net/'})
+		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: https://hdkinotavr.ru/'})
 			if rc ~= 200 then return end
 		local file = answer:match('file:\'([^\']+)')
 			if not file then return end
