@@ -59,6 +59,12 @@
 	local function getAdr(url)
 			if not url then return end
 		url = url:gsub('^$cdnmovies', '')
+		local subt = url:match('%[rus%]([^%[,]+)') or ''
+		if subt ~= '' then
+			subt = subt:gsub('://', '/webvtt://')
+			subt = '$OPT:sub-description=Rus$OPT:input-slave=' .. subt
+		end
+		url = url:gsub('%[.+', '')
 		local base = url:match('.+/')
 		url = base .. 'hls.m3u8'
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
@@ -73,7 +79,7 @@
 					t[#t].qlty = tonumber(qlty)
 					adr = adr:gsub('^[/.]+', base)
 					adr = adr:gsub(':hls:manifest.-$', '')
-					t[#t].Address = adr .. '$OPT:NO-STIMESHIFT'
+					t[#t].Address = adr .. subt .. '$OPT:NO-STIMESHIFT'
 					t[#t].Name = qlty .. 'p'
 				end
 			end
@@ -101,7 +107,7 @@
 			for i = 1, #tab do
 				t[i] = {}
 				t[i].Id = i
-				t[i].Address = tab[i].file
+				t[i].Address = tab[i].file .. (tab[i].subtitle or '')
 				t[i].Name = tab[i].title
 				if t[i].Name == transl_name then
 					transl_id = i
