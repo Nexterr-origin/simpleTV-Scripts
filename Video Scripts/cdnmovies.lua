@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (22/6/23)
+-- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (23/6/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- модуль: /core/playerjs.lua
@@ -40,6 +40,16 @@
 		local t = {text = msg, showTime = 1000 * 8, color = color, id = 'channelName'}
 		m_simpleTV.OSD.ShowMessageT(t)
 	end
+	local function subtitle(url)
+		local subt = {}
+			for w in url:gmatch('%[[^%]]+%]([^%[,]+)') do
+				subt[#subt + 1] = w:gsub('://', '/webvtt://')
+			end
+			if #subt > 0 then
+			 return '$OPT:input-slave=' .. table.concat(subt, '#')
+			end
+	 return
+	end
 	local function getIndex(t)
 		local lastQuality = tonumber(m_simpleTV.Config.GetValue('cdnmovies_qlty') or 5000)
 		local index = #t
@@ -59,11 +69,7 @@
 	local function getAdr(url)
 			if not url then return end
 		url = url:gsub('^$cdnmovies', '')
-		local subt = url:match('%[rus%]([^%[,]+)') or ''
-		if subt ~= '' then
-			subt = subt:gsub('://', '/webvtt://')
-			subt = '$OPT:sub-description=Rus$OPT:input-slave=' .. subt
-		end
+		local subt = subtitle(url) or ''
 		url = url:gsub('%[.+', '')
 		local base = url:match('.+/')
 		url = base .. 'hls.m3u8'
@@ -79,7 +85,7 @@
 					t[#t].qlty = tonumber(qlty)
 					adr = adr:gsub('^[/.]+', base)
 					adr = adr:gsub(':hls:manifest.-$', '')
-					t[#t].Address = adr .. subt .. '$OPT:NO-STIMESHIFT'
+					t[#t].Address = adr .. subt
 					t[#t].Name = qlty .. 'p'
 				end
 			end
