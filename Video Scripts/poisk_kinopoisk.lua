@@ -1,5 +1,5 @@
--- видеоскрипт для поиска видео по видеобазе "Kodik", "Hdvb", "Bazon" (16/2/22)
--- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для поиска видео по видеобазе "Kodik", "Hdvb", "Bazon" (23/6/23)
+-- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: kinopoisk.lua
 -- ## искать через команду меню "Открыть URL (Ctrl+N)" ##
@@ -40,9 +40,9 @@
 		s = s:gsub('^%s*(.-)%s*$', '%1')
 		local a = {
 				{'А', 'а'}, {'Б', 'б'}, {'В', 'в'}, {'Г', 'г'}, {'Д', 'д'}, {'Е', 'е'}, {'Ж', 'ж'}, {'З', 'з'},
-				{'И', 'и'},	{'Й', 'й'}, {'К', 'к'}, {'Л', 'л'}, {'М', 'м'}, {'Н', 'н'}, {'О', 'о'}, {'П', 'п'},
-				{'Р', 'р'}, {'С', 'с'},	{'Т', 'т'}, {'Ч', 'ч'}, {'Ш', 'ш'}, {'Щ', 'щ'}, {'Х', 'х'}, {'Э', 'э'},
-				{'Ю', 'ю'}, {'Я', 'я'}, {'Ь', 'ь'},	{'Ъ', 'ъ'}, {'Ё', 'е'},	{'ё', 'е'}, {'Ф', 'ф'}, {'Ц', 'ц'},
+				{'И', 'и'}, {'Й', 'й'}, {'К', 'к'}, {'Л', 'л'}, {'М', 'м'}, {'Н', 'н'}, {'О', 'о'}, {'П', 'п'},
+				{'Р', 'р'}, {'С', 'с'}, {'Т', 'т'}, {'Ч', 'ч'}, {'Ш', 'ш'}, {'Щ', 'щ'}, {'Х', 'х'}, {'Э', 'э'},
+				{'Ю', 'ю'}, {'Я', 'я'}, {'Ь', 'ь'}, {'Ъ', 'ъ'}, {'Ё', 'е'},	{'ё', 'е'}, {'Ф', 'ф'}, {'Ц', 'ц'},
 				{'У', 'у'}, {'Ы', 'ы'},
 				}
 			for _, v in pairs(a) do
@@ -140,7 +140,7 @@
 			end
 	end
 -- Bazon
-	rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9iYXpvbi5jYy9hcGkvc2VhcmNoP3Rva2VuPWMxMThlYjVmOGQzNjU2NWIyYjA4YjUzNDJkYTk3Zjc5JnRpdGxlPQ') .. m_simpleTV.Common.toPercentEncoding(retAdr)})
+	rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9iYXpvbi5jYy9hcGkvc2VhcmNoP3Rva2VuPTRmNmFkZGQ1MzI3YWNkZDc2OTY5Yzk3Nzk5NTM1YjE0JnRpdGxlPQ') .. m_simpleTV.Common.toPercentEncoding(retAdr)})
 	if rc == 200 and answer:match('^%s*{') then
 		answer = answer:gsub('%[%]', '""'):gsub(string.char(239, 187, 191), '')
 		local tab = json.decode(answer)
@@ -177,7 +177,7 @@
 	local hdvbTitle
 	local hdvbRetAdr = ' ' .. retAdr .. ' '
 	hdvbRetAdr = hdvbRetAdr:gsub('%s+', ' '):gsub('%p', ' ')
-	rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly92YjE3MTIxY29yYW1jbGVhbi5wdy9hcGkvdmlkZW9zLmpzb24/dG9rZW49Yzk5NjZiOTQ3ZGEyZjNjMjliMzBjMGUwZGNjYTZjZjQmdGl0bGU9') .. m_simpleTV.Common.toPercentEncoding(retAdr)})
+	rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9hcGl2Yi5pbmZvL2FwaS92aWRlb3MuanNvbj90b2tlbj1iMzM4MWFjMWMzNjMyNGU0MTcyNDA0NTU2OGI5ODE5ZCZ0aXRsZT0') .. m_simpleTV.Common.toPercentEncoding(retAdr)})
 	if rc == 200 then
 		answer = answer:gsub('%[%]', '""')
 		answer = answer:gsub('\\', '\\\\'):gsub('\\"', '\\\\"'):gsub('\\/', '/')
