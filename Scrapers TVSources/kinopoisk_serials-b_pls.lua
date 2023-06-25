@@ -1,8 +1,7 @@
--- скрапер TVS для загрузки плейлиста кинопоиска "Сериалы B" (25/6/23)
+-- скрапер TVS для загрузки плейлиста кинопоиска "Сериалы B" (26/6/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: kinopoisk.lua
--- ##
 	module('kinopoisk_serials-b_pls', package.seeall)
 	local my_src_name = 'Сериалы B'
 	function GetSettings()
@@ -27,8 +26,8 @@
 					if tab and tab.results then
 						local j = 1
 							while tab.results[j] do
-								local kinopoisk_id = tab.results[j].kinopoisk_id
-								if kinopoisk_id and tab.results[j].info then
+								local kinopoisk_id = tostring(tab.results[j].kinopoisk_id or '0')
+								if kinopoisk_id and kinopoisk_id ~= '' and kinopoisk_id ~= '0'  and tab.results[j].info then
 									t[#t +1] = {}
 									t[#t].address = string.format('https://www.kinopoisk.ru/film/%s', kinopoisk_id)
 									t[#t].logo = string.format('https://st.kp.yandex.net/images/film_iphone/iphone360_%s.jpg', kinopoisk_id)
