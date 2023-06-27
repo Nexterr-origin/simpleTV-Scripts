@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://filmix.ac (8/2/23)
+-- видеоскрипт для сайта https://filmix.ac (27/6/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## авторизация ##
 -- логин, пароль установить в 'Password Manager', для id - filmix
@@ -18,7 +18,7 @@ local zer = ''
 -- 'https://filmix.life' - (пример)
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://filmix%.')
-			and not m_simpleTV.Control.CurrentAddress:match('^%$filmixnet')
+			and not m_simpleTV.Control.CurrentAddress:match('^$filmixnet')
 		then
 		 return
 		end
@@ -31,7 +31,7 @@ local zer = ''
 	if zer ~= '' then
 		logo = logo:gsub('https://filmix.ac', zer)
 	end
-	if inAdr:match('^%$filmixnet') then
+	if inAdr:match('^$filmixnet') then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
 	elseif not inAdr:match('&kinopoisk') then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = logo, TypeBackColor = 0, UseLogo = 1, Once = 1})
@@ -172,7 +172,7 @@ local zer = ''
 			local m3ustr = '#EXTM3U $ExtFilter="filmix" $BorpasFileFormat="1"\n'
 				for i = 1, #t do
 					name = t[i].Name
-					adr = t[i].Address:gsub('^%$filmixnet', '')
+					adr = t[i].Address:gsub('^$filmixnet', '')
 					adr = GetQualityFromAddress(adr)
 					m3ustr = m3ustr .. '#EXTINF:-1 group-title="' .. header .. '", ' .. name .. '\n' .. adr:gsub('%$OPT:.+', '') .. '\n'
 				end
@@ -199,7 +199,7 @@ local zer = ''
 		if session then
 			m_simpleTV.Http.Close(session)
 		end
-		local retAdr = GetQualityFromAddress(Adr:gsub('^%$filmixnet', ''))
+		local retAdr = GetQualityFromAddress(Adr:gsub('^$filmixnet', ''))
 			if not retAdr then
 				showError('4, не доступно')
 				m_simpleTV.Control.CurrentAddress = 'http://wonky.lostcut.net/vids/error_getlink.avi'
@@ -373,9 +373,7 @@ local zer = ''
 				end
 			if j > 2 then
 				local _, id = m_simpleTV.OSD.ShowSelect_UTF8(title, 0, s, 5000, 1)
-				if not id then
-					id = 1
-				end
+				id = id or 1
 				sesnom = s[id].Address
 				season_title = ' (' .. s[id].Name .. ')'
 			else
@@ -424,6 +422,8 @@ local zer = ''
 			m_simpleTV.User.filmix.isVideo = true
 		end
 		title = title .. season_title
+		t.ExtParams = {}
+		t.ExtParams.PlayMode = 1
 		m_simpleTV.OSD.ShowSelect_UTF8(title, 0, t, 5000, pl + 64)
 		m_simpleTV.User.filmix.title = title
 		inAdr = t[1].Address
