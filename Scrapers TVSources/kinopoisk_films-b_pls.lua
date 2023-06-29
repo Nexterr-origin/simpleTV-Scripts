@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста кинопоиска "Фильмы B" (26/6/23)
+-- скрапер TVS для загрузки плейлиста кинопоиска "Фильмы B" (29/6/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: kinopoisk.lua
@@ -37,7 +37,7 @@
 										kpRating = tostring(tab.results[j].info.rating.rating_kp or '0')
 										imdbRating = tostring(tab.results[j].info.rating.rating_imdb or '0')
 									end
-									t[#t].name = string.format('%s (КП: %s / IMDb: %s', tab.results[j].info.rus:gsub('"', '%%22'), kpRating:sub(1, 3), imdbRating:sub(1, 3))
+									t[#t].name = string.format('%s (КП: %s / IMDb: %s)', tab.results[j].info.rus:gsub('"', '%%22'), kpRating:sub(1, 3), imdbRating:sub(1, 3))
 									t[#t].video_title = tab.results[j].info.genre:gsub(',', ' ')
 									t[#t].video_desc = string.format('%s | %s | %s', tab.results[j].info.country, t[#t].group, tab.results[j].info.description:gsub('%c', ' '):gsub('"', '%%22'))
 								end
