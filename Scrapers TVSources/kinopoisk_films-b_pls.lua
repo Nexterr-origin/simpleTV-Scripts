@@ -14,9 +14,9 @@
 		require 'json'
 		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 			if not session then return end
-		m_simpleTV.Http.SetTimeout(session, 8000)
+		m_simpleTV.Http.SetTimeout(session, 12000)
 		local t = {}
-			for c = 1, 1400 do
+			for c = 1, 1500 do
 				local url = string.format(decode64('aHR0cHM6Ly9iYXpvbi5jYy9hcGkvanNvbi8/dG9rZW49NGY2YWRkZDUzMjdhY2RkNzY5NjljOTc3OTk1MzViMTQmdHlwZT1maWxtJnBhZ2U9JXM'), c)
 				local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 				if rc == 200 then
