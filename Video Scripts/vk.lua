@@ -1,5 +1,5 @@
--- видеоскрипт для сайта http://vk.com (16/9/22)
--- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта http://vk.com (24/7/23)
+-- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: YT.lua, vimeo.lua ...
 -- ## открывает подобные ссылки ##
@@ -7,14 +7,12 @@
 -- https://vk.com/video-33598391_456239036
 -- http://vkontakte.ru/video-208344_73667683
 -- https://vk.com/feed?z=video-101982925_456239539%2F1900258e458f45eccc%2Fpl_post_-101982925_3149238
--- https://vk.com/videos-53997646?section=album_49667766&z=video-53997646_456239913%2Fclub53997646%2Fpl_-53997646_49667766
--- https://vk.com/video537396248_456239159
 -- https://vk.com/video_ext.php?oid=-24136539&id=456239830&hash=34e326ffb9cbb93e
 -- https://vk.com/video-208344_456241847
 -- https://vk.com/video-208344_456241842
--- https://vk.com/video-40535376_456239575
 -- https://vk.com/video/playlist/-121487680_216
--- https://vk.com/video-185616318_456241088
+-- https://vk.com/video-40535376_456239512
+-- https://vk.com/video/@public216539463?z=video-216539463_456239289%2Fclub216539463%2Fpl_-216539463_-2
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://vk%.com/.+')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://vkontakte%.ru/.+')
@@ -47,7 +45,7 @@
 	local retAdr = answer:match('"hls":"([^"]+)') or answer:match('"hls_ondemand":"([^"]+)')
 		if not retAdr then
 			answer = answer:gsub('\\"', '"')
-			retAdr = answer:match('<iframe class[^>]+src="([^"]+)') or answer:match('cur%.incViews%(%);"%ssrc="([^"]+)')
+			retAdr = answer:match('<iframe[^>]+src="([^"]+)')
 				if not retAdr then return end
 			retAdr = retAdr:gsub('^//', 'https://')
 			m_simpleTV.Control.ChangeAddress = 'No'
