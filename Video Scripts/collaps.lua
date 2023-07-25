@@ -1,10 +1,10 @@
--- видеоскрипт для видеобалансера "Collaps" https://collaps.org (9/4/23)
+-- видеоскрипт для видеобалансера "Collaps" https://collaps.org (26/7/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://api.strvid.ws/embed/movie/3253
 -- https://api.strvid.ws/embed/kp/46225
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('^https?://api%.strvid%.ws/embed')
+		if not m_simpleTV.Control.CurrentAddress:match('^https?://api%.[^.]+%.ws/embed')
 			and not m_simpleTV.Control.CurrentAddress:match('^$collaps')
 		then
 		 return
