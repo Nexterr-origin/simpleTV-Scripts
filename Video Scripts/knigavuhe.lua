@@ -1,11 +1,10 @@
--- аудиоскрипт для сайта https://knigavuhe.org (18/4/20)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- аудиоскрипт для сайта https://knigavuhe.org (4/8/23)
+-- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://knigavuhe.org/book/ternistyjj-put/
--- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://knigavuhe%.')
-			and not m_simpleTV.Control.CurrentAddress:match('^%$knigavuhe')
+			and not m_simpleTV.Control.CurrentAddress:match('^$knigavuhe')
 		then
 		 return
 		end
@@ -19,7 +18,7 @@
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = ''
-		if inAdr:match('^%$knigavuhe') then
+		if inAdr:match('^$knigavuhe') then
 			if m_simpleTV.User.knigavuhe.Tab then
 				local index = m_simpleTV.Control.GetMultiAddressIndex()
 				if index then
@@ -31,12 +30,15 @@
 				end
 			end
 			m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = m_simpleTV.User.knigavuhe.logo, TypeBackColor = 0, UseLogo = 3, Once = 1})
-			m_simpleTV.Control.CurrentAddress = inAdr:gsub('%$knigavuhe', '') .. '$OPT:NO-STIMESHIFT'
+			m_simpleTV.Control.CurrentAddress = inAdr:gsub('$knigavuhe', '') .. '$OPT:NO-STIMESHIFT'
 		 return
 		end
 	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.79 Safari/537.36')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
+	local function trim(s)
+	 return (s:gsub("^%s*(.-)%s*$", "%1"))
+	end
 	local function ShowInfo(s)
 		local q = {}
 			q.once = 1
@@ -85,13 +87,13 @@
 			local m3ustr = '#EXTM3U $ExtFilter="Knigavuhe" $BorpasFileFormat="1"\n'
 				for i = 1, #t do
 					name = t[i].Name
-					adr = t[i].Address:gsub('%$knigavuhe', '')
+					adr = t[i].Address:gsub('$knigavuhe', '')
 					m3ustr = m3ustr .. '#EXTINF:-1 group-title="' .. header .. '",' .. name .. '\n' .. adr .. '\n'
 				end
 			header = m_simpleTV.Common.UTF8ToMultiByte(header)
-			header = header:gsub('%c', ''):gsub('[\\/"%*:<>%|%?]+', ' '):gsub('%s+', ' '):gsub('^%s*', ''):gsub('%s*$', '')
+			header = header:gsub('[\\/"%*:<>%|%?]+', ' ')
 			local fileEnd = ' (Knigavuhe ' .. os.date('%d.%m.%y') ..').m3u'
-			local folder = m_simpleTV.Common.GetMainPath(2) .. m_simpleTV.Common.UTF8ToMultiByte('сохраненые плейлисты/')
+			local folder = m_simpleTV.Common.GetMainPath(1) .. m_simpleTV.Common.UTF8ToMultiByte('сохраненые плейлисты/')
 			lfs.mkdir(folder)
 			local folderAk = folder .. 'Knigavuhe/'
 			lfs.mkdir(folderAk)
@@ -110,6 +112,8 @@
 	m_simpleTV.Http.Close(session)
 		if rc ~= 200 then return end
 	local header = answer:match('"page_title".-"name">(.-)<') or 'knigavuhe'
+	header = header:gsub('%c', ''):gsub('%s+', ' ')
+	header = trim(header)
 	m_simpleTV.User.knigavuhe.header = header
 	local logo = answer:match('"book_cover">.-src="([^"]+)')
 	m_simpleTV.User.knigavuhe.logo = logo
@@ -149,11 +153,11 @@
 	t.ExtParams = {FilterType = 2}
 	t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
 	t.ExtButton0 = {ButtonEnable = true, ButtonName = '💾', ButtonScript = 'SavePlst_Knigavuhe()'}
-	m_simpleTV.OSD.ShowSelect_UTF8(header, 0, t, 5000)
+	m_simpleTV.OSD.ShowSelect_UTF8(header, 0, t, 10000)
 	header = header .. ' (' .. t[1].Name .. ')'
 	if m_simpleTV.Control.CurrentTitle_UTF8 then
 		m_simpleTV.Control.CurrentTitle_UTF8 = ''
 	end
 	m_simpleTV.OSD.ShowMessageT({text = header, color = 0xff9999ff, showTime = 1000 * 5, id = 'channelName'})
-	m_simpleTV.Control.CurrentAddress = t[1].Address:gsub('%$knigavuhe', '') .. '$OPT:NO-STIMESHIFT'
+	m_simpleTV.Control.CurrentAddress = t[1].Address:gsub('$knigavuhe', '') .. '$OPT:NO-STIMESHIFT'
 -- debug_in_file(retAdr .. '\n')
