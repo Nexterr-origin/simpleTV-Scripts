@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "Ipnet" https://tv.ipnet.ua (29/8/23)
+-- скрапер TVS для загрузки плейлиста "Ipnet" https://tv.ipnet.ua (1/9/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## переименовать каналы ##
 local filter = {
@@ -42,11 +42,12 @@ local filter = {
 			then
 			 return
 			end
+		local extOpt = '$OPT:adaptive-maxbuffer=100000$OPT:adaptive-minbuffer=10000$OPT:adaptive-livedelay=60000'
 		local t, i = {}, 1
 			while tab.data.categories[1].channels[i] do
 				t[#t + 1] = {}
 				t[#t].name = tab.data.categories[1].channels[i].name
-				t[#t].address = tab.data.categories[1].channels[i].url
+				t[#t].address = tab.data.categories[1].channels[i].url .. extOpt
 				t[#t].logo = tab.data.categories[1].channels[i].icon_url
 				if tab.data.categories[1].channels[i].is_tshift_allowed == true then
 					local archive_minutes = (tab.data.categories[1].channels[i].tshift_duration or 0) / 60
