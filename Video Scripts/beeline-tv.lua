@@ -19,7 +19,7 @@
 	local url = inAdr:gsub('$OPT.+', '')
 	local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 		if rc ~= 200 then return end
-	local extOpt = '$OPT:INT-SCRIPT-PARAMS=beeline$OPT:no-spu'
+	local extOpt = '$OPT:INT-SCRIPT-PARAMS=beeline$OPT:no-spu$OPT:adaptive-init-on-each-segment'
 	local t = {}
 		for w in answer:gmatch('<Representation[^>]+frameRate[^>]+>') do
 			local bw = w:match('bandwidth="(%d+)')
