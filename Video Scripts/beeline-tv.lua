@@ -1,17 +1,18 @@
--- видеоскрипт для плейлиста "beeline-tv" https://beeline.tv (24/9/23)
+-- видеоскрипт для плейлиста "beeline-tv" https://beeline.tv (25/9/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: beeline-tv_pls.lua
 -- расширение дополнения httptimeshift: beeline-timesift_ext.lua
 -- ## открывает подобные ссылки ##
 -- https://video.beeline.tv/live/d/channel138.isml/manifest-stb.mpd$OPT:adaptive-use-avdemux$OPT:avdemux-options={decryption_key=b6c1c3ca8245c6447ab75fcab90dead4}
--- $beeline-tv=PTBITWlsVE53SVRaaVpEW...
+-- https://beeline.tv/PTBITWlsVE53SVRaaVpEW...
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://video%.beeline%.tv/live/')
-			and not m_simpleTV.Control.CurrentAddress:match('^$beeline')
+			and not m_simpleTV.Control.CurrentAddress:match('^https?://beeline%.tv')
 		then
 		 return
 		end
+
 	if m_simpleTV.Control.CurrentAddress:match('PARAMS=beeline') then return end
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = '', UseLogo = 0, Once = 1})
@@ -22,8 +23,8 @@
 	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
-	if inAdr:match('^$beeline') then
-		inAdr = inAdr:gsub('^$beeline%-tv=', '')
+	if inAdr:match('^https?://beeline%.tv') then
+		inAdr = inAdr:gsub('^https?://beeline%.tv/', ''):gsub('$OPT.+', '')
 		inAdr = decode64(inAdr)
 		inAdr = string.reverse(inAdr)
 		inAdr = decode64(inAdr)
