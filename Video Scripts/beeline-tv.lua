@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "beeline-tv" https://beeline.tv (25/9/23)
+-- видеоскрипт для плейлиста "Beeline TV" https://beeline.tv (28/9/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: beeline-tv_pls.lua
@@ -12,7 +12,6 @@
 		then
 		 return
 		end
-
 	if m_simpleTV.Control.CurrentAddress:match('PARAMS=beeline') then return end
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = '', UseLogo = 0, Once = 1})
