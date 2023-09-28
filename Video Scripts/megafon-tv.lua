@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "megafon-tv" https://megafon.tv (28/9/23)
+-- видеоскрипт для плейлиста "Megafon TV" https://megafon.tv (28/9/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: megafon-tv_pls.lua
