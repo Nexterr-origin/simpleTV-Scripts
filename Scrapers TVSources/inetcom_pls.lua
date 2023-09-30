@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "Inetcom" https://inetcom.tv/ (3/1/23)
+-- скрапер TVS для загрузки плейлиста "Inetcom" https://inetcom.tv/ (30/9/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: inetcom.lua
@@ -27,20 +27,26 @@ local filter = {
 	 return 2, 'UTF-8'
 	end
 	function LoadFromSite()
-		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
+		local session = m_simpleTV.Http.New('Mozilla/5.0 (Linux; Android 7.1.2; A5010 Build/N2G48H; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/66.0.3359.158 Mobile Safari/537.36')
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 8000)
 		local url = decode64('aHR0cDovL2FwaTQuaW5ldGNvbS50di9jaGFubmVsL2FsbA')
-		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
+		local headers = 'X-Client-Info: AndroidPhone 50327582\nX-Client-Model: OnePlus A5010\nX-Device: 4\nReferer: http://iptv.inetcom.ru/phone_app_v2/index.html?platform=AndroidPhone&serial=50327582\nX-Requested-With: tv.inetcom.phone2'
+		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
 			if rc ~= 200 then return end
 		require 'json'
 		local err, tab = pcall(json.decode, answer)
-			if not tab then return end
+			if not tab
+				or not tab[1]
+				or not tab[1].id
+			then
+			 return
+			end
 		local t = {}
 			for i = 1, #tab do
 				t[#t + 1] = {}
 				t[#t].name = tab[i].caption
-				t[#t].address = 'http://inetcom.tv/' .. tab[i].id
+				t[#t].address = 'https://inetcom.tv/' .. tab[i].id
 			end
 	 return t
 	end
