@@ -5,6 +5,7 @@
 -- ## переименовать каналы ##
 local filter = {
 	{'Звезда - RU', 'Звезда'},
+	{'Dомашний', 'Домашний'},
 	}
 	module('inetcom_pls', package.seeall)
 	local my_src_name = 'Inetcom'
@@ -30,8 +31,8 @@ local filter = {
 		local session = m_simpleTV.Http.New('Mozilla/5.0 (Linux; Android 7.1.2; A5010 Build/N2G48H; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/66.0.3359.158 Mobile Safari/537.36')
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 8000)
+		local headers = decode64('WC1DbGllbnQtSW5mbzogQW5kcm9pZFBob25lIDUwMzI3NTgyClgtQ2xpZW50LU1vZGVsOiBPbmVQbHVzIEE1MDEwClgtRGV2aWNlOiA0ClJlZmVyZXI6IGh0dHA6Ly9pcHR2LmluZXRjb20ucnUvcGhvbmVfYXBwX3YyL2luZGV4Lmh0bWw/cGxhdGZvcm09QW5kcm9pZFBob25lJnNlcmlhbD01MDMyNzU4MgpYLVJlcXVlc3RlZC1XaXRoOiB0di5pbmV0Y29tLnBob25lMg')
 		local url = decode64('aHR0cDovL2FwaTQuaW5ldGNvbS50di9jaGFubmVsL2FsbA')
-		local headers = 'X-Client-Info: AndroidPhone 50327582\nX-Client-Model: OnePlus A5010\nX-Device: 4\nReferer: http://iptv.inetcom.ru/phone_app_v2/index.html?platform=AndroidPhone&serial=50327582\nX-Requested-With: tv.inetcom.phone2'
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
 			if rc ~= 200 then return end
 		require 'json'
