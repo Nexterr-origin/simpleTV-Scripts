@@ -7,6 +7,7 @@
 -- https://media.mediavitrina.ru/api/v2/ntv/playlist/ntv_msk_as_array.json
 -- https://media.mediavitrina.ru/balancer/v3/tv3/gpm_tv3/streams.json
 -- https://player.mediavitrina.ru/tk78/78ru_web/player.html
+-- https://player.mediavitrina.ru/iz/more_tizen_app/5d4066f8/sdk.json
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://%a+%.mediavitrina%.ru') then return end
 		if m_simpleTV.Control.CurrentAddress:match('PARAMS=mediavitrina') then return end
@@ -74,7 +75,7 @@
 			end
 	 return t
 	end
-	if not (inAdr:match('as_array%.json') or inAdr:match('streams%.json')) then
+	if not inAdr:match('%.json') then
 		local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
 			if rc ~= 200 then
 				showErr(1)
@@ -99,6 +100,18 @@
 				end
 		end
 	end
+	if inAdr:match('sdk%.json') then
+		local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
+			if rc ~= 200 then
+				showErr(1.4)
+			 return
+			end
+		inAdr = answer:match('"streams_api_url":"([^"]+)')
+			if not inAdr then
+				showErr(1.5)
+			 return
+			end
+	end
 	local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9tZWRpYS5tZWRpYXZpdHJpbmEucnUvZ2V0X3Rva2Vu')})
 		if rc ~= 200 then
 			showErr(2)
@@ -113,7 +126,6 @@
 	inAdr = inAdr:gsub('\\/', '/'):gsub('/v%d/', '/v1/'):gsub('?+', '?')
 	rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
 		if rc ~= 200 then
-			m_simpleTV.Http.Close(session)
 			showErr(4)
 		 return
 		end
