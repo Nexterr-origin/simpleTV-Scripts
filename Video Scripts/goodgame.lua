@@ -1,12 +1,11 @@
--- видеоскрипт для сайта https://goodgame.ru (28/4/21)
--- Copyright © 2017-2021 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта https://goodgame.ru (7/10/23)
+-- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: twitch.lua, youtube.lua
 -- ## открывает подобные ссылки ##
 -- https://goodgame.ru/channel/Pomi
 -- https://goodgame.ru/video/63424/
 -- https://goodgame.ru/clip/506085/
--- ##
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 		if not inAdr then return end
@@ -21,7 +20,7 @@
 	local function showError(str)
 		m_simpleTV.OSD.ShowMessageT({text = 'goodgame ошибка: ' .. str, showTime = 1000 * 5, color = 0xffff1000, id = 'channelName'})
 	end
-	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:88.0) Gecko/20100101 Firefox/88.0'
+	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0'
 	local session = m_simpleTV.Http.New(userAgent)
 		if not session then
 			showError('0')
@@ -115,7 +114,10 @@
 				t[i] = {}
 				t[i].Id = tonumber(name)
 				t[i].Name = name .. 'p'
-				t[i].Address = 'https://hls.goodgame.ru' .. adr .. extOpt .. '$OPT:adaptive-hls-ignore-discontinuity'
+				if not adr:match('^https?://') then
+					adr = 'https://hls.goodgame.ru' .. adr
+				end
+				t[i].Address = adr .. extOpt .. '$OPT:adaptive-hls-ignore-discontinuity'
 				i = i + 1
 			end
 		end
