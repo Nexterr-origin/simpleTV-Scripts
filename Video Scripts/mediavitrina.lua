@@ -1,17 +1,15 @@
--- видеоскрипт для плейлиста "Витрина ТВ" https://www.vitrina.tv (20/12/22)
--- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для плейлиста "Витрина ТВ" https://www.vitrina.tv (7/10/23)
+-- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: mediavitrina_pls.lua
 -- ## открывает подобные ссылки ##
 -- https://player.mediavitrina.ru/zvezda/tvzvezda/vitrinatv_web/player.html
 -- https://media.mediavitrina.ru/api/v2/ntv/playlist/ntv_msk_as_array.json
+-- https://media.mediavitrina.ru/balancer/v3/tv3/gpm_tv3/streams.json
+-- https://player.mediavitrina.ru/tk78/78ru_web/player.html
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://%a+%.mediavitrina%.ru') then return end
-		if m_simpleTV.Control.CurrentAddress:match('%.m3u8')
-			or m_simpleTV.Control.CurrentAddress:match('%.mpd')
-		then
-		 return
-		end
+		if m_simpleTV.Control.CurrentAddress:match('PARAMS=mediavitrina') then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
@@ -25,7 +23,7 @@
 	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
-	local exOpt = ''
+	local exOpt = '$OPT:INT-SCRIPT-PARAMS=mediavitrina'
 	local function streamsTab(answer, adr)
 		local t = {}
 			for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-\n.-)\n') do
@@ -76,23 +74,33 @@
 			end
 	 return t
 	end
-	if not inAdr:match('as_array%.json') then
+	if not (inAdr:match('as_array%.json') or inAdr:match('streams%.json')) then
 		local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
 			if rc ~= 200 then
-				m_simpleTV.Http.Close(session)
 				showErr(1)
 			 return
 			end
-		inAdr = answer:match('http[^\'"<>]+as_array%.json')
+		inAdr = answer:match('receiver_config_url:%s*\'([^\']+)') or answer:match('https://media.mediavitrina.ru/balancer[^\']+streams%.json')
 			if not inAdr then
-				m_simpleTV.Http.Close(session)
 				showErr(1.1)
 			 return
 			end
+		inAdr = inAdr:gsub('\\/', '/'):gsub('/v%d/', '/v1/')
+		rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
+			if rc ~= 200 then
+				showErr(1.2)
+			 return
+			end
+		if not answer:match('token=') then
+			inAdr = answer:match('"streams_api_url":"([^"]+)')
+				if not inAdr then
+					showErr(1.3)
+				 return
+				end
+		end
 	end
 	local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9tZWRpYS5tZWRpYXZpdHJpbmEucnUvZ2V0X3Rva2Vu')})
 		if rc ~= 200 then
-			m_simpleTV.Http.Close(session)
 			showErr(2)
 		 return
 		end
@@ -102,7 +110,7 @@
 		 return
 		end
 	inAdr = inAdr .. '?token=' .. token
-	inAdr = inAdr:gsub('\\/', '/'):gsub('/v3/', '/v1/')
+	inAdr = inAdr:gsub('\\/', '/'):gsub('/v%d/', '/v1/'):gsub('?+', '?')
 	rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
 		if rc ~= 200 then
 			m_simpleTV.Http.Close(session)
