@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "Megafon TV" https://megafon.tv (28/9/23)
+-- видеоскрипт для плейлиста "Megafon TV" https://megafon.tv (12/10/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: megafon-tv_pls.lua
@@ -37,10 +37,11 @@
 			local res = w:match('height="(%d+)')
 			if res and bw then
 				bw = tonumber(bw)
-				bw = math.ceil(bw / 100000) * 100
+				local bwt = math.ceil(bw / 100000) * 100
+				bw = bw / 1000
 				t[#t + 1] = {}
-				t[#t].Id = bw
-				t[#t].Name = res .. 'p (' .. bw .. ' кбит/с)'
+				t[#t].Id = tonumber(res)
+				t[#t].Name = res .. 'p (' .. bwt .. ' кбит/с)'
 				t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s%s', inAdr, bw, extOpt)
 			end
 		end
@@ -70,7 +71,7 @@
 	if m_simpleTV.Control.MainMode == 0 then
 		t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
 		t.ExtParams = {LuaOnOkFunName = 'megafonSaveQuality'}
-		m_simpleTV.OSD.ShowSelect_UTF8('⚙ Качество', index - 1, t, 5000, 32 + 64 + 128)
+		m_simpleTV.OSD.ShowSelect_UTF8('⚙ Качество', index - 1, t, 5000, 32 + 64 + 128 + 8)
 	end
 	m_simpleTV.Control.CurrentAddress = t[index].Address
 	function megafonSaveQuality(obj, id)
