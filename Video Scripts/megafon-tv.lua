@@ -31,21 +31,33 @@
 	local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 		if rc ~= 200 then return end
 	local extOpt = '$OPT:INT-SCRIPT-PARAMS=megafon$OPT:no-spu$OPT:adaptive-init-on-each-segment'
-	local t = {}
+	local t0 = {}
 		for w in answer:gmatch('<Representation[^>]+frameRate[^>]+>') do
 			local bw = w:match('bandwidth="(%d+)')
 			local res = w:match('height="(%d+)')
 			if res and bw then
 				bw = tonumber(bw)
 				local bwt = math.ceil(bw / 100000) * 100
-				bw = bw / 1000
-				t[#t + 1] = {}
-				t[#t].Id = tonumber(res)
-				t[#t].Name = res .. 'p (' .. bwt .. ' кбит/с)'
-				t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s%s', inAdr, bw, extOpt)
+				if bwt > 500 then
+					bw = bw / 1000
+					t0[#t0 + 1] = {}
+					t0[#t0].Id = tonumber(res)
+					t0[#t0].Name = res .. 'p (' .. bwt .. ' кбит/с)'
+					t0[#t0].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s%s', inAdr, bw, extOpt)
+				end
 			end
 		end
-		if #t == 0 then return end
+		if #t0 == 0 then return end
+	local t = {}
+	if t0[#t0].Id >=720 then
+		for i = 1, #t0 do
+			if t0[i].Id >=720 then
+				t[#t+1] = t0[i]
+			end
+		end
+	else
+		t = t0
+	end
 	table.sort(t, function(a, b) return a.Id < b.Id end)
 	local lastQuality = tonumber(m_simpleTV.Config.GetValue('megafon_qlty') or 10000)
 	t[#t + 1] = {}
