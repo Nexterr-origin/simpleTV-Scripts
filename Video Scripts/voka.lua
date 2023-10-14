@@ -1,13 +1,11 @@
--- видеоскрипт для плейлиста "voka" https://www.voka.tv (12/6/23)
+-- видеоскрипт для плейлиста "voka" https://www.voka.tv (14/10/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: voka_pls.lua
 -- ## открывает подобные ссылки ##
 -- https://www.voka.tv/9e4d4fec-f41d-436e-9fc7-c43725496f0d
--- https://cdn.voka.tv/live/3010.m3u8
--- https://cdn-cache01.voka.tv:443/live/2018.m3u8
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('^https?://[%w%-]+%.voka%.tv.+') then return end
+		if not m_simpleTV.Control.CurrentAddress:match('^https?://www%.voka%.tv') then return end
 	if m_simpleTV.Control.CurrentAddress:match('PARAMS=voka') then return end
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
@@ -54,13 +52,12 @@
 			m_simpleTV.Config.SetValue('voka_qlty', id)
 		end
 	end
-	if not inAdr:match('/live/') then
-		inAdr = vokaAdr(inAdr)
+	inAdr = vokaAdr(inAdr)
 		if not inAdr then
 			m_simpleTV.User.voka.token = nil
 		 return
 		end
-	end
+	inAdr = inAdr:gsub('&stream_dvr_window=%d+', '')
 	local extOpt = '$OPT:INT-SCRIPT-PARAMS=voka'
 	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
 		if rc ~= 200 then return end
