@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "Wink TV" https://wink.ru (12/10/23)
+-- видеоскрипт для плейлиста "Wink TV" https://wink.ru (14/10/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: wink-tv_pls.lua
@@ -9,6 +9,7 @@
 -- https://s91412.cdn.ngenix.net/mdrm/CH_KTOKUDA/manifest.mpd$OPT:adaptive-use-avdemux$OPT:avdemux-options={decryption_key=095b4efb5f7577b693eaeaf37dc0cdfa}
 -- http://hlsstr03.svc.iptv.rt.ru/hls/CH_TNT/variant.m3u8?offset=-14400
 -- https://wink.ru/PTBITWlsVE53SVRaaVpEW...
+-- https://s91412.cdn.ngenix.net/mdrm/CH_GAGSNETWORKHD/manifest.mpd?token=XnMTcxZTdkNzFkYTZmNmM3OWIyMDRmMTMyYzVmZjRmYjc
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('rt%.ru/hls/CH_')
 			and not m_simpleTV.Control.CurrentAddress:match('ngenix%.net[:%d]*/hls/CH_')
@@ -34,6 +35,10 @@
 		inAdr = string.reverse(inAdr)
 		inAdr = decode64(inAdr)
 	end
+	inAdr = string.gsub(inAdr, '.token=..([^$&]*)',
+				function(c)
+				 return string.format('$OPT:adaptive-use-avdemux$OPT:avdemux-options={decryption_key=%s}', decode64(c))
+				end)
 	local host = inAdr:match('https?://.-/')
 	local extOpt = inAdr:match('$OPT:.[^&]*') or ''
 	extOpt = extOpt .. '$OPT:INT-SCRIPT-PARAMS=winktv$OPT:http-user-agent=' .. ua
