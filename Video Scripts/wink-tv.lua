@@ -39,7 +39,6 @@
 				function(c)
 				 return string.format('$OPT:adaptive-use-avdemux$OPT:avdemux-options={decryption_key=%s}', decode64(c))
 				end)
-	inAdr = inAdr:gsub('//s%d+', '//s35761')
 	local host = inAdr:match('https?://.-/')
 	local extOpt = inAdr:match('$OPT:.[^&]*') or ''
 	extOpt = extOpt .. '$OPT:INT-SCRIPT-PARAMS=winktv$OPT:http-user-agent=' .. ua
@@ -94,7 +93,7 @@
 						t[#t].Name = bw .. ' кбит/с'
 						t[#t].Id = bw
 					end
-					t[#t].Address = string.format('%s$OPT:no-ts-cc-check$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s%s', inAdr, bw, extOpt)
+					t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s%s', inAdr, bw, extOpt)
 				end
 			end
 	 return t, qw_res
