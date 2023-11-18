@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "Wink TV" https://wink.ru (14/10/23)
+-- видеоскрипт для плейлиста "Wink TV" https://wink.ru (18/11/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: wink-tv_pls.lua
@@ -39,6 +39,7 @@
 				function(c)
 				 return string.format('$OPT:adaptive-use-avdemux$OPT:avdemux-options={decryption_key=%s}', decode64(c))
 				end)
+	inAdr = inAdr:gsub('//s%d+', '//s35761')
 	local host = inAdr:match('https?://.-/')
 	local extOpt = inAdr:match('$OPT:.[^&]*') or ''
 	extOpt = extOpt .. '$OPT:INT-SCRIPT-PARAMS=winktv$OPT:http-user-agent=' .. ua
