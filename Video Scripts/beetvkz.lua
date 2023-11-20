@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "beetvkz" https://beetv.kz (19/11/23)
+-- видеоскрипт для плейлиста "beetvkz" https://beetv.kz (20/11/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: beetvkz_pls.lua
@@ -10,13 +10,12 @@
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
 	end
 	local inAdr = m_simpleTV.Control.CurrentAddress:match('%d+')
-	inAdr = decode64('aHR0cHM6Ly91Y2RuLmJlZXR2Lmt6L2J0di9saXZlL2hscy8') .. inAdr .. '.m3u8'
+	inAdr = decode64('aHR0cDovL3VjZG4uYmVldHYua3ovYnR2L2xpdmUvaGxzLw') .. inAdr .. '.m3u8'
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
 	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
-	inAdr = inAdr:gsub('^https://', 'http://')
 	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
 		if rc ~= 200 then return end
 	local extOpt = ''
