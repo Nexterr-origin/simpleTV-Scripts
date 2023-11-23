@@ -66,8 +66,7 @@
 	local function getAdr(url)
 			if not url then return end
 		url = url:gsub('^$cdnmovies', '')
-		local subt = subtitle(url) or ''
-		local extOpt = '$OPT:NO-STIMESHIFT'
+		-- local subt = subtitle(url) or ''
 		local t = {}
 			for qlty, adr in url:gmatch('%[(%d+)p%]([^,]+)') do
 					t[#t + 1] = {}
@@ -100,7 +99,8 @@
 			for i = 1, #tab do
 				t[i] = {}
 				t[i].Id = i
-				t[i].Address = tab[i].file .. (tab[i].subtitle or '')
+				t[i].Address = tab[i].file
+				-- .. (tab[i].subtitle or '')
 				t[i].Name = tab[i].title
 				if t[i].Name == transl_name then
 					transl_id = i
