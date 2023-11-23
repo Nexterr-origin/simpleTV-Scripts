@@ -1,12 +1,10 @@
--- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (24/6/23)
+-- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (24/11/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
--- ## необходим ##
--- модуль: /core/playerjs.lua
 -- ## открывает подобные ссылки ##
--- http://640f39bd678cb.sarnage.cc/movie/66674
--- https://640f39bd678cb.sarnage.cc/serial/12503
+-- https://amuck-planes.cdnmovies-stream.online/content/def65d0bf564ebfc8b5b5dbc43bf58ff/iframe
+-- https://amuck-planes.cdnmovies-stream.online/content/ee0dc1a5d76a4506a257a45ab399f5e0/iframe
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('^https?://[^.]+%.sarnage%.cc')
+		if not m_simpleTV.Control.CurrentAddress:match('^https?://[^.]+%.cdnmovies%-stream%.online')
 			and not m_simpleTV.Control.CurrentAddress:match('^$cdnmovies')
 		then
 		 return
@@ -18,7 +16,6 @@
 		end
 	end
 	require 'json'
-	require 'playerjs'
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
 	if not m_simpleTV.User then
@@ -70,25 +67,14 @@
 			if not url then return end
 		url = url:gsub('^$cdnmovies', '')
 		local subt = subtitle(url) or ''
-		url = url:gsub('%[.+', '')
-		url = url:gsub('/%d+%.', '/hls.'):gsub('/%d+%-', '/hls-')
-		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
-			if rc ~= 200 then return end
 		local extOpt = '$OPT:NO-STIMESHIFT'
-		local base = url:match('.+/')
 		local t = {}
-			for w in answer:gmatch('#EXT%-X%-STREAM.-\n') do
-				local qlty = w:match('RESOLUTION=%d+x(%d+)')
-				local bw = w:match('[^%-]BANDWIDTH=(%d+)')
-				if qlty and bw then
-					bw = tonumber(bw)
-					bw = bw / 1000
+			for qlty, adr in url:gmatch('%[(%d+)p%]([^,]+)') do
 					t[#t + 1] = {}
 					t[#t].Id = #t
 					t[#t].qlty = tonumber(qlty)
 					t[#t].Name = qlty .. 'p'
-					t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s%s%s', url, bw,subt, extOpt)
-				end
+					t[#t].Address = adr
 			end
 			if #t == 0 then return end
 		table.sort(t, function(a, b) return a.qlty < b.qlty end)
@@ -246,23 +232,15 @@
 	end
 	local function getData()
 		local url = inAdr:gsub('&kinopoisk.+', ''):gsub('^http:', 'https:')
-		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: https://hdkinotavr.ru/'})
+		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: http://hdkinotavr.tw1.ru/'})
 			if rc ~= 200 then return end
-		local file = answer:match('file:\'([^\']+)')
+		local file = answer:match('file:%s*\'([^\']+)')
 			if not file then return end
-		if file:match('^#') then
-			local playerjs_url = answer:match('script src="([^"]+)')
-				if not playerjs_url then return end
-			local host = url:match('^https?://[^/]+')
-			if not playerjs_url:match('^https?://') then
-				playerjs_url = host .. playerjs_url
-			end
-			file = playerjs.decode(file, playerjs_url)
-				if not file or file == '' then return end
-			file = m_simpleTV.Common.multiByteToUTF8(file)
-		end
 		local titleAnswer = answer:match('<title>([^<]+)')
+		file = file:gsub('^#2', '')
+		file = decode64(file)
 		file = file:gsub('%[%]', '""')
+		file = file:gsub('\\/', '/')
 		local err, tab = pcall(json.decode, file)
 		local ser = file:match('folder')
 	 return tab, ser, titleAnswer
