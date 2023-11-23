@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (8/10/23)
+-- видеоскрипт для сайта http://www.kinopoisk.ru (23/11/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
@@ -22,7 +22,7 @@ local tname = {
 -- отключить: поставить в начале строки --
 	'Voidboost',
 	'VideoCdn',
-	-- 'CDN Movies',
+	'CDN Movies',
 	'Videoframe',
 	'Hdvb',
 	'Collaps',
@@ -327,7 +327,7 @@ local tname = {
 			elseif tname[i] == 'Filmix' then
 				turl[i] = {adr = filmixsite .. decode64('L2VuZ2luZS9hamF4L3NwaGlueF9zZWFyY2gucGhw'), tTitle = 'Фильмы и сериалы с filmix.ac', tLogo = logo_k}
 			elseif tname[i] == 'CDN Movies' then
-				turl[i] = {adr = decode64('aHR0cHM6Ly9jZG5tb3ZpZXMubmV0L2FwaS9zaG9ydD90b2tlbj00MGZiZDI0ODZhMGI4MTA4OGYzM2MxNGE2MDdmY2QzNiZraW5vcG9pc2tfaWQ9') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/cdnmovie.png'}
+				turl[i] = {adr = decode64('aHR0cHM6Ly9hcGkuY2RubW92aWVzLm5ldC92MS9jb250ZW50cz90b2tlbj0yOThmMTg4NDhjMDVlOTg4YjQ1ZDE3NDQ2MjllNWE0YyZraW5vcG9pc2tfaWQ9') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/cdnmovie.png'}
 			elseif tname[i] == 'Seasonvar' then
 				turl[i] = {adr = decode64('aHR0cDovL3NlYXNvbnZhci5ydS9hdXRvY29tcGxldGUucGhwP3F1ZXJ5PQ=='), tTitle = 'Сериалы с Seasonvar.ru', tLogo = 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/seasonvar.png'}
 			elseif tname[i] == 'ivi' then
