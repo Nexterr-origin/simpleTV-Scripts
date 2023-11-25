@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (26/11/23)
+-- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (27/11/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://amuck-planes.cdnmovies-stream.online/content/def65d0bf564ebfc8b5b5dbc43bf58ff/iframe
@@ -234,22 +234,22 @@
 		local url = inAdr:gsub('&kinopoisk.+', ''):gsub('^http:', 'https:')
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: http://hdkinotavr.tw1.ru/'})
 			if rc ~= 200 then return end
-		local titleAnswer = answer:match('ru_title&quot;:&quot;(.-)&quot;,')
-		titleAnswer = unescape3(titleAnswer)
-		local file = answer:match(';player&quot;:&quot;(.-)&quot;},&quot;url&quot;:')
+		local file = answer:match('player&quot;:&quot;(.-)&quot;},&quot;url')
 			if not file then return end
-		if file:match('&quot') then
+		if file:match('#2') then
+			file = file:gsub('#2', '')
+			file = decode64(file)
+		else
 			file = file:gsub('\\\\/', '/')
 			file = file:gsub('\\&quot;', '"')
 			file = unescape3(file)
-		else
-			file = file:gsub('#2', '')
-			file = decode64(file)
 		end
 		file = file:gsub('\\/', '/')
 		file = file:gsub('%[%]', '""')
 		local err, tab = pcall(json.decode, file)
 		local ser = file:match('folder')
+		local titleAnswer = answer:match('ru_title&quot;:&quot;(.-)&quot;,')
+		titleAnswer = unescape3(titleAnswer)
 	 return tab, ser, titleAnswer
 	end
 	function transl_cdnmovies(movie)
