@@ -234,15 +234,20 @@
 		local url = inAdr:gsub('&kinopoisk.+', ''):gsub('^http:', 'https:')
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: http://hdkinotavr.tw1.ru/'})
 			if rc ~= 200 then return end
-		local file = answer:match(';player&quot;:&quot;(.-)&quot;},&quot;url&quot;:')
-			if not file then return end
 		local titleAnswer = answer:match('ru_title&quot;:&quot;(.-)&quot;,')
 		titleAnswer = unescape3(titleAnswer)
-		file = file:gsub('\\\\/', '/')
+		local file = answer:match(';player&quot;:&quot;(.-)&quot;},&quot;url&quot;:')
+			if not file then return end
+		if file:match('&quot') then
+			file = file:gsub('\\\\/', '/')
+			file = file:gsub('\\&quot;', '"')
+			file = unescape3(file)
+		else
+			file = file:gsub('#2', '')
+			file = decode64(file)
+		end
 		file = file:gsub('\\/', '/')
-		file = file:gsub('\\&quot;', '"')
 		file = file:gsub('%[%]', '""')
-		file = unescape3(file)
 		local err, tab = pcall(json.decode, file)
 		local ser = file:match('folder')
 	 return tab, ser, titleAnswer
