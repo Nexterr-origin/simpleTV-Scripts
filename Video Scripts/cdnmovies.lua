@@ -28,6 +28,18 @@
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	m_simpleTV.User.cdnmovies.DelayedAddress = nil
+	local function dataClean(file)
+		file = file:gsub('\\/', '/')
+		local t = {'//ZGY4dmc2OXI5enhXZGx5ZisqZmd4NDU1ZzhmaDl6LWUqUQ==', '//YXorLWVydyozNDU3ZWRndGpkLWZlcXNwdGYvcmUqcSpZ', '//bHZmeWNnbmRxY3lkcmNnY2ZnKzk1MTQ3Z2ZkZ2YtemQq', '//NTR2amZoY2dkYnJ5ZGtjZmtuZHo1Njg0MzZmcmVkKypk', '//LSpmcm9mcHNjcHJwYW1mcFEqNDU2MTIuMzI1NmRmcmdk'}
+		local c = 0
+			while (file:match('//') and c < 32) do
+					for i = 1, #t do
+						file = file:gsub(t[i], '')
+					end
+				c = c + 1
+			end
+	 return file
+	end
 	local function showMsg(str, msg)
 		local color
 		if not msg then
@@ -234,16 +246,10 @@
 		local url = inAdr:gsub('&kinopoisk.+', ''):gsub('^http:', 'https:')
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: http://hdkinotavr.tw1.ru/'})
 			if rc ~= 200 then return end
-		local file = answer:match('player&quot;:&quot;(.-)&quot;},&quot;url')
+		local file = answer:match('#2([^&]+)')
 			if not file then return end
-		if file:match('#2') then
-			file = file:gsub('#2', '')
-			file = decode64(file)
-		else
-			file = file:gsub('\\\\/', '/')
-			file = file:gsub('\\&quot;', '"')
-			file = unescape3(file)
-		end
+		file = dataClean(file)
+		file = decode64(file)
 		file = file:gsub('\\/', '/')
 		file = file:gsub('%[%]', '""')
 		local err, tab = pcall(json.decode, file)
