@@ -30,11 +30,11 @@
 	m_simpleTV.User.cdnmovies.DelayedAddress = nil
 	local function dataClean(file)
 		file = file:gsub('\\/', '/')
-		local t = {'//ZGY4dmc2OXI5enhXZGx5ZisqZmd4NDU1ZzhmaDl6LWUqUQ==', '//YXorLWVydyozNDU3ZWRndGpkLWZlcXNwdGYvcmUqcSpZ', '//bHZmeWNnbmRxY3lkcmNnY2ZnKzk1MTQ3Z2ZkZ2YtemQq', '//NTR2amZoY2dkYnJ5ZGtjZmtuZHo1Njg0MzZmcmVkKypk', '//LSpmcm9mcHNjcHJwYW1mcFEqNDU2MTIuMzI1NmRmcmdk'}
+		local t = {'WkdZNGRtYzJPWEk1ZW5oWFpHeDVaaXNxWm1kNE5EVTFaemhtYURsNkxXVXFVUT09', 'WVhvckxXVnlkeW96TkRVM1pXUm5kR3BrTFdabGNYTndkR1l2Y21VcWNTcFo', 'YkhabWVXTm5ibVJ4WTNsa2NtTm5ZMlpuS3prMU1UUTNaMlprWjJZdGVtUXE', 'TlRSMmFtWm9ZMmRrWW5KNVpHdGpabXR1WkhvMU5qZzBNelptY21Wa0t5cGs', 'TFNwbWNtOW1jSE5qY0hKd1lXMW1jRkVxTkRVMk1USXVNekkxTm1SbWNtZGs'}
 		local c = 0
 			while (file:match('//') and c < 32) do
 					for i = 1, #t do
-						file = file:gsub(t[i], '')
+						file = file:gsub('//' .. decode64(t[i]), '')
 					end
 				c = c + 1
 			end
