@@ -1,5 +1,5 @@
--- видеоскрипт для сайта https://hdrezka.tv (12/1/22)
--- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта https://hdrezka.tv (26/11/23)
+-- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- модуль: /core/playerjs.lua
 -- ## открывает подобные ссылки ##
@@ -101,7 +101,7 @@ local proxy = ''
 		table.sort(t, function(a, b) return a.qlty < b.qlty end)
 			for i = 1, #t do
 				t[i].Id = i
-				t[i].Address = t[i].Address:gsub('^https://', 'http://'):gsub(':hls:manifest%.m3u8', '')
+				t[i].Address = t[i].Address:gsub('^https://', 'http://')
 			end
 		m_simpleTV.User.rezka.Tab = t
 		local index = rezkaIndex(t)
