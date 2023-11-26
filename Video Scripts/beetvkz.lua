@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "beetvkz" https://beetv.kz (22/11/23)
+-- видеоскрипт для плейлиста "beetvkz" https://beetv.kz (26/11/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: beetvkz_pls.lua
@@ -28,7 +28,7 @@
 	inAdr = string.format('%s%s.m3u8?b_app_id=&b_device_platform=windows&b_strmr_channel_id=%s', decode64('aHR0cHM6Ly91Y2RuLmJlZXR2Lmt6L2J0di9saXZlL2hscy8'), inAdr, inAdr)
 	local function GetLocationUrl(url)
 		m_simpleTV.Http.SetRedirectAllow(session, false)
-		local rc = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: https://beetv.kz/'})
+		local rc = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: https://beetv.kz/\nX-Forwarded-For:176.222.190.1'})
 		local raw = m_simpleTV.Http.GetRawHeader(session)
 		if rc ~= 200 and raw then
 			url = raw:match('Location:%s*(%S+)') or url
