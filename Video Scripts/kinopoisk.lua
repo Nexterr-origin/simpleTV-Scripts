@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (28/11/23)
+-- видеоскрипт для сайта http://www.kinopoisk.ru (29/11/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
@@ -104,7 +104,7 @@ local tname = {
 					if rc ~= 200 then return end
 			return answer:match('"iframe_src":"([^"]+)')
 		elseif url:match('cdnmovies') then
-			rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: http://hdkinotavr.tw1.ru/'})
+			rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: https://cdnmovies.net/'})
 				if rc ~= 200 then return end
 			return url
 		elseif url:match('ivi%.ru') then
