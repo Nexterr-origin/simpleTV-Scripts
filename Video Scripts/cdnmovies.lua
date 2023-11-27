@@ -1,8 +1,9 @@
--- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (28/11/23)
+-- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (29/11/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://amuck-planes.cdnmovies-stream.online/content/def65d0bf564ebfc8b5b5dbc43bf58ff/iframe
 -- https://amuck-planes.cdnmovies-stream.online/content/ee0dc1a5d76a4506a257a45ab399f5e0/iframe
+-- https://cdnmovies-stream.online/kinopoisk/4948219/iframe
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('cdnmovies%-stream%.online')
 			and not m_simpleTV.Control.CurrentAddress:match('^$cdnmovies')
@@ -244,7 +245,7 @@
 	end
 	local function getData()
 		local url = inAdr:gsub('&kinopoisk.+', ''):gsub('^http:', 'https:')
-		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: http://hdkinotavr.tw1.ru/'})
+		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: https://cdnmovies.net/'})
 			if rc ~= 200 then return end
 		local file = answer:match('#2([^&]+)')
 			if not file then return end
