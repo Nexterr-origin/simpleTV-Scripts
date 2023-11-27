@@ -1,10 +1,10 @@
--- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (27/11/23)
+-- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (28/11/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://amuck-planes.cdnmovies-stream.online/content/def65d0bf564ebfc8b5b5dbc43bf58ff/iframe
 -- https://amuck-planes.cdnmovies-stream.online/content/ee0dc1a5d76a4506a257a45ab399f5e0/iframe
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('^https?://[^.]+%.cdnmovies%-stream%.online')
+		if not m_simpleTV.Control.CurrentAddress:match('cdnmovies%-stream%.online')
 			and not m_simpleTV.Control.CurrentAddress:match('^$cdnmovies')
 		then
 		 return
