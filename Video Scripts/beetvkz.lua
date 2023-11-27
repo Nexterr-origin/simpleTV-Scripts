@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "beetvkz" https://beetv.kz (26/11/23)
+-- видеоскрипт для плейлиста "beetvkz" https://beetv.kz (27/11/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: beetvkz_pls.lua
@@ -36,7 +36,7 @@
 		end
 	 return url, 200
 	end
-	local extOpt = '$OPT:http-user-agent=' .. userAgent
+	local extOpt = '$OPT:adaptive-minbuffer=10000$OPT:http-ext-header=X-Forwarded-For:176.222.190.1$OPT:http-user-agent=' .. userAgent
 	local retAdr, rc = GetLocationUrl(inAdr)
 	if rc == - 1 then
 		m_simpleTV.Common.Sleep(1400)
@@ -54,7 +54,7 @@
 		end
 	m_simpleTV.User.beetvkz.restart = 0
 	retAdr = retAdr:gsub('^https://','http://'):gsub(':443','')
-	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr, headers = 'Referer: https://beetv.kz/'})
+	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr, headers = 'Referer: https://beetv.kz/\nX-Forwarded-For:176.222.190.1'})
 		if rc ~= 200 then return end
 	local t = {}
 		for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-)\n') do
