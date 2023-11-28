@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "beetvkz" https://beetv.kz (27/11/23)
+-- видеоскрипт для плейлиста "beetvkz" https://beetv.kz (29/11/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: beetvkz_pls.lua
@@ -28,7 +28,7 @@
 	inAdr = string.format('%s%s.m3u8?b_app_id=&b_device_platform=windows&b_strmr_channel_id=%s', decode64('aHR0cHM6Ly91Y2RuLmJlZXR2Lmt6L2J0di9saXZlL2hscy8'), inAdr, inAdr)
 	local function GetLocationUrl(url)
 		m_simpleTV.Http.SetRedirectAllow(session, false)
-		local rc = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: https://beetv.kz/\nX-Forwarded-For:176.222.190.1'})
+		local rc = m_simpleTV.Http.Request(session, {url = url, headers = decode64('UmVmZXJlcjogaHR0cHM6Ly9iZWV0di5rei9cblgtRm9yd2FyZGVkLUZvcjoxNzYuMjIyLjE5MC4x')})
 		local raw = m_simpleTV.Http.GetRawHeader(session)
 		if rc ~= 200 and raw then
 			url = raw:match('Location:%s*(%S+)') or url
@@ -36,7 +36,7 @@
 		end
 	 return url, 200
 	end
-	local extOpt = '$OPT:adaptive-minbuffer=10000$OPT:http-ext-header=X-Forwarded-For:176.222.190.1$OPT:http-user-agent=' .. userAgent
+	local extOpt = decode64('JE9QVDphZGFwdGl2ZS1taW5idWZmZXI9MTAwMDAkT1BUOmh0dHAtZXh0LWhlYWRlcj1YLUZvcndhcmRlZC1Gb3I6MTc2LjIyMi4xOTAuMSRPUFQ6aHR0cC11c2VyLWFnZW50PQ') .. userAgent
 	local retAdr, rc = GetLocationUrl(inAdr)
 	if rc == - 1 then
 		m_simpleTV.Common.Sleep(1400)
@@ -54,7 +54,7 @@
 		end
 	m_simpleTV.User.beetvkz.restart = 0
 	retAdr = retAdr:gsub('^https://','http://'):gsub(':443','')
-	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr, headers = 'Referer: https://beetv.kz/\nX-Forwarded-For:176.222.190.1'})
+	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr, headers = decode64('UmVmZXJlcjogaHR0cHM6Ly9iZWV0di5rei9cblgtRm9yd2FyZGVkLUZvcjoxNzYuMjIyLjE5MC4x')})
 		if rc ~= 200 then return end
 	local t = {}
 		for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-)\n') do
