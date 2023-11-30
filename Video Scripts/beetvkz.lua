@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "beetvkz" https://beetv.kz (29/11/23)
+-- видеоскрипт для плейлиста "beetvkz" https://beetv.kz (30/11/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: beetvkz_pls.lua
@@ -15,7 +15,7 @@
 	local userAgent = 'Mozilla/5.0 (iPhone; CPU OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Mobile/14E304 Safari/605.1.15'
 	local session = m_simpleTV.Http.New(userAgent, false, true)
 		if not session then return end
-	m_simpleTV.Http.SetTimeout(session, 20000)
+	m_simpleTV.Http.SetTimeout(session, 12000)
 	if not m_simpleTV.User then
 		m_simpleTV.User = {}
 	end
@@ -36,7 +36,7 @@
 		end
 	 return url, 200
 	end
-	local extOpt = decode64('JE9QVDphZGFwdGl2ZS1taW5idWZmZXI9MTAwMDAkT1BUOmh0dHAtZXh0LWhlYWRlcj1YLUZvcndhcmRlZC1Gb3I6MTc2LjIyMi4xOTAuMSRPUFQ6aHR0cC11c2VyLWFnZW50PQ') .. userAgent
+	local extOpt = decode64('JE9QVDphZGFwdGl2ZS1taW5idWZmZXI9MzAwMDAkT1BUOmh0dHAtZXh0LWhlYWRlcj1YLUZvcndhcmRlZC1Gb3I6MTc2LjIyMi4xOTAuMSRPUFQ6aHR0cC11c2VyLWFnZW50PQ') .. userAgent
 	local retAdr, rc = GetLocationUrl(inAdr)
 	if rc == - 1 then
 		m_simpleTV.Common.Sleep(1400)
