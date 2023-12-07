@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "LimeHD", "LimeHD+" https://limehd.tv (7/12/23)
+-- видеоскрипт для плейлиста "LimeHD", "LimeHD+" https://limehd.tv (8/12/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: LimeHD_pls.lua, LimeHD+_pls.lua
@@ -28,6 +28,7 @@
 		local id = inAdr:match('%d+')
 			if not id then return end
 		local url = decode64('aHR0cHM6Ly9hcGkuaXB0djIwMjEuY29tL3YxL3N0cmVhbXMv') .. id
+		-- aHR0cHM6Ly9hcGkuaXB0djIwMjEuY29tL3YxL2NoYW5uZWxz
 		local headers = decode64('WC1BY2Nlc3MtS2V5OiAxMGFhMDkxMTQ1ODhhNWY3NTBlYWVkNWU5ZGU1MzcwNGM4NThlMTQ0')
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
 			if rc ~= 200 then return end
