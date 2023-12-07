@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "LimeHD+" https://limehd.tv (13/6/23)
+-- скрапер TVS для загрузки плейлиста "LimeHD+" https://limehd.tv (7/12/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: limeHD.lua
@@ -20,6 +20,25 @@ local filter = {
 	{'No title for channel #11908', 'Футбольный'},
 	{'No title for channel #12125', 'Ностальгия'},
 	{'No title for channel #13490', 'KinoLiving'},
+	{'No title for channel #10545', 'Беларусь 24'},
+	{'No title for channel #10554', 'SongTV'},
+	{'No title for channel #10618', 'TV Brics'},
+	{'No title for channel #10625', 'Insight'},
+	{'No title for channel #10644', 'Индия'},
+	{'No title for channel #10646', 'Полёт ТВ'},
+	{'No title for channel #10666', 'Arirang'},
+	{'No title for channel #10671', '78 канал (Санкт-Петербург)'},
+	{'No title for channel #10674', 'Живи Активно'},
+	{'No title for channel #10676', 'Глазами Туриста'},
+	{'No title for channel #10802', 'ТЕО ТВ (Москва)'},
+	{'No title for channel #11159', 'Загородная жизнь'},
+	{'No title for channel #11166', 'BRIDGE DELUXE'},
+	{'No title for channel #11173', 'BRIDGE Шлягер'},
+	{'No title for channel #12272', 'HD Media'},
+	{'No title for channel #12356', 'Bridge ROCK'},
+	{'No title for channel #12384', 'Travelxp HD'},
+	{'No title for channel #12391', 'Clubbing TV'},
+	{'No title for channel #13735', 'Соловьёв Live'},
 	}
 	module('limeHD+_pls', package.seeall)
 	local my_src_name = 'LimeHD+'
