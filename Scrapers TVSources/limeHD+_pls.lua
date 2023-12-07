@@ -21,7 +21,7 @@ local filter = {
 	{'No title for channel #12125', 'Ностальгия'},
 	{'No title for channel #13490', 'KinoLiving'},
 	{'No title for channel #10545', 'Беларусь 24'},
-	{'No title for channel #10554', 'SongTV'},
+	{'No title for channel #10554', 'SONGTV Russia'},
 	{'No title for channel #10618', 'TV Brics'},
 	{'No title for channel #10625', 'Insight'},
 	{'No title for channel #10644', 'Индия'},
@@ -39,6 +39,8 @@ local filter = {
 	{'No title for channel #12384', 'Travelxp HD'},
 	{'No title for channel #12391', 'Clubbing TV'},
 	{'No title for channel #13735', 'Соловьёв Live'},
+	{'No title for channel #14498', '.black'},
+	{'No title for channel #14491', '.sci-fi'},
 	}
 	module('limeHD+_pls', package.seeall)
 	local my_src_name = 'LimeHD+'
@@ -55,12 +57,15 @@ local filter = {
 	 return t
 	end
 	local function tableClean(t)
-		local n = {'%(%a%a', '%-%d%p', '%.%a%a', '#%d%d', '^TV%s', 'Brasil', '^Rede', '^REDE', '^NOVA', 'Eurosport', 'Дождь', 'National Geographic', 'Russian America TV', 'МИР PREMIUM', 'Евроновости'}
+		local n = {'%(%a%a', '%-%d%p', '%.%a%a', '#%d%d', '^TV%s', 'Brasil', '^Rede', '^REDE', '^NOVA', 'Eurosport', 'Дождь', 'National Geographic', 'Russian America TV', 'МИР PREMIUM', 'Евроновости', 'GlobalStarTV'}
 		local t1 = {}
 			for i = 1, #t do
 				local h = true
 					for k = 1, #n do
-						if t[i].name:match(n[k]) then
+						if t[i].name:match(n[k])
+							and t[i].name ~= '.black'
+							and t[i].name ~= '.sci-fi'
+						then
 							h = false
 						 break
 						end
