@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "LimeHD", "LimeHD+" https://limehd.tv (7/6/23)
+-- видеоскрипт для плейлиста "LimeHD", "LimeHD+" https://limehd.tv (7/12/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: LimeHD_pls.lua, LimeHD+_pls.lua
@@ -52,20 +52,18 @@
 	end
 	m_simpleTV.User.limehd.url_archive = url_archive
 		if not retAdr then return end
-	local extOpt = '$OPT:adaptive-livedelay=60000$OPT:adaptive-minbuffer=50000$OPT:adaptive-maxbuffer=100000$OPT:http-user-agent=' .. userAgent
+	local extOpt = '$OPT:adaptive-livedelay=60000$OPT:adaptive-minbuffer=50000$OPT:http-user-agent=' .. userAgent
 	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 		if rc ~= 200 then return end
 	local t = {}
-		for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-)\n') do
-			local bw = w:match('[^%-]BANDWIDTH=(%d+)')
+		for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-\n.-)\n') do
 			local res = w:match('RESOLUTION=%d+x(%d+)')
-			if bw and res then
-				bw = tonumber(bw)
-				bw = bw / 1000
+			local adr = w:match('\n(.+)')
+			if res and adr then
 				t[#t + 1] = {}
 				t[#t].Id = tonumber(res)
-				t[#t].Name = res .. 'p (' .. bw .. ' кбит/с)'
-				t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s%s', retAdr, bw, extOpt)
+				t[#t].Name = res .. 'p'
+				t[#t].Address = retAdr:match('.+/') .. adr .. extOpt
 			end
 		end
 		if #t == 0 then
