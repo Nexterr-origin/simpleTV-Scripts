@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "LimeHD" https://limehd.tv (4/6/23)
+-- скрапер TVS для загрузки плейлиста "LimeHD" https://limehd.tv (11/12/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: limeHD.lua
@@ -22,17 +22,17 @@ local filter = {
 	 return t
 	end
 	function GetSettings()
-	 return {name = my_src_name, sortname = '', scraper = '', m3u = 'out_' .. my_src_name .. '.m3u', logo = '..\\Channel\\logo\\Icons\\limehd.png', TypeSource = 1, TypeCoding = 1, DeleteM3U = 1, show_progress = 0, RefreshButton = 1, AutoBuild = 0, AutoBuildDay = {0, 0, 0, 0, 0, 0, 0}, LastStart = 0, TVS = {add = 1, FilterCH = 1, FilterGR = 1, GetGroup = 1, LogoTVG = 1}, STV = {add = 1, ExtFilter = 1, FilterCH = 1, FilterGR = 1, GetGroup = 1, HDGroup = 0, AutoSearch = 1, AutoNumber = 0, NumberM3U = 0, GetSettings = 1, NotDeleteCH = 0, TypeSkip = 1, TypeFind = 1, TypeMedia = 0, RemoveDupCH = 1}}
+	 return {name = my_src_name, sortname = '', scraper = '', m3u = 'out_' .. my_src_name .. '.m3u', logo = '..\\Channel\\logo\\Icons\\limehd.png', TypeSource = 1, TypeCoding = 1, DeleteM3U = 1, show_progress = 0, RefreshButton = 1, AutoBuild = 0, AutoBuildDay = {0, 0, 0, 0, 0, 0, 0}, LastStart = 0, TVS = {add = 1, FilterCH = 1, FilterGR = 1, GetGroup = 1, LogoTVG = 0}, STV = {add = 1, ExtFilter = 1, FilterCH = 1, FilterGR = 1, GetGroup = 1, HDGroup = 0, AutoSearch = 1, AutoNumber = 0, NumberM3U = 0, GetSettings = 1, NotDeleteCH = 0, TypeSkip = 1, TypeFind = 1, TypeMedia = 0, RemoveDupCH = 1}}
 	end
 	function GetVersion()
 	 return 2, 'UTF-8'
 	end
 	local function LoadFromSite()
-		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
+		local session = m_simpleTV.Http.New(decode64('eyJwbGF0Zm9ybSI6ImFuZHJvaWQiLCJhcHAiOiJjb20uaW5mb2xpbmsubGltZWlwdHYiLCJ2ZXJzaW9uX25hbWUiOiIzLjMuMyIsInZlcnNpb25fY29kZSI6IjI1NiIsInNkayI6IjI5IiwibmFtZSI6InNka19waG9uZV94ODZfNjQrQW5kcm9pZCBTREsgYnVpbHQgZm9yIHg4Nl82NCIsImRldmljZV9pZCI6IjAwMEEwMDBBMDAwQTAwMEEifQ'))
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 8000)
-		local url = decode64('aHR0cHM6Ly9saW1laGQudHYvYXBpL3Y0L3BsYXlsaXN0P3BhZ2U9MSZsaW1pdD0xMDAwJm9ubHlhdmFpbGFibGU9MCZlcGc9MA')
-		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
+		local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9wbC5pcHR2MjAyMS5jb20vYXBpL3YxL3BsYXlsaXN0') .. '?t=' .. os.time(), method = 'post', body = '"tz":"3"', headers = 'X-Token:'})
+		debug_in_file(answer .. '\n')
 			if rc ~= 200 then return end
 		answer = answer:gsub('%[%]', '""')
 		require 'json'
@@ -44,12 +44,12 @@ local filter = {
 			end
 		local t, i = {}, 1
 			while tab.channels[i] do
-				if tab.channels[i].public then
+				if tab.channels[i].cdn and tab.channels[i].cdn ~= '' then
 					t[#t + 1] = {}
-					t[#t].name = tab.channels[i].title
-					t[#t].address = 'https://limehd.tv/channel/' .. tab.channels[i].address
+					t[#t].name = tab.channels[i].name_ru
+					t[#t].address = 'https://limehd.tv/channel/' .. tab.channels[i].id
 					t[#t].logo = tab.channels[i].image
-					t[#t].RawM3UString = 'catchup="append" catchup-days="' .. tab.channels[i].day_archive .. '"'
+					t[#t].RawM3UString = 'catchup="append" catchup-days="' .. (tab.channels[i].day_archive or 0) .. '"'
 				end
 				i = i + 1
 			end
