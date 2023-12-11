@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "LimeHD", "LimeHD+" https://limehd.tv (11/12/23)
+-- видеоскрипт для плейлиста "LimeHD", "LimeHD+" https://limehd.tv (12/12/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: LimeHD_pls.lua, LimeHD+_pls.lua
@@ -32,7 +32,7 @@
 		local headers = decode64('WC1BY2Nlc3MtS2V5OiAxMGFhMDkxMTQ1ODhhNWY3NTBlYWVkNWU5ZGU1MzcwNGM4NThlMTQ0')
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
 			if rc ~= 200 then return end
-	 return answer:match('"playlist_url":"([^"]+)'), answer:match('"archive_url":"([^"]+)')
+	 return answer:match('"playlist_url":"([^"]+)'), answer:match('"archive_url":"([^"]+)'), answer:match('"archive_hours":(%d+)')
 	end
 	local function getStreamFromApp(inAdr)
 		local id = inAdr:match('%d+')
@@ -43,14 +43,14 @@
 			if rc ~= 200 then return end
 	 return answer:match('"common":"([^"]+)'), answer:match('"archive":"([^"]+)')
 	end
-	local retAdr, url_archive
+	local retAdr, url_archive, archive_hours
 	if inAdr:match('/channel/') then
 		retAdr, url_archive = getStreamFromApp(inAdr)
 		if url_archive then
 			url_archive = url_archive:gsub('/$', '')
 		end
 	else
-		retAdr, url_archive = getStream(inAdr)
+		retAdr, url_archive, archive_hours = getStream(inAdr)
 	end
 	m_simpleTV.User.limehd.url_archive = url_archive
 		if not retAdr then return end
@@ -104,3 +104,6 @@
 		m_simpleTV.Config.SetValue('limehd_qlty', id)
 	end
 -- debug_in_file(t[index].Address .. '\n')
+-- local info = m_simpleTV.Control.GetCurrentChannelInfo()
+	-- if not info or info.Id == - 1 then return end
+-- debug_in_file('#EXTINF:-1 catchup="append" catchup-minutes="' .. ((archive_hours or 0) * 60) .. '",' .. info.Title ..'\n' .. inAdr.. '\n')
