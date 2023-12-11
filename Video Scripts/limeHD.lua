@@ -1,11 +1,11 @@
--- видеоскрипт для плейлиста "LimeHD", "LimeHD+" https://limehd.tv (8/12/23)
+-- видеоскрипт для плейлиста "LimeHD", "LimeHD+" https://limehd.tv (11/12/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: LimeHD_pls.lua, LimeHD+_pls.lua
 -- расширение дополнения httptimeshift: limehd-timeshift_ext.lua
 -- ## открывает подобные ссылки ##
 -- https://limehd.tv/1
--- https://limehd.tv/channel/match
+-- https://limehd.tv/channel/157
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://limehd%.tv/') then return end
 	if m_simpleTV.Control.MainMode == 0 then
@@ -34,17 +34,18 @@
 			if rc ~= 200 then return end
 	 return answer:match('"playlist_url":"([^"]+)'), answer:match('"archive_url":"([^"]+)')
 	end
-	local function getStreamFromSite(inAdr)
-		local channel = inAdr:match('/channel/([^&/%?$]+)')
-			if not channel then return end
-		local url = decode64('aHR0cHM6Ly9saW1laGQudHYvYXBpL3Y0L2NoYW5uZWwv') .. channel
-		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
+	local function getStreamFromApp(inAdr)
+		local id = inAdr:match('%d+')
+			if not id then return end
+		local url = decode64('aHR0cHM6Ly9wbC5pcHR2MjAyMS5jb20vYXBpL3Y0L2NoYW5uZWw/aWQ9') .. id .. '&tz=3&region=0'
+		local headers = decode64('WC1MSEQtQWdlbnQ6IHsidmVyc2lvbl9uYW1lIjoiMS4wLjIuMjAzIiwidmVyc2lvbl9jb2RlIjoiMjAzIiwicGxhdGZvcm0iOiJ3aW4iLCJkZXZpY2VfaWQiOiIgICAgIDAwMDAwMDAwIiwiYXBwIjoidHYubGltZWhkLndpbiIsImdlbmVyYXRpb24iOiIyIn0')
+		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
 			if rc ~= 200 then return end
 	 return answer:match('"common":"([^"]+)'), answer:match('"archive":"([^"]+)')
 	end
 	local retAdr, url_archive
 	if inAdr:match('/channel/') then
-		retAdr, url_archive = getStreamFromSite(inAdr)
+		retAdr, url_archive = getStreamFromApp(inAdr)
 		if url_archive then
 			url_archive = url_archive:gsub('/$', '')
 		end
@@ -53,7 +54,7 @@
 	end
 	m_simpleTV.User.limehd.url_archive = url_archive
 		if not retAdr then return end
-	local extOpt = '$OPT:adaptive-livedelay=60000$OPT:adaptive-minbuffer=50000$OPT:http-user-agent=' .. userAgent
+	local extOpt = '$OPT:adaptive-livedelay=30000$OPT:adaptive-minbuffer=30000$OPT:http-user-agent=' .. userAgent
 	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 		if rc ~= 200 then return end
 	local t = {}
