@@ -104,6 +104,11 @@
 		m_simpleTV.Config.SetValue('limehd_qlty', id)
 	end
 -- debug_in_file(t[index].Address .. '\n')
+-- catchup m3u -------------------------------------------------------------
 -- local info = m_simpleTV.Control.GetCurrentChannelInfo()
 	-- if not info or info.Id == - 1 then return end
+-- if archive_hours and archive_hours == '0' and url_archive then
+	-- archive_hours = 120
+-- end
 -- debug_in_file('#EXTINF:-1 catchup="append" catchup-minutes="' .. ((archive_hours or 0) * 60) .. '",' .. info.Title ..'\n' .. inAdr.. '\n')
+----------------------------------------------------------------------------------
