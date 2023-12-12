@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "beetvkz" https://beetv.kz (29/5/23)
+-- скрапер TVS для загрузки плейлиста "beetvkz" https://beetv.kz (13/12/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: beetvkz.lua
@@ -29,7 +29,7 @@ local filter = {
 	function LoadFromSite()
 		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
 			if not session then return end
-		m_simpleTV.Http.SetTimeout(session, 8000)
+		m_simpleTV.Http.SetTimeout(session, 16000)
 		local url = decode64('aHR0cHM6Ly9hcGkuYmVldHYua3ovdjMvY2hhbm5lbHMuanNvbj9jbGllbnRfaWQ9M2UyODY4NWMtZmNlMC00OTk0LTlkM2EtMWRhZDI3NzZlMTZhJmNsaWVudF92ZXJzaW9uPTQuMy4wLTEwMyZsb2NhbGU9cnUtUlUmdGltZXpvbmU9MTA4MDAmZXhwYW5kW2NoYW5uZWxdPWxpdmVfc3RyZWFtJnBhZ2VbbGltaXRdPTUwMA')
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 			if rc ~= 200 then return end
