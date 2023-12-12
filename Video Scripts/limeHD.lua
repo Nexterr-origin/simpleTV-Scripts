@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "LimeHD", "LimeHD+" https://limehd.tv (12/12/23)
+-- видеоскрипт для плейлиста "LimeHD", "LimeHD+" https://limehd.tv (13/12/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: LimeHD_pls.lua, LimeHD+_pls.lua
@@ -54,7 +54,7 @@
 	end
 	m_simpleTV.User.limehd.url_archive = url_archive
 		if not retAdr then return end
-	local extOpt = '$OPT:adaptive-livedelay=30000$OPT:adaptive-minbuffer=30000$OPT:http-user-agent=' .. userAgent
+	local extOpt = '$OPT:http-referrer=https://limehd.tv/$OPT:adaptive-livedelay=30000$OPT:adaptive-minbuffer=30000$OPT:http-user-agent=' .. userAgent
 	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 		if rc ~= 200 then return end
 	local t = {}
