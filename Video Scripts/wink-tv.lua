@@ -82,8 +82,8 @@
 			for w in answer:gmatch('<Representation[^>]+/video[^>]+>') do
 				local winkId = w:match('winkId="([^"]+)')
 				if winkId then
+					local res = winkId:match('x(%d+)') or '0'
 					t[#t + 1] = {}
-					res = winkId:match('x(%d+)')
 					t[#t].Name = res .. 'p'
 					t[#t].Id = tonumber(res)
 					t[#t].Address =inAdr:gsub('manifest%.mpd', winkId .. '/manifest.mpd') .. extOpt
