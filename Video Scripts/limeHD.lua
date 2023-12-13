@@ -46,26 +46,28 @@
 	local retAdr, url_archive, archive_hours
 	if inAdr:match('/channel/') then
 		retAdr, url_archive = getStreamFromApp(inAdr)
-		if url_archive then
-			url_archive = url_archive:gsub('/$', '')
-		end
 	else
 		retAdr, url_archive, archive_hours = getStream(inAdr)
 	end
-	m_simpleTV.User.limehd.url_archive = url_archive
 		if not retAdr then return end
-	local extOpt = '$OPT:http-referrer=https://limehd.tv/$OPT:adaptive-livedelay=30000$OPT:adaptive-minbuffer=30000$OPT:http-user-agent=' .. userAgent
+	if url_archive then
+		url_archive = url_archive:gsub('/$', '')
+	end
+	m_simpleTV.User.limehd.url_archive = url_archive
+	local extOpt = '$OPT:adaptive-use-avdemux$OPT:adaptive-livedelay=30000$OPT:adaptive-minbuffer=30000$OPT:http-user-agent=' .. userAgent
 	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 		if rc ~= 200 then return end
 	local t = {}
-		for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-\n.-)\n') do
+		for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-)\n') do
+			local bw = w:match('[^%-]BANDWIDTH=(%d+)')
 			local res = w:match('RESOLUTION=%d+x(%d+)')
-			local adr = w:match('\n(.+)')
-			if res and adr then
+			if bw and res then
+				bw = tonumber(bw)
+				bw = bw / 1000
 				t[#t + 1] = {}
 				t[#t].Id = tonumber(res)
-				t[#t].Name = res .. 'p'
-				t[#t].Address = retAdr:match('.+/') .. adr .. extOpt
+				t[#t].Name = res .. 'p (' .. bw .. ' кбит/с)'
+				t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s%s', retAdr, bw, extOpt)
 			end
 		end
 		if #t == 0 then
