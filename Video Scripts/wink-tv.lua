@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "Wink TV" https://wink.ru (1/12/23)
+-- видеоскрипт для плейлиста "Wink TV" https://wink.ru (13/12/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: wink-tv_pls.lua
@@ -80,21 +80,31 @@
 			 return t, qw_res
 			end
 			for w in answer:gmatch('<Representation[^>]+/video[^>]+>') do
-				local bw = w:match('bandwidth="(%d+)')
-				local res = w:match('height="(%d+)')
-				if bw then
-					bw = tonumber(bw)
-					bw = math.ceil(bw / 100000) * 100
+				local winkId = w:match('winkId="([^"]+)')
+				if winkId then
 					t[#t + 1] = {}
-					if res then
-						t[#t].Name = res .. 'p (' .. bw .. ' кбит/с)'
-						t[#t].Id = tonumber(res)
-						qw_res = true
-					else
-						t[#t].Name = bw .. ' кбит/с'
-						t[#t].Id = bw
+					res = winkId:match('x(%d+)')
+					t[#t].Name = res .. 'p'
+					t[#t].Id = tonumber(res)
+					t[#t].Address =inAdr:gsub('manifest%.mpd', winkId .. '/manifest.mpd') .. extOpt
+					qw_res = true
+				else
+					local bw = w:match('bandwidth="(%d+)')
+					local res = w:match('height="(%d+)')
+					if bw then
+						bw = tonumber(bw)
+						bw = math.ceil(bw / 100000) * 100
+						t[#t + 1] = {}
+						if res then
+							t[#t].Name = res .. 'p (' .. bw .. ' кбит/с)'
+							t[#t].Id = tonumber(res)
+							qw_res = true
+						else
+							t[#t].Name = bw .. ' кбит/с'
+							t[#t].Id = bw
+						end
+						t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s%s', inAdr, bw, extOpt)
 					end
-					t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s%s', inAdr, bw, extOpt)
 				end
 			end
 	 return t, qw_res
