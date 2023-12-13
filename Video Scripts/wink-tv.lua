@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "Wink TV" https://wink.ru (13/12/23)
+-- видеоскрипт для плейлиста "Wink TV" https://wink.ru (14/12/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: wink-tv_pls.lua
@@ -39,8 +39,6 @@
 				function(c)
 				 return string.format('$OPT:adaptive-use-avdemux$OPT:avdemux-options={decryption_key=%s}', decode64(c))
 				end)
-	inAdr = inAdr:gsub('//s%d+', '//s25617')
-	local host = inAdr:match('https?://.-/')
 	local extOpt = inAdr:match('$OPT:.[^&]*') or ''
 	extOpt = extOpt .. '$OPT:no-spu$OPT:INT-SCRIPT-PARAMS=winktv$OPT:http-user-agent=' .. ua
 	local function play(adr, offset)
@@ -51,58 +49,46 @@
 		end
 	 return
 	end
-	local function streamsTab(answer, host, extOpt)
+	local function streamsTab(answer, extOpt)
 		local qw_res
 		local t = {}
-			for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-\n.-)\n') do
-				local adr = w:match('\n(.+)')
+			for w in answer:gmatch('EXT%-X%-STREAM%-INF.-\n') do
 				local bw = w:match('BANDWIDTH=(%d+)')
 				local res = w:match('RESOLUTION=%d+x(%d+)')
-				if adr and bw then
+				if bw then
 					bw = tonumber(bw)
 					bw = math.ceil(bw / 100000) * 100
-					adr = adr:gsub('/playlist%.', '/variant.')
-					adr = adr:gsub('https?://.-/', host)
-					adr = adr:gsub('%?.-$', '')
 					t[#t + 1] = {}
 					if res then
 						t[#t].Name = res .. 'p (' .. bw .. ' кбит/с)'
 						t[#t].Id = tonumber(res)
+						t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-maxheight=%s%s', inAdr, res, extOpt)
 						qw_res = true
 					else
 						t[#t].Name = bw .. ' кбит/с'
 						t[#t].Id = bw
+						t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s%s', inAdr, bw, extOpt)
 					end
-					t[#t].Address = adr .. extOpt
 				end
 			end
 			if #t > 0 then
 			 return t, qw_res
 			end
 			for w in answer:gmatch('<Representation[^>]+/video[^>]+>') do
-				local winkId = w:match('winkId="([^"]+)')
-				if winkId then
-					local res = winkId:match('x(%d+)') or '0'
+				local bw = w:match('bandwidth="(%d+)')
+				local res = w:match('height="(%d+)')
+				if bw then
+					bw = tonumber(bw)
+					bw = math.ceil(bw / 100000) * 100
 					t[#t + 1] = {}
-					t[#t].Name = res .. 'p'
-					t[#t].Id = tonumber(res)
-					t[#t].Address =inAdr:gsub('manifest%.mpd', winkId .. '/manifest.mpd') .. extOpt
-					qw_res = true
-				else
-					local bw = w:match('bandwidth="(%d+)')
-					local res = w:match('height="(%d+)')
-					if bw then
-						bw = tonumber(bw)
-						bw = math.ceil(bw / 100000) * 100
-						t[#t + 1] = {}
-						if res then
-							t[#t].Name = res .. 'p (' .. bw .. ' кбит/с)'
-							t[#t].Id = tonumber(res)
-							qw_res = true
-						else
-							t[#t].Name = bw .. ' кбит/с'
-							t[#t].Id = bw
-						end
+					if res then
+						t[#t].Name = res .. 'p (' .. bw .. ' кбит/с)'
+						t[#t].Id = tonumber(res)
+						t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-maxheight=%s%s', inAdr, res, extOpt)
+						qw_res = true
+					else
+						t[#t].Name = bw .. ' кбит/с'
+						t[#t].Id = bw
 						t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s%s', inAdr, bw, extOpt)
 					end
 				end
@@ -110,10 +96,10 @@
 	 return t, qw_res
 	end
 	function winktvResSaveQuality(obj, id)
-		m_simpleTV.Config.SetValue('winktv_res_qlty', id)
+		m_simpleTV.Config.SetValue('winktv_res_qlty', tostring(id))
 	end
 	function winktvSaveQuality(obj, id)
-		m_simpleTV.Config.SetValue('winktv_qlty', id)
+		m_simpleTV.Config.SetValue('winktv_qlty', tostring(id))
 	end
 	local offset = inAdr:match('offset=%-(%d+)')
 	inAdr = inAdr:gsub('bw%d+/', '')
@@ -121,7 +107,7 @@
 	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
 	m_simpleTV.Http.Close(session)
 		if rc ~= 200 then return end
-	local t, qw_res = streamsTab(answer, host, extOpt)
+	local t, qw_res = streamsTab(answer, extOpt)
 		if #t == 0 then
 			play(inAdr .. extOpt, offset)
 		 return
@@ -129,9 +115,9 @@
 	table.sort(t, function(a, b) return a.Id < b.Id end)
 	local lastQuality
 	if qw_res then
-		lastQuality = tonumber(m_simpleTV.Config.GetValue('winktv_res_qlty') or 100000)
+		lastQuality = tonumber(m_simpleTV.Config.GetValue('winktv_res_qlty')) or 50000
 	else
-		lastQuality = tonumber(m_simpleTV.Config.GetValue('winktv_qlty') or 100000)
+		lastQuality = tonumber(m_simpleTV.Config.GetValue('winktv_qlty')) or 50000
 	end
 	t[#t + 1] = {}
 	t[#t].Id = 50000
