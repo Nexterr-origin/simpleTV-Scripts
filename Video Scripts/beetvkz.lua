@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "beetvkz" https://beetv.kz (30/11/23)
+-- видеоскрипт для плейлиста "beetvkz" https://beetv.kz (15/12/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: beetvkz_pls.lua
@@ -12,10 +12,10 @@
 	local inAdr = m_simpleTV.Control.CurrentAddress:match('%d+')
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local userAgent = 'Mozilla/5.0 (iPhone; CPU OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Mobile/14E304 Safari/605.1.15'
+	local userAgent = 'Lavf/56.34.100'
 	local session = m_simpleTV.Http.New(userAgent, false, true)
 		if not session then return end
-	m_simpleTV.Http.SetTimeout(session, 12000)
+	m_simpleTV.Http.SetTimeout(session, 16000)
 	if not m_simpleTV.User then
 		m_simpleTV.User = {}
 	end
@@ -25,10 +25,10 @@
 	if not m_simpleTV.User.beetvkz.restart then
 		m_simpleTV.User.beetvkz.restart = 0
 	end
-	inAdr = string.format('%s%s.m3u8?b_app_id=&b_device_platform=windows&b_strmr_channel_id=%s', decode64('aHR0cHM6Ly91Y2RuLmJlZXR2Lmt6L2J0di9saXZlL2hscy8'), inAdr, inAdr)
+	inAdr = string.format('%s%s.m3u8?b_app_id=&b_device_platform=&b_strmr_channel_id=%s', decode64('aHR0cHM6Ly91Y2RuLmJlZXR2Lmt6L2J0di9saXZlL2hscy8'), inAdr, inAdr)
 	local function GetLocationUrl(url)
 		m_simpleTV.Http.SetRedirectAllow(session, false)
-		local rc = m_simpleTV.Http.Request(session, {url = url, headers = decode64('UmVmZXJlcjogaHR0cHM6Ly9iZWV0di5rei9cblgtRm9yd2FyZGVkLUZvcjoxNzYuMjIyLjE5MC4x')})
+		local rc = m_simpleTV.Http.Request(session, {url = url, headers = decode64('UmVmZXJlcjogaHR0cHM6Ly9iZWV0di5rei9cblgtRm9yd2FyZGVkLUZvcjoxMDkuMTY2Ljg3LjI1')})
 		local raw = m_simpleTV.Http.GetRawHeader(session)
 		if rc ~= 200 and raw then
 			url = raw:match('Location:%s*(%S+)') or url
@@ -36,7 +36,7 @@
 		end
 	 return url, 200
 	end
-	local extOpt = decode64('JE9QVDphZGFwdGl2ZS1taW5idWZmZXI9MzAwMDAkT1BUOmh0dHAtZXh0LWhlYWRlcj1YLUZvcndhcmRlZC1Gb3I6MTc2LjIyMi4xOTAuMSRPUFQ6aHR0cC11c2VyLWFnZW50PQ') .. userAgent
+	local extOpt = decode64('JE9QVDphZGFwdGl2ZS1taW5idWZmZXI9MzAwMDAkT1BUOmh0dHAtZXh0LWhlYWRlcj1YLUZvcndhcmRlZC1Gb3I6MTA5LjE2Ni44Ny4yNSRPUFQ6aHR0cC11c2VyLWFnZW50PQ') .. userAgent
 	local retAdr, rc = GetLocationUrl(inAdr)
 	if rc == - 1 then
 		m_simpleTV.Common.Sleep(1400)
@@ -54,7 +54,7 @@
 		end
 	m_simpleTV.User.beetvkz.restart = 0
 	retAdr = retAdr:gsub('^https://','http://'):gsub(':443','')
-	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr, headers = decode64('UmVmZXJlcjogaHR0cHM6Ly9iZWV0di5rei9cblgtRm9yd2FyZGVkLUZvcjoxNzYuMjIyLjE5MC4x')})
+	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr, headers = decode64('UmVmZXJlcjogaHR0cHM6Ly9iZWV0di5rei9cblgtRm9yd2FyZGVkLUZvcjoxMDkuMTY2Ljg3LjI1')})
 		if rc ~= 200 then return end
 	local t = {}
 		for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-)\n') do
