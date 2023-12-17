@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "Yandex+" https://hd.kinopoisk.ru (28/11/23)
+-- видеоскрипт для плейлиста "Yandex+" https://hd.kinopoisk.ru (18/12/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: yandex+_pls.lua
@@ -20,15 +20,17 @@
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
+	local userAgent = 'Mozilla/5.0 (SMART-TV; Linux; Smart TV) AppleWebKit/537.36 (KHTML, like Gecko) Thano/3.0 Chrome/98.0.4758.101 Safari/537.36'
+	local session = m_simpleTV.Http.New(userAgent)
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	inAdr = inAdr:gsub('$OPT:INT%-SCRIPT%-PARAMS=Catchuped', '')
 	inAdr = inAdr:gsub('^https?://strm%.yandex%.ru/tv/...lzd(.-)$', function(c) return decode64(c):reverse() end)
-	local extOpt = '$OPT:no-spu$OPT:adaptive-minbuffer=10000$OPT:INT-SCRIPT-PARAMS=yandex_tv'
+	inAdr = inAdr:gsub('^https://','http://')
 	local url = inAdr:gsub('_%d+_%d+p%.json.-$', '.m3u8')
 	url = url:gsub('%$OPT:.-$', '')
 	url = url:gsub('%?.-$', '')
+	local extOpt = '$OPT:no-spu$OPT:adaptive-minbuffer=30000$OPT:INT-SCRIPT-PARAMS=yandex_tv$OPT:http-user-agent=' .. userAgent
 	local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 	m_simpleTV.Http.Close(session)
 		if rc ~= 200 then return end
@@ -79,7 +81,7 @@
 				hash[t0[i].Id] = true
 			end
 		end
-	local lastQuality = tonumber(m_simpleTV.Config.GetValue('yandex_res') or 5000)
+	local lastQuality = tonumber(m_simpleTV.Config.GetValue('yandex_qlty')) or 5000
 	local index = #t
 	if #t > 1 then
 		t[#t + 1] = {}
@@ -110,6 +112,6 @@
 	end
 	m_simpleTV.Control.CurrentAddress = t[index].Address
 	function yandexSaveQuality(obj, id)
-		m_simpleTV.Config.SetValue('yandex_res', id)
+		m_simpleTV.Config.SetValue('yandex_qlty', tostring(id))
 	end
 -- debug_in_file(m_simpleTV.Control.CurrentAddress .. '\n')
