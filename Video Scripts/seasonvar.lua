@@ -1,5 +1,5 @@
--- видеоскрипт для сайта http://seasonvar.ru (17/2/22)
--- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта http://seasonvar.ru (19/12/23)
+-- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- логин, пароль установить в 'Password Manager', для id - seasonvar
 -- ## необходим ##
 -- видеоскрипт: pladform.lua, YT.lua, ovvatv.lua, megogo.lua
@@ -177,6 +177,7 @@ local proxy = ''
 		a.ExtButton0 = {ButtonEnable = true, ButtonName = '💾', ButtonScript = 'SaveSeasonvarPlaylist()'}
 		a.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
 		a.ExtParams = {}
+		a.ExtParams.PlayMode = 1
 		a.ExtParams.LuaOnOkFunName = 'Seasonvar_OnMultiAddressOk'
 		a.ExtParams.LuaOnCancelFunName = 'Seasonvar_OnMultiAddressCancel'
 		a.ExtParams.LuaOnTimeoutFunName = 'Seasonvar_OnMultiAddressCancel'
