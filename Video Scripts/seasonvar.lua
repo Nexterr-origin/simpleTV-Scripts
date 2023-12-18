@@ -1,8 +1,6 @@
 -- видеоскрипт для сайта http://seasonvar.ru (19/12/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- логин, пароль установить в 'Password Manager', для id - seasonvar
--- ## необходим ##
--- видеоскрипт: pladform.lua, YT.lua, ovvatv.lua, megogo.lua
 -- ## открывает подобные ссылки ##
 -- http://seasonvar.ru/serial-18656-Lyudi-3-season.html
 -- ## прокси ##
