@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (29/11/23)
+-- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (19/12/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://amuck-planes.cdnmovies-stream.online/content/def65d0bf564ebfc8b5b5dbc43bf58ff/iframe
@@ -30,12 +30,12 @@
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	m_simpleTV.User.cdnmovies.DelayedAddress = nil
 	local function dataClean(file)
-		file = file:gsub('\\/', '/')
-		local t = {'WkdZNGRtYzJPWEk1ZW5oWFpHeDVaaXNxWm1kNE5EVTFaemhtYURsNkxXVXFVUT09', 'WVhvckxXVnlkeW96TkRVM1pXUm5kR3BrTFdabGNYTndkR1l2Y21VcWNTcFo', 'YkhabWVXTm5ibVJ4WTNsa2NtTm5ZMlpuS3prMU1UUTNaMlprWjJZdGVtUXE', 'TlRSMmFtWm9ZMmRrWW5KNVpHdGpabXR1WkhvMU5qZzBNelptY21Wa0t5cGs', 'TFNwbWNtOW1jSE5qY0hKd1lXMW1jRkVxTkRVMk1USXVNekkxTm1SbWNtZGs'}
+		file = file:gsub('\\/\\/', '')
+		local t = {'YldRdFQyUXlSemxTVjA5blUyRTFTRzlDVTFOaVYzSkRlVWx4VVhsWg', 'ZDA1d01uZENWRTVqVUZKUmRsUkRNRjlEY0hoRGMzRmZPRlF4ZFRsUg', 'TmkxNFVWZE5hRGRsY25STWNEaDBYMDA1YUhWVlJHc3hUVEJXY2xsSw', 'VW5sVWQzUm1NVFZmUjB4RmMxaDRibkJWTkV4cWFtUXdVbVZaTFZaSQ', 'YTNwMVQxbFJjVUpmVVZOUFRDMTRlazVmUzNvemEydG5hMGhvU0dsMA'}
 		local c = 0
-			while (file:match('//') and c < 32) do
+			while c < 32 do
 					for i = 1, #t do
-						file = file:gsub('//' .. decode64(t[i]), '')
+						file = file:gsub(decode64(t[i]), '')
 					end
 				c = c + 1
 			end
