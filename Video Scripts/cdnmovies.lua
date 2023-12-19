@@ -30,10 +30,10 @@
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	m_simpleTV.User.cdnmovies.DelayedAddress = nil
 	local function dataClean(file)
-		file = file:gsub('\\/\\/', '')
-		local t = {'YldRdFQyUXlSemxTVjA5blUyRTFTRzlDVTFOaVYzSkRlVWx4VVhsWg', 'ZDA1d01uZENWRTVqVUZKUmRsUkRNRjlEY0hoRGMzRmZPRlF4ZFRsUg', 'TmkxNFVWZE5hRGRsY25STWNEaDBYMDA1YUhWVlJHc3hUVEJXY2xsSw', 'VW5sVWQzUm1NVFZmUjB4RmMxaDRibkJWTkV4cWFtUXdVbVZaTFZaSQ', 'YTNwMVQxbFJjVUpmVVZOUFRDMTRlazVmUzNvemEydG5hMGhvU0dsMA'}
+		local t = {'Ly9iV1F0VDJReVJ6bFNWMDluVTJFMVNHOUNVMU5pVjNKRGVVbHhVWGxa', 'Ly9kMDV3TW5kQ1ZFNWpVRkpSZGxSRE1GOURjSGhEYzNGZk9GUXhkVGxS', 'Ly9OaTE0VVZkTmFEZGxjblJNY0RoMFgwMDVhSFZWUkdzeFRUQldjbGxL', 'Ly9VbmxVZDNSbU1UVmZSMHhGYzFoNGJuQlZORXhxYW1Rd1VtVlpMVlpJ', 'Ly9hM3AxVDFsUmNVSmZVVk5QVEMxNGVrNWZTM296YTJ0bmEwaG9TR2ww'}
 		local c = 0
-			while c < 32 do
+		file = file:gsub('\\/', '/')
+			while (file:match('//') and c < 32) do
 					for i = 1, #t do
 						file = file:gsub(decode64(t[i]), '')
 					end
