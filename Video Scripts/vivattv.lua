@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "Виват ТВ" http://mag.vivat.live (24/12/23)
+-- видеоскрипт для плейлиста "Виват ТВ" http://mag.vivat.live (25/12/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: vivattv_pls_pls.lua
@@ -16,13 +16,25 @@
 	local session = m_simpleTV.Http.New(userAgent)
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
+	if not m_simpleTV.User then
+		m_simpleTV.User = {}
+	end
+	if not m_simpleTV.User.beetvkz then
+		m_simpleTV.User.vivattv = {}
+	end
 	local headers = 'Referer: http://mag.vivat.live/'
-	local url = decode64('aHR0cDovL2FwaS52aXZhdC5saXZlL3N0YWJsZS9zaWduP3JlZnJlc2hUb2tlbj0mcHJvZmlsZUlkPTEmbGFuZ3VhZ2U9ZW4mZGV2aWNlVHlwZT0xJmRldmljZUlkPVhYWCtYWFg')
-	local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
-		if rc ~= 200 then return end
-	local accessToken = answer:match('"accessToken":"([^"]+)')
-		if not accessToken then return end
-	local headers = headers .. '\nAuthorization: Bearer ' .. accessToken
+	local function getToken()
+		local url = decode64('aHR0cDovL2FwaS52aXZhdC5saXZlL3N0YWJsZS9zaWduP3JlZnJlc2hUb2tlbj0mcHJvZmlsZUlkPTEmbGFuZ3VhZ2U9ZW4mZGV2aWNlVHlwZT0xJmRldmljZUlkPVhYWCtYWFg')
+		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
+			if rc ~= 200 then return end
+	 return answer:match('"accessToken":"([^"]+)')
+	end
+	if not m_simpleTV.User.vivattv.token then
+		local token = getToken()
+			if not token then return end
+		m_simpleTV.User.vivattv.token = token
+	end
+	local headers = headers .. '\nAuthorization: Bearer ' .. m_simpleTV.User.vivattv.token
 	local retAdr = decode64('aHR0cDovL2FwaS52aXZhdC5saXZlL3N0YWJsZS9jb250ZW50L3BsYXkvP3VybElkPQ') .. chID .. '&profileId=1&language=en&deviceType=1&deviceId=XXX+XXX'
 	rc, retAdr = m_simpleTV.Http.Request(session, {url = retAdr, headers = headers})
 		if rc ~= 200 then return end
@@ -51,7 +63,7 @@
 		 return
 		end
 	table.sort(t, function(a, b) return a.Id < b.Id end)
-	local lastQuality = tonumber(m_simpleTV.Config.GetValue('vivat_qlty')) or 30000
+	local lastQuality = tonumber(m_simpleTV.Config.GetValue('vivattv_qlty')) or 30000
 	t[#t + 1] = {}
 	t[#t].Id = 30000
 	t[#t].Name = '▫ всегда высокое'
@@ -74,11 +86,11 @@
 	end
 	if m_simpleTV.Control.MainMode == 0 then
 		t.ExtButton1 = {ButtonEnable = true, ButtonName = '✕', ButtonScript = 'm_simpleTV.Control.ExecuteAction(37)'}
-		t.ExtParams = {LuaOnOkFunName = 'vivatSaveQuality'}
+		t.ExtParams = {LuaOnOkFunName = 'vivattvSaveQuality'}
 		m_simpleTV.OSD.ShowSelect_UTF8('⚙ Качество', index - 1, t, 5000, 32 + 64 + 128 + 8)
 	end
 	m_simpleTV.Control.CurrentAddress = t[index].Address
-	function vivatSaveQuality(obj, id)
-		m_simpleTV.Config.SetValue('vivat_qlty', tostring(id))
+	function vivattvSaveQuality(obj, id)
+		m_simpleTV.Config.SetValue('vivattv_qlty', tostring(id))
 	end
 -- debug_in_file(m_simpleTV.Control.CurrentAddress .. '\n')
