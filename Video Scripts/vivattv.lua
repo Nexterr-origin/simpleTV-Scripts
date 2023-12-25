@@ -19,7 +19,7 @@
 	if not m_simpleTV.User then
 		m_simpleTV.User = {}
 	end
-	if not m_simpleTV.User.beetvkz then
+	if not m_simpleTV.User.vivattv then
 		m_simpleTV.User.vivattv = {}
 	end
 	local headers = 'Referer: http://mag.vivat.live/'
