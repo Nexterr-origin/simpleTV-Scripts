@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "Виват ТВ" http://mag.vivat.live (24/12/23)
+-- скрапер TVS для загрузки плейлиста "Виват ТВ" http://mag.vivat.live (25/12/23)
 -- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: vivattv.lua
@@ -32,14 +32,17 @@ local filter = {
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 8000)
 		local headers = 'Referer: http://mag.vivat.live/'
-		local url = decode64('aHR0cDovL2FwaS52aXZhdC5saXZlL3N0YWJsZS9zaWduP3JlZnJlc2hUb2tlbj0mcHJvZmlsZUlkPTEmbGFuZ3VhZ2U9ZW4mZGV2aWNlVHlwZT0xJmRldmljZUlkPVhYWCtYWFg')
-		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
-			if rc ~= 200 then return end
-		local accessToken = answer:match('"accessToken":"([^"]+)')
-			if not accessToken then return end
-		headers = '\nAuthorization: Bearer ' .. accessToken
+			local function getToken()
+				local url = decode64('aHR0cDovL2FwaS52aXZhdC5saXZlL3N0YWJsZS9zaWduP3JlZnJlc2hUb2tlbj0mcHJvZmlsZUlkPTEmbGFuZ3VhZ2U9ZW4mZGV2aWNlVHlwZT0xJmRldmljZUlkPVhYWCtYWFg')
+				local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
+					if rc ~= 200 then return end
+			 return answer:match('"accessToken":"([^"]+)')
+			end
+		local token = getToken()
+			if not token then return end
+		headers = '\nAuthorization: Bearer ' .. token
 		url = decode64('aHR0cDovL2FwaS52aXZhdC5saXZlL3N0YWJsZS9jb250ZW50P2xpbWl0PTEwMDAmY29udGVudFR5cGVzPTEmZGV2aWNlVHlwZT0xJmZhdm9yaXRlPTAmZ2VucmVJZHM9MCZzZWFyY2hGbGFnPWFuZCZvbmx5QXZhaWxhYmxlPTEmcHJvZmlsZUlkPTEmbGFuZ3VhZ2U9ZW4mZGV2aWNlSWQ9WFhYK1hYWA')
-		rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
+		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
 			if rc ~= 200 then return end
 		answer = answer:gsub('%[%]', '""')
 		require 'json'
