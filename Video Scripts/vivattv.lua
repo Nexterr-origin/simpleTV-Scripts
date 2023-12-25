@@ -35,10 +35,10 @@
 		m_simpleTV.User.vivattv.token = token
 	end
 	local headers = headers .. '\nAuthorization: Bearer ' .. m_simpleTV.User.vivattv.token
-	local retAdr = decode64('aHR0cDovL2FwaS52aXZhdC5saXZlL3N0YWJsZS9jb250ZW50L3BsYXkvP3VybElkPQ') .. chID .. '&profileId=1&language=en&deviceType=1&deviceId=XXX+XXX'
-	rc, retAdr = m_simpleTV.Http.Request(session, {url = retAdr, headers = headers})
+	local url = decode64('aHR0cDovL2FwaS52aXZhdC5saXZlL3N0YWJsZS9jb250ZW50L3BsYXkvP3VybElkPQ') .. chID .. '&profileId=1&language=en&deviceType=1&deviceId=XXX+XXX'
+	local rc, retAdr = m_simpleTV.Http.Request(session, {url = url, headers = headers})
 		if rc ~= 200 then return end
-	rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
+	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 		if rc ~= 200 then return end
 	local extOpt = '$OPT:http-user-agent=' .. userAgent
 	local t = {}
