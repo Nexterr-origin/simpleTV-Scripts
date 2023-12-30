@@ -1,14 +1,16 @@
--- видеоскрипт для сайта https://yandex.ru https://dzen.ru (14/9/22)
--- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта https://yandex.ru https://dzen.ru (30/12/23)
+-- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://frontend.vh.yandex.ru/player/15392977509995281185
 -- https://frontend.vh.yandex.ru/player/414780668cb673c2b384e399e52a9ff4.json
 -- https://dzen.ru/video/watch/603848a5fe5aef7eb18d47e9
 -- https://dzen.ru/video/watch/6305bbbe5f105764024fb6af
 -- https://market.yandex.ru/live/kugo-09-08-22
+-- https://dzen.ru/embed/vnVEaPfaSym8?from_block=partner&from=zen&mute=0&autoplay=0&tv=0
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://frontend%.vh%.yandex%.ru')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://dzen%.ru/video/watch/')
+			and not m_simpleTV.Control.CurrentAddress:match('^https?://dzen%.ru/embed/')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://market%.yandex%.ru/live/')
 		then
 		 return
@@ -36,7 +38,15 @@
 		inAdr = answer:match('[^\'\"<>]+frontend%.vh%.[^<>\'\"?]+')
 			if not inAdr then return end
 	end
-	if inAdr:match('^https?://dzen%.ru/') then
+	if inAdr:match('^https?://dzen%.ru/embed/') then
+		local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
+			if rc ~= 200 then return end
+		retAdr = answer:match('"([^"]+%.m3u8[^"]*)')
+			if not retAdr then return end
+		title = answer:match(':title" content="([^"]+)') or 'Dzen'
+		logo = answer:match(':image" content="([^"]+)') or logo
+	end
+	if inAdr:match('^https?://dzen%.ru/video/') then
 		local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
 			if rc ~= 200 then return end
 		answer = answer:gsub('\\u002F', '/')
