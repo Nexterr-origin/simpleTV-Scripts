@@ -1,14 +1,15 @@
--- видеоскрипт для сайта https://www.1tv.ru https://sport1tv.ru (28/3/22)
--- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта https://www.1tv.ru https://www.sport1tv.ru (7/1/24)
+-- Copyright © 2017-2024 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://www.1tv.ru/live
 -- https://www.1tv.ru/shows/chto-gde-kogda/vypuski/final-goda-chto-gde-kogda-vypusk-ot-29-12-2019
 -- https://www.1tv.ru/-/immzl
--- https://sport1tv.ru/sport/chempionat-mira-po-biatlonu-2021/gonki/muzhchiny-mass-start-15-km-chempionat-mira-po-biatlonu-2021
+-- https://www.sport1tv.ru/sport/chempionat-rossii-po-figurnomu-kataniyu-2024/pokazatelnye-vystupleniya/adeliya-petrosyan-pokazatelnyy-nomer-chempionat-rossii-po-figurnomu-kataniyu-2024
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://www%.1tv%.ru/.+')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://1tv%.ru/.+')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://sport1tv%.ru/.+')
+			and not m_simpleTV.Control.CurrentAddress:match('^https?://www%.sport1tv%.ru/.+')
 		then
 		 return
 		end
