@@ -1,9 +1,7 @@
--- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (6/4/23)
--- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для видеобалансера "videocdn" https://videocdn.tv (12/3/24)
+-- Copyright © 2017-2024 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
--- https://7741.annacdn.cc/fnXOUDB9nNSO/tv-series/92
--- https://7741.annacdn.cc/fnXOUDB9nNSO/movie/22080
--- https://7741.annacdn.cc/fnXOUDB9nNSO?kp_id=5928
+-- http://38972.svetacdn.in/fnXOUDB9nNSO?kp_id=5928
 -- http://38972.svetacdn.in/fnXOUDB9nNSO/movie/65312
 -- ## прокси ##
 local proxy = ''
@@ -271,7 +269,7 @@ local proxy = ''
 	end
 	transl = transl or answer:match('"translation_id" value="(%d+)"') or 0
 	if tv_series then
-		answer = answer:match('id="files" value=\'([^\']+)')
+		answer = answer:match('value="tv_series".-value=\'([^\']+)')
 			if not answer then return end
 		answer = answer:match('"' .. transl .. '":%[(.-}%]),') or answer:match('"' .. transl .. '":%[(.-}%])')
 			if not answer then return end
@@ -347,7 +345,7 @@ local proxy = ''
 		m_simpleTV.User.Videocdn.title = title
 		title = title .. ' - ' .. m_simpleTV.User.Videocdn.Tabletitle[1].Name
 	else
-		inAdr = answer:match('id="files" value=\'([^\']+)')
+		inAdr = answer:match('value="movie".-value=\'([^\']+)')
 			if not inAdr then return end
 		inAdr = answer:match('"' .. transl .. '":"(.-)"[,}]')
 			if not inAdr then return end
