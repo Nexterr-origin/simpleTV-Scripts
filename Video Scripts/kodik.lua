@@ -1,5 +1,5 @@
--- видеоскрипт для видеобалансера "kodik" http://kodik.cc (16/4/23)
--- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для видеобалансера "kodik" http://kodik.cc (7/4/24)
+-- Copyright © 2017-2024 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://hdrise.com/video/31756/445f20d7950d3df08f7574311e82521e/720p
 -- http://kodik.info/video/27565/0f93e7a7ce4c247c3b66b47b1b8910b2/720p
@@ -26,7 +26,7 @@
 	inAdr = inAdr:gsub('/$', '')
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	if not m_simpleTV.User then
@@ -36,7 +36,7 @@
 		m_simpleTV.User.kodik = {}
 	end
 	local title
-	local refer = 'https://the-cinema.online/'
+	local refer = 'https://hdkinoteatr.com/'
 	if m_simpleTV.User.kodik.Tabletitle and not psevdotv then
 		local index = m_simpleTV.Control.GetMultiAddressIndex()
 		if index then
@@ -122,10 +122,12 @@
 		local typ = answer:match('videoInfo%.type = \'(.-)\'')
 		local hash = answer:match('hash = \'(.-)\'')
 		local id = answer:match('id = \'(.-)\'')
+		local ref_sign = answer:match('ref_sign = "([^"]+)')
 			if not domain
 				or not d_sign
 				or not pd
 				or not pd_sign
+				or not ref_sign
 				or not ref
 				or not typ
 				or not hash
@@ -151,7 +153,8 @@
 				.. '&pd=' .. pd
 				.. '&pd_sign=' .. pd_sign
 				.. '&ref=' .. m_simpleTV.Common.toPercentEncoding(ref)
-				.. '&bad_user=false'
+				.. '&ref_sign=' .. ref_sign
+				.. '&bad_user=false&cdn_is_working=true'
 				.. '&type=' .. typ
 				.. '&hash=' .. hash
 				.. '&id=' .. id
