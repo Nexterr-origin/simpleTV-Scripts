@@ -1,5 +1,5 @@
--- видеоскрипт для сайта http://www.kinopoisk.ru (24/12/23)
--- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта http://www.kinopoisk.ru (11/4/24)
+-- Copyright © 2017-2024 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: kodik.lua, filmix.lua, videoframe.lua, seasonvar.lua
 -- iviru.lua, videocdn.lua, hdvb.lua, collaps.lua, voidboost.lua, cdnmovies.lua
@@ -20,10 +20,10 @@ local filmixsite = 'https://filmix.zone'
 local tname = {
 -- сортировать: поменять порядок строк
 -- отключить: поставить в начале строки --
-	'Voidboost',
+	-- 'Voidboost',
 	'VideoCdn',
 	'CDN Movies',
-	'Videoframe',
+	-- 'Videoframe',
 	'Hdvb',
 	'Collaps',
 	'Filmix',
@@ -76,7 +76,7 @@ local tname = {
 	 return htmlEntities.decode(str)
 	end
 	local function getInfo_zona(kpid)
-		local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cDovL3pzb2xyLnpvbmFzZWFyY2guY29tL3NvbHIvbW92aWUvc2VsZWN0Lz93dD1qc29uJmZsPXllYXIsc2VyaWFsLHJhdGluZ19raW5vcG9pc2ssbmFtZV9ydXMscmF0aW5nX2ltZGIsZGVzY3JpcHRpb24mcT1pZDo') .. kpid})
+		local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cDovL3pzb2xyMy56b25hc2VhcmNoLmNvbS9zb2xyL21vdmllL3NlbGVjdC8/d3Q9anNvbiZmbD15ZWFyLHNlcmlhbCxyYXRpbmdfa2lub3BvaXNrLG5hbWVfcnVzLHJhdGluZ19pbWRiLGRlc2NyaXB0aW9uJnE9aWQ6') .. kpid})
 			if rc ~= 200 then return end
 			if not answer:match('^{') then return end
 		answer = answer:gsub('%[%]', '""'):gsub(string.char(239, 187, 191), '')
@@ -339,7 +339,7 @@ local tname = {
 			elseif tname[i] == 'Hdvb' then
 				turl[i] = {adr = decode64('aHR0cHM6Ly9hcGl2Yi5pbmZvL2FwaS92aWRlb3MuanNvbj90b2tlbj05MTlmM2QxMzBiNTZkOGJmMDZiZWY2ZDkxZjY5NDU3MiZpZF9rcD0') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
 			elseif tname[i] == 'Voidboost' then
-				turl[i] = {adr = decode64('aHR0cHM6Ly92b2lkYm9vc3QubmV0L2VtYmVkLw') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
+				turl[i] = {adr = decode64('aHR0cHM6Ly92b2lkYm9vc3QudHYvZW1iZWQv') .. kpid, tTitle = 'Большая база фильмов и сериалов', tLogo = logo_k}
 			end
 		end
 	end
