@@ -1,7 +1,6 @@
--- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (19/12/23)
--- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для видеобалансера "CDN Movies" https://cdnmovies.net (20/4/24)
+-- Copyright © 2017-2024 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
--- https://amuck-planes.cdnmovies-stream.online/content/def65d0bf564ebfc8b5b5dbc43bf58ff/iframe
 -- https://amuck-planes.cdnmovies-stream.online/content/ee0dc1a5d76a4506a257a45ab399f5e0/iframe
 -- https://cdnmovies-stream.online/kinopoisk/4948219/iframe
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
@@ -25,7 +24,7 @@
 	if not m_simpleTV.User.cdnmovies then
 		m_simpleTV.User.cdnmovies = {}
 	end
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:120.0) Gecko/20100101 Firefox/120.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	m_simpleTV.User.cdnmovies.DelayedAddress = nil
@@ -253,11 +252,10 @@
 		file = decode64(file)
 		file = file:gsub('\\/', '/')
 		file = file:gsub('%[%]', '""')
+		file = unescape3(file)
 		local err, tab = pcall(json.decode, file)
 		local ser = file:match('folder')
-		local titleAnswer = answer:match('ru_title&quot;:&quot;(.-)&quot;,')
-		titleAnswer = unescape3(titleAnswer)
-	 return tab, ser, titleAnswer
+	 return tab, ser
 	end
 	function transl_cdnmovies(movie)
 		local t = m_simpleTV.User.cdnmovies.transl
@@ -359,13 +357,8 @@
 			showMsg('нет данных')
 		 return
 		end
-	local title = inAdr:match('&kinopoisk=(.+)')
-	if title then
-		title = m_simpleTV.Common.fromPercentEncoding(title)
-	else
-		title = titleAnswer or 'CDN Movies'
-	end
-	m_simpleTV.User.cdnmovies.title = title
+	local title = inAdr:match('&kinopoisk=(.+)') or 'CDN Movies'
+	m_simpleTV.User.cdnmovies.title = m_simpleTV.Common.fromPercentEncoding(title)
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Control.ChangeChannelName(title, m_simpleTV.Control.ChannelID, false)
 	end
