@@ -1,5 +1,5 @@
--- видеоскрипт для сайта https://ok.ru (9/12/22)
--- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта https://ok.ru (9/5/24)
+-- Copyright © 2017-2024 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- http://ok.ru/videoembed/2636779838
 -- https://ok.ru/video/361515387611
@@ -19,14 +19,14 @@
 		or m_simpleTV.Control.ChannelID ~= 268435455)
 	then
 		if m_simpleTV.Control.MainMode == 0 then
-			m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = 'https://ok.ru/res/i/p/toolbar/logo_wide.png', UseLogo = 1, Once = 1})
+			m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = 'https://ok.ru/res/i/apple-touch-icon_180-r.png', UseLogo = 1, Once = 1})
 		end
 	else
 		if m_simpleTV.Control.MainMode == 0 then
 			m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = '', UseLogo = 0, Once = 1})
 		end
 	end
-	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0'
+	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:124.0) Gecko/20100101 Firefox/124.0'
 	if not m_simpleTV.User then
 		m_simpleTV.User = {}
 	end
@@ -224,7 +224,7 @@
 			name = GetQltyName(name)
 			if name > 300 then
 				if not adr:match('^http') then
-					adr = base .. adr
+					adr = base .. adr:gsub('^/', '')
 				end
 				t[#t + 1] = {}
 				t[#t].Id = name
