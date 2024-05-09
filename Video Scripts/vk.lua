@@ -1,5 +1,5 @@
--- видеоскрипт для сайта http://vk.com (24/7/23)
--- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта http://vk.com (9/5/24)
+-- Copyright © 2017-2024 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: YT.lua, vimeo.lua ...
 -- ## открывает подобные ссылки ##
@@ -20,14 +20,14 @@
 		 return
 		end
 	htmlEntities = require 'htmlEntities'
-	local logo = 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/vk.png'
+	local logo = 'https://vk.com/images/icons/favicons/fav_vk_video_2x.ico'
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = logo, UseLogo = 1, Once = 1})
 	end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:104.0) Gecko/20100101 Firefox/104.0'
+	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:124.0) Gecko/20100101 Firefox/124.0'
 	local session = m_simpleTV.Http.New(userAgent)
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 10000)
@@ -81,7 +81,7 @@
 				t[#t + 1] = {}
 				t[#t].Name = name .. 'p'
 				if not adr:match('^https?://') then
-					adr = retAdr:match('.+/') .. adr
+					adr = retAdr:match('.+/') .. adr:gsub('^/', '')
 				end
 				t[#t].Address = adr .. extOpt
 				t[#t].Id = tonumber(name)
