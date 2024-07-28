@@ -1,9 +1,9 @@
--- видеоскрипт для сайта http://vk.com (9/5/24)
+-- видеоскрипт для сайта http://vk.com (28/7/24)
 -- Copyright © 2017-2024 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: YT.lua, vimeo.lua ...
 -- ## открывает подобные ссылки ##
--- https://vk.com/video-93049196_456239755?list=ln-cBjJ7S4jYYx3ADnmDT
+-- https://vk.com/video_ext.php?oid=-22186156&id=456239617&hd=2&autoplay=1
 -- https://vk.com/video-33598391_456239036
 -- http://vkontakte.ru/video-208344_73667683
 -- https://vk.com/feed?z=video-101982925_456239539%2F1900258e458f45eccc%2Fpl_post_-101982925_3149238
@@ -42,7 +42,7 @@
 	local rc, answer = m_simpleTV.Http.Request(session, {url = url, method = 'post', body = body, headers = headers})
 		if rc ~= 200 then return end
 	answer = answer:gsub('\\/', '/')
-	local retAdr = answer:match('"hls":"([^"]+)') or answer:match('"hls_ondemand":"([^"]+)')
+	local retAdr = answer:match('"hls":"([^"]+)') or answer:match('"hls_ondemand":"([^"]+)') or answer:match('"hls_live":"([^"]+)')
 		if not retAdr then
 			answer = answer:gsub('\\"', '"')
 			retAdr = answer:match('<iframe[^>]+src="([^"]+)')
