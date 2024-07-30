@@ -1,25 +1,31 @@
--- видеоскрипт для сайта https://vkplay.live (24/8/23)
--- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта https://live.vkplay.ru (30/7/24)
+-- Copyright © 2017-2024 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
--- https://vkplay.live/agnihps
+-- https://vkplay.live/swat2k
+-- https://vkplay.live/app/embed/swat2k
+-- https://live.vkplay.ru/kuplinov
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('^https?://vkplay%.live') then return end
+		if not m_simpleTV.Control.CurrentAddress:match('^https?://vkplay%.live')
+			and not m_simpleTV.Control.CurrentAddress:match('^https?://live%.vkplay%.ru')
+		then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
-	local logo = 'https://static.vkplay.live/assets/images/logo-dark.8SAT1.png'
+	local logo = 'https://static.live.vkplay.ru/static/favicon.png?v='
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = logo, TypeBackColor = 0, UseLogo = 1, Once = 1})
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local ua = 'Mozilla/5.0 (Windows NT 10.0; rv:102) Gecko/20100101 Firefox/102'
+	local ua = 'Mozilla/5.0 (Windows NT 10.0; rv:129) Gecko/20100101 Firefox/129'
 	local session = m_simpleTV.Http.New(ua)
 		if not session then return end
-	m_simpleTV.Http.SetTimeout(session, 8000)
-	local user = inAdr:match('%.live/([^/]+)')
-	local url = 'https://api.vkplay.live/v1/blog/' .. user .. '/public_video_stream'
+	m_simpleTV.Http.SetTimeout(session, 12000)
+	local user = inAdr:match('/embed/([^/]+)') or inAdr:match('%.live/([^/]+)') or inAdr:match('vkplay.ru/([^/]+)')
+	local url = 'https://api.live.vkplay.ru/v1/blog/' .. user .. '/public_video_stream'
 	local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 		if rc ~= 200 then return end
-	answer = answer:gsub('%[%]', '""')
+	answer = answer:gsub('%[%\"', '"')
+	answer = answer:gsub('%[%]%]"', '"')
+	answer = answer:gsub('%[%]"', '""')
 	require 'json'
 	local err, tab = pcall(json.decode, answer)
 		if not tab
@@ -44,7 +50,7 @@
 			end
 		end
 		if not retAdr then return end
-	retAdr = retAdr:gsub('_offset_p' , '')
+	retAdr = retAdr:gsub('_offset_p' , ''):gsub('%?p' , '')
 	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 		if rc ~= 200 then return end
 	local addTitle = 'vkplay'
