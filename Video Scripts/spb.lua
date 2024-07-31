@@ -1,11 +1,11 @@
--- видеоскрипт для плейлиста "spb" https://tv.spbtv.com + https://ru.spbtv.com (22/10/21)
+-- видеоскрипт для плейлиста "spb" https://ru.spbtv.com (31/7/24)
+-- Copyright © 2017-2024 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: spb_pls.lua
 -- ## открывает подобные ссылки ##
--- https://ru.spbtv.com/aHR0cHM6Ly9hcGkuc3BidHYuY29tL3Yx/eb78f76a-4456-4645-9ed7-13a2d685b0c9
--- ##
+-- https://ru.spbtv.com/61a11ebb-735a-4c15-bffd-874161ee4cb4
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('^https?://ru%.spbtv%.com/%w+/.+') then return end
+		if not m_simpleTV.Control.CurrentAddress:match('^https?://ru%.spbtv%.com/.+') then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
@@ -18,46 +18,27 @@
 	if not m_simpleTV.User.spb then
 		m_simpleTV.User.spb = {}
 	end
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (SMART-TV; Linux; Tizen 4.0.0.2) AppleWebkit/605.1.15 (KHTML, like Gecko) SamsungBrowser/9.2 TV Safari/605.1.15')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:129.0) Gecko/20100101 Firefox/129.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
-	local api, channel = inAdr:match('spbtv%.com/(%w+)/([^&$]*)')
-	local function getToken(apiUrl)
-		m_simpleTV.User.spb.client_id = decode64('NjY3OTc5NDItZmY1NC00NmNiLWExMDktM2JhZTdjODU1Mzcw')
-		local rc, answer = m_simpleTV.Http.Request(session, {url = apiUrl .. '/devices.json?client_id=' .. m_simpleTV.User.spb.client_id .. decode64('JmNsaWVudF92ZXJzaW9uPTEuNy4wLjI1OSZ0aW1lem9uZT0xMDgwMCZsb2NhbGU9cnUtUlUmZGV2aWNlX2lkPTAwMDAwMDAwLTAwMDAtMDAwMC0wMDAwLTAwMDAwMDAwMDAwMCZ0eXBlPWJyb3dzZXImbW9kZWw9Q2hyb21lJm9zX25hbWU9V2luZG93cyZvc192ZXJzaW9uPQ=='), method = 'post'})
+	local channel = inAdr:match('spbtv%.com/(.+)')
+	local client_id = '3e28685c-fce0-4994-9d3a-1dad2776e16a'
+	local function getToken()
+		local rc, answer = m_simpleTV.Http.Request(session, {url = 'https://api.spbtv.com/v1/devices.json?client_id=' .. client_id .. '&client_version=1.7.0.259&timezone=10800&locale=ru-RU&device_id=00000000-0000-0000-0000-000000000000&type=browser&model=Chrome&os_name=Windows&os_version=', method = 'post'})
 			if rc ~= 201 then return end
 	 return answer:match('"device_token":"([^"]+)')
 	end
-	api = decode64(api)
-	local token
-	if api:match('api%.spbtv') then
-		if not m_simpleTV.User.spb.token1 then
-			local token1 = getToken(api)
-				if not token1 then
+	if not m_simpleTV.User.spb.token then
+		local token = getToken()
+				if not token then
 					m_simpleTV.User.spb = nil
 					m_simpleTV.Http.Close(session)
 				 return
 				end
-			m_simpleTV.User.spb.token1 = token1
+			m_simpleTV.User.spb.token = token
 		end
-		token = m_simpleTV.User.spb.token1
-	else
-		if not m_simpleTV.User.spb.token2 then
-			local token2 = getToken(api)
-				if not token2 then
-					m_simpleTV.User.spb = nil
-					m_simpleTV.Http.Close(session)
-				 return
-				end
-			m_simpleTV.User.spb.token2 = token2
-		end
-		token = m_simpleTV.User.spb.token2
-	end
-	local url = api .. '/channels/' .. channel
-		.. '/stream.json?client_id=' .. m_simpleTV.User.spb.client_id
-		.. '&protocol=hls'
-		.. decode64('JmNsaWVudF92ZXJzaW9uPTEuNy4wLjMwNiZ0aW1lem9uZT0xMDgwMCZsb2NhbGU9cnUtUlUmdmlkZW9fY29kZWM9aDI2NCZhdWRpb19jb2RlYz1tcDRhJmRybT1zcGJ0dmNhcyZzY3JlZW5fd2lkdGg9MTI4MCZzY3JlZW5faGVpZ2h0PTgwMCZkZXZpY2VfdG9rZW49')
-		.. token
+	local url = 'https://api.spbtv.com/v1/channels/' .. channel
+		.. '/stream.json?client_id=' .. client_id .. '&client_version=4.4.3.2460&locale=ru-RU&timezone=10800&audio_codec=mp4a&device_token='.. m_simpleTV.User.spb.token ..'&protocol=hls&screen_height=231&screen_width=1152&video_codec=h264&drm=spbtvcas'
 	local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Accept: application/json'})
 		if rc ~= 200 then
 			m_simpleTV.Http.Close(session)
@@ -73,7 +54,7 @@
 	rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 	m_simpleTV.Http.Close(session)
 		if rc ~= 200 then return end
-	local extOpt = '$OPT:adaptive-livedelay=60000$OPT:adaptive-minbuffer=60000'
+	local extOpt = ''
 	local base = retAdr:match('.+/')
 	local t, i = {}, 1
 		for res, br, res1, adr in answer:gmatch('EXT%-X%-STREAM%-IN([%C]+)[:,]BANDWIDTH=(%d+)([%C]*).-\n(.-)\n') do
