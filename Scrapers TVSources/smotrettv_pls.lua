@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "Смотреть TV" https://smotret.tv (2/8/24)
+-- скрапер TVS для загрузки плейлиста "Смотреть TV" https://smotret.tv (3/8/24)
 -- Copyright © 2017-2024 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: smotrettv.lua
@@ -32,40 +32,33 @@ local host = 'https://smotret.tv'
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 15000)
 		local rc, answer = m_simpleTV.Http.Request(session, {url = host})
-		m_simpleTV.Http.Close(session)
 			if rc ~= 200 then return end
-		m_simpleTV.Http.Close(session)
 		local t = {}
-			for w in answer:gmatch('<li class=categories_item>(.-)</li>') do
-				local adr = w:match('<a href=(.-)>')
+			for w in answer:gmatch('<li class="categories_item">(.-)</li>') do
+				local adr = w:match('<a href="([^"]+)')
 				if adr then
 					t[#t + 1] = {}
 					t[#t].address = adr
 				end
 			end
-	 return t
-	end
-	local function LoadChannelsFromSite(pls)
-		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:129.0) Gecko/20100101 Firefox/129.0')
-			if not session then return end
-		m_simpleTV.Http.SetTimeout(session, 15000)
+			if #t == 0 then return end
 		local sum = {}
-		for _, val in pairs(pls) do
+		for _, val in pairs(t) do
 			local url = host .. val.address
 			local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 				if rc ~= 200 then return end
 			local d = {}
-				for w in answer:gmatch('<a class="vest" .-</a>') do
-					local adr = w:match('href="(.-)"')
-					local title = w:match('title="(.-)"')
+				for w in answer:gmatch('<a class="vest".-</div>') do
+					local adr = w:match('href="([^"]+)')
+					local title = w:match('"tv_channel_name">([^<]+)')
 					if adr and title then
 						d[#d + 1] = {}
-						d[#d].name = title:gsub(' смотреть онлайн', '')
+						d[#d].name = title
 						d[#d].address = host .. adr
 					end
 				end
 				if #d == 0 then return end
-				for i = 1 , #d do
+				for i = 1, #d do
 					sum[#sum + 1] = d[i]
 				end
 		end
@@ -78,8 +71,6 @@ local host = 'https://smotret.tv'
 		local Source = TVSources_var.tmp.source[UpdateID]
 		local t_pls = LoadFromSite()
 			if not t_pls or t_pls == 0 then return end
-		t_pls = LoadChannelsFromSite(t_pls)
-			if not t_pls or t_pls == 0 then return end
 		t_pls = ProcessFilterTableLocal(t_pls)
 		local m3ustr = tvs_core.ProcessFilterTable(UpdateID, Source, t_pls)
 		local handle = io.open(m3u_file, 'w+')
@@ -88,4 +79,4 @@ local host = 'https://smotret.tv'
 		handle:close()
 	 return 'ok'
 	end
--- debug_in_file(#t_pls .. '\n', "D:\xxx.txt")
+-- debug_in_file(#t_pls .. '\n')
