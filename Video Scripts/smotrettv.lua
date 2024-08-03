@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://smotret.tv/ (2/8/24)
+-- видеоскрипт для сайта https://smotret.tv/ (3/8/24)
 -- Copyright © 2017-2024 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: ok.lua, rutube.lua, youtube.lua, pobeda.lua, vk.lua
@@ -50,6 +50,7 @@ local host = 'https://smotret.tv'
 			retAdr:match('rutube%.ru') or
 			retAdr:match('pobeda%.tv') or
 			retAdr:match('youtube%.com') or
+			retAdr:match('vkplay%.live') or
 			retAdr:match('vk%.com') then
 			m_simpleTV.Control.ChangeAddress = 'No'
 			m_simpleTV.Control.CurrentAddress = retAdr
