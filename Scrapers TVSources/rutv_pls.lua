@@ -1,5 +1,5 @@
 -- скрапер TVS для загрузки плейлиста "rutv" http://rutv.pw (3/8/24)
--- Copyright © 2017-2024 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- Copyright © 2017-2024 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: rutv.lua
 local host = 'http://rutv.pw'
