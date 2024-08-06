@@ -1,5 +1,5 @@
--- скрапер TVS для загрузки плейлиста "Смотреть TV" https://smotret.tv (3/8/24)
--- Copyright © 2017-2024 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- скрапер TVS для загрузки плейлиста "Смотреть TV" https://smotret.tv (6/8/24)
+-- Copyright © 2017-2024 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: smotrettv.lua
 -- ## переименовать каналы ##
