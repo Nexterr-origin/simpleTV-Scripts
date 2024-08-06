@@ -1,5 +1,5 @@
--- видеоскрипт для сайта http://rutv.pw (3/8/24)
--- Copyright © 2017-2024 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта http://rutv.pw (6/8/24)
+-- Copyright © 2017-2024 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: rutv_pls.lua
 -- ## открывает подобные ссылки ##
