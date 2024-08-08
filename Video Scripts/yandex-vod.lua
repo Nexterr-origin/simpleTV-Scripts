@@ -1,5 +1,5 @@
--- видеоскрипт для сайта https://yandex.ru https://dzen.ru (30/12/23)
--- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта https://yandex.ru https://dzen.ru (8/8/24)
+-- Copyright © 2017-2024 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://frontend.vh.yandex.ru/player/15392977509995281185
 -- https://frontend.vh.yandex.ru/player/414780668cb673c2b384e399e52a9ff4.json
@@ -7,11 +7,13 @@
 -- https://dzen.ru/video/watch/6305bbbe5f105764024fb6af
 -- https://market.yandex.ru/live/kugo-09-08-22
 -- https://dzen.ru/embed/vnVEaPfaSym8?from_block=partner&from=zen&mute=0&autoplay=0&tv=0
+-- https://dzen.ru/shorts/66b31b6950fc091d724c93bd?clid=1410&rid=89860285.1097.1723097890856.21096&referrer_clid=1410&
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://frontend%.vh%.yandex%.ru')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://dzen%.ru/video/watch/')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://dzen%.ru/embed/')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://market%.yandex%.ru/live/')
+			and not m_simpleTV.Control.CurrentAddress:match('^https?://dzen%.ru/shorts/')
 		then
 		 return
 		end
@@ -32,6 +34,7 @@
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local retAdr
+	inAdr = inAdr:gsub('/shorts/', '/video/watch/')
 	if inAdr:match('market%.yandex') then
 		local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
 			if rc ~= 200 then return end
