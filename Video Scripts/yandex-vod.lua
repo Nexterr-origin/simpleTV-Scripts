@@ -1,13 +1,13 @@
--- видеоскрипт для сайта https://yandex.ru https://dzen.ru (8/8/24)
+-- видеоскрипт для сайта https://yandex.ru https://dzen.ru (9/8/24)
 -- Copyright © 2017-2024 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://frontend.vh.yandex.ru/player/15392977509995281185
 -- https://frontend.vh.yandex.ru/player/414780668cb673c2b384e399e52a9ff4.json
 -- https://dzen.ru/video/watch/603848a5fe5aef7eb18d47e9
--- https://dzen.ru/video/watch/6305bbbe5f105764024fb6af
 -- https://market.yandex.ru/live/kugo-09-08-22
 -- https://dzen.ru/embed/vnVEaPfaSym8?from_block=partner&from=zen&mute=0&autoplay=0&tv=0
 -- https://dzen.ru/shorts/66b31b6950fc091d724c93bd?clid=1410&rid=89860285.1097.1723097890856.21096&referrer_clid=1410&
+-- https://dzen.ru/video/watch/6623bb63d707553639bda501
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://frontend%.vh%.yandex%.ru')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://dzen%.ru/video/watch/')
@@ -30,7 +30,8 @@
 	htmlEntities = require 'htmlEntities'
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:104.0) Gecko/20100101 Firefox/104.0')
+	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:104.0) Gecko/20100101 Firefox/104.0'
+	local session = m_simpleTV.Http.New(userAgent)
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local retAdr
@@ -97,6 +98,7 @@
 	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 		if rc ~= 200 then return end
 	m_simpleTV.Http.Close(session)
+	local extOpt = '$OPT:http-user-agent=' .. userAgent
 	local t = {}
 		for w in answer:gmatch('#EXT%-X%-STREAM.-\n.-\n') do
 			local qlty = w:match('RESOLUTION=%d+x(%d+)')
@@ -105,7 +107,7 @@
 				t[#t + 1] = {}
 				t[#t].Name = qlty .. 'p'
 				t[#t].qlty = qlty
-				t[#t].Address = '$OPT:adaptive-maxheight=' .. qlty .. '$OPT:adaptive-logic=highest'
+				t[#t].Address = '$OPT:adaptive-maxheight=' .. qlty .. '$OPT:adaptive-logic=highest' .. extOpt
 			end
 		end
 		if #t == 0 then return end
