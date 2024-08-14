@@ -1,7 +1,7 @@
 -- видеоскрипт для сайта https://smotret.tv/ (6/8/24)
 -- Copyright © 2017-2024 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
--- видоскрипт: ok.lua, rutube.lua, youtube.lua, pobeda.lua, vk.lua
+-- видоскрипт: ok.lua, rutube.lua, YT.lua, pobeda.lua, vk.lua, fashiontv.lua
 -- ## открывает подобные ссылки ##
 -- https://smotret.tv/music/1hd
 local host = 'https://smotret.tv'
@@ -48,6 +48,7 @@ local host = 'https://smotret.tv'
 		end
 		if retAdr:match('ok%.ru') or
 			retAdr:match('rutube%.ru') or
+			retAdr:match('fashiontv%.com') or
 			retAdr:match('pobeda%.tv') or
 			retAdr:match('youtube%.com') or
 			retAdr:match('vkplay%.live') or
