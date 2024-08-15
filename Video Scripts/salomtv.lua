@@ -34,5 +34,6 @@
 			end
 		end
 		if not retAdr then return end
+	retAdr = unescape3(retAdr)
 	m_simpleTV.Control.CurrentAddress = 	retAdr
 -- debug_in_file(m_simpleTV.Control.CurrentAddress .. '\n')
