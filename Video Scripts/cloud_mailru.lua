@@ -1,14 +1,15 @@
--- видеоскрипт для https://cloud.mail.ru (16/8/24)
+-- видеоскрипт для https://cloud.mail.ru (17/8/24)
 -- Copyright © 2017-2024 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- открывает подобные ссылки
 -- https://cloud.mail.ru/public/GuR9/CpdDRwxu1
 -- https://cloud.mail.ru/public/58R9/4aZ83NdH2/%D0%90%D0%B1%D1%8D%20%D0%9A%D0%BE%D0%B1%D0%BE/%D0%9A%D0%BE%D0%B1%D0%BE%20%D0%90%D0%B1%D1%8D_%D0%92%D0%BE%D1%88%D0%B5%D0%B4%D1%87%D0%B8%D0%B5%20%D0%B2%20%D0%BA%D0%BE%D0%B2%D1%87%D0%B5%D0%B3/Kobe-Abe/Kobe-Abe/1_02.mp3
 -- https://cloud.mail.ru/public/KxzK/2VAckVGaj/80-e%20mp3%20(D)
 -- https://cloud.mail.ru/public/KxzK/2VAckVGaj
+-- https://cloud.mail.ru/public/8tEC/3JrNcD9ot
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('https://cloud%.mail%.ru/public/(%w+/%w+)') then return end
 	local inAdr = m_simpleTV.Control.CurrentAddress
-	local logo = 'https://img.imgsmail.ru/cloud/img/build/release-cloudweb-12166-76-0-0.202105270927/portal-menu/portal-menu__logo.svg'
+	local logo = ''
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = logo, UseLogo = 1, Once = 1})
 	end
@@ -28,23 +29,29 @@
 			if not tab then return end
 			for i = 1, #tab do
 				if tab[i].kind and tab[i].kind == 'file' then
-					if tab[i].weblink:match('%.mp3') or tab[i].weblink:match('%.m3u8') then
+					if tab[i].weblink:match('%.mp3')
+						or tab[i].weblink:match('%.wav')
+						or tab[i].weblink:match('%.flac')
+						or tab[i].weblink:match('%.m3u8')
+						or tab[i].weblink:match('%.mp4')
+						or tab[i].weblink:match('%.mkv')
+						or tab[i].weblink:match('%.ts')
+					then
 						t[#t + 1] = {}
 						t[#t].Id = #t
 						t[#t].Name = tab[i].name
-						local id = tab[i].weblink:match('^%w+/%w+/')
 						local id, nameFile = tab[i].weblink:match('^(%w+/%w+/)(.-)$')
 						nameFile = m_simpleTV.Common.toPercentEncoding(nameFile)
-						t[#t].Address = 'https://cloud.mail.ru/public/' .. id
-						.. nameFile
+						t[#t].Address = 'https://cloud.mail.ru/public/' .. id .. nameFile
 					end
 				end
 			end
+			if #t == 0 then return end
 		t.ExtParams = {}
 		t.ExtParams.PlayMode = 1
 		m_simpleTV.Control.CurrentTitle_UTF8 = 'Облако Mail.ru - ' .. title
-		m_simpleTV.OSD.ShowSelect_UTF8(title, -1, t, 5000)
-		m_simpleTV.Control.CurrentAddress = t[1].Address
+		m_simpleTV.OSD.ShowSelect_UTF8(title, 0, t, 10000)
+		m_simpleTV.Control.ChangeAddress = 'No'
 	 return
 	end
 	local addTitle = 'Облако Mail.ru'
@@ -64,8 +71,8 @@
 	local id = inAdr:match('/public/([^/]+/[^?]+)')
 	local retAdr = answer:match('"videowl_view":{"count":"1","url":"([^"]+)')
 		if not retAdr then return end
-	retAdr = retAdr .. '/0p/' .. encode64(id) .. '.m3u8?double_encode=1'
-	retAdr = retAdr .. '$OPT:NO-STIMESHIFT'
 	m_simpleTV.Control.CurrentTitle_UTF8 = title
+	retAdr = retAdr .. '/0p/' .. encode64(id) .. '.m3u8?double_encode=1'
+	retAdr = retAdr .. '$OPT:NO-STIMESHIFT$OPT:adaptive-logic=highest'
 	m_simpleTV.Control.CurrentAddress = retAdr
 -- debug_in_file(retAdr .. '\n')
