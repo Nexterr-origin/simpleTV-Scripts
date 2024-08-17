@@ -31,10 +31,10 @@
 				if tab[i].kind and tab[i].kind == 'file' then
 					if tab[i].weblink:match('%.mp3')
 						or tab[i].weblink:match('%.wav')
-						or tab[i].weblink:match('%.flac')
+						-- or tab[i].weblink:match('%.flac')
 						or tab[i].weblink:match('%.m3u8')
 						or tab[i].weblink:match('%.mp4')
-						or tab[i].weblink:match('%.mkv')
+						-- or tab[i].weblink:match('%.mkv')
 						or tab[i].weblink:match('%.avi')
 						or tab[i].weblink:match('%.ts')
 					then
