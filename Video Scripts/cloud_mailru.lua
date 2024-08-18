@@ -1,4 +1,4 @@
--- видеоскрипт для https://cloud.mail.ru (19/8/24)
+-- видеоскрипт для https://cloud.mail.ru (20/8/24)
 -- Copyright © 2017-2024 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- открывает подобные ссылки:
 -- https://cloud.mail.ru/public/GuR9/CpdDRwxu1
@@ -79,6 +79,6 @@
 		m_simpleTV.Control.CurrentTitle_UTF8 = title
 	end
 	retAdr = retAdr .. '/0p/' .. encode64(id) .. '.m3u8?double_encode=1'
-	retAdr = retAdr .. '$OPT:NO-STIMESHIFT$OPT:adaptive-logic=highest'
+	retAdr = retAdr .. '$OPT:NO-STIMESHIFT$OPT:adaptive-logic=highest$OPT:adaptive-use-avdemux'
 	m_simpleTV.Control.CurrentAddress = retAdr
 -- debug_in_file(retAdr .. '\n')
