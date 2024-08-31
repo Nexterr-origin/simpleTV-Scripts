@@ -31,9 +31,6 @@
 
 </details>
 
-![](https://komarev.com/ghpvc/?username=Nexterr-origin&label=VIEWS)
-
- 
 [discussions]: https://github.com/Nexterr-origin/Nexterr-origin/discussions "discussions"
 [YT]: ../../../simpleTV-YouTube "скрипт YouTube"
 [addons]: ../../../simpleTV-Addons "Дополнения"
