@@ -1,4 +1,4 @@
--- видеоскрипт для видеобалансера "kodik" http://kodik.cc (7/4/24)
+-- видеоскрипт для видеобалансера "kodik" http://kodik.cc (7/9/24)
 -- Copyright © 2017-2024 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://hdrise.com/video/31756/445f20d7950d3df08f7574311e82521e/720p
@@ -19,6 +19,7 @@
 			m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
 		end
 	end
+	htmlEntities = require 'htmlEntities'
 	local psevdotv
 	if inAdr:match('PARAMS=psevdotv') then
 		psevdotv = true
@@ -291,6 +292,7 @@
 	local url = inAdr:gsub('&kinopoisk.+', '')
 	local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = 'Referer: ' .. refer})
 		if rc ~= 200 then return end
+	answer = htmlEntities.decode(answer)
 	local season_title = ''
 	local seson = ''
 	m_simpleTV.User.kodik.Tabletitle = nil
