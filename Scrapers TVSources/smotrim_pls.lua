@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "smotrim.ru" https://smotrim.ru (14/9/24)
+-- скрапер TVS для загрузки плейлиста "Смотрим" https://smotrim.ru (14/9/24)
 -- Copyright © 2017-2024 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: smotrim.lua, mediavitrina.lua
@@ -33,7 +33,6 @@ local filter = {
 		m_simpleTV.Http.SetTimeout(session, 8000)
 		local host = 'https://smotrim.ru'
 		local rc, answer = m_simpleTV.Http.Request(session, {url = host .. '/channels'})
-		m_simpleTV.Http.Close(session)
 			if rc ~= 200 then return end
 		answer = answer:gsub('[%c]', '')
 		local t = {}
@@ -42,7 +41,7 @@ local filter = {
 				local title = w:match('tabindex="%-1"%s+>(.-)</a>')
 				if adr and title and not title:match('Радио') then
 					t[#t + 1] = {}
-					t[#t].name = unescape3(title):gsub('&quot;', '')
+					t[#t].name = title:gsub('&quot;', '')
 					t[#t].address = host .. adr
 				end
 			end
