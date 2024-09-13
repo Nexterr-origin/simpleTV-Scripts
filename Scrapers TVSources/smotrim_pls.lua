@@ -1,7 +1,7 @@
 -- скрапер TVS для загрузки плейлиста "Смотрим" https://smotrim.ru (14/9/24)
 -- Copyright © 2017-2024 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
--- видеоскрипт: smotrim.lua, mediavitrina.lua
+-- видеоскрипт: smotrim.ru.lua, mediavitrina.lua
 -- ## Переименовать каналы ##
 local filter = {
 	{'Setanta Sports Plus', 'Setanta Sports+'},
