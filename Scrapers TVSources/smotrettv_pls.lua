@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "Смотреть TV" https://smotret.tv (6/8/24)
+-- скрапер TVS для загрузки плейлиста "Смотреть TV" https://smotret.tv (14/9/24)
 -- Copyright © 2017-2024 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: smotrettv.lua
@@ -6,7 +6,6 @@
 local filter = {
 	{'В мире животных HD', 'Zooпарк'},
 	}
-local host = 'https://smotret.tv'
 	local my_src_name = 'Смотреть TV'
 	module('smotrettv_pls', package.seeall)
 	local function ProcessFilterTableLocal(t)
@@ -30,7 +29,8 @@ local host = 'https://smotret.tv'
 	local function LoadFromSite()
 		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:129.0) Gecko/20100101 Firefox/129.0')
 			if not session then return end
-		m_simpleTV.Http.SetTimeout(session, 15000)
+		m_simpleTV.Http.SetTimeout(session, 8000)
+		local host = 'https://smotret.tv'
 		local rc, answer = m_simpleTV.Http.Request(session, {url = host})
 			if rc ~= 200 then return end
 		local t = {}
@@ -70,7 +70,7 @@ local host = 'https://smotret.tv'
 			if not TVSources_var.tmp.source[UpdateID] then return end
 		local Source = TVSources_var.tmp.source[UpdateID]
 		local t_pls = LoadFromSite()
-			if not t_pls or t_pls == 0 then return end
+			if not t_pls or #t_pls == 0 then return end
 		t_pls = ProcessFilterTableLocal(t_pls)
 		local m3ustr = tvs_core.ProcessFilterTable(UpdateID, Source, t_pls)
 		local handle = io.open(m3u_file, 'w+')
