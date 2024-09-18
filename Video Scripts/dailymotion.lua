@@ -1,14 +1,10 @@
--- видеоскрипт для сайта https://www.dailymotion.com (28/3/22)
--- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта https://www.dailymotion.com (18/9/24)
+-- Copyright © 2017-2024 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://www.dailymotion.com/video/x55kod7_ring-tv-live-3_sport
 -- http://www.dailymotion.com/embed/video/x51y5j8?logo=0&related=0&info=0&autoPlay=1
 -- http://www.dailymotion.com/video/x3m6nld
 -- https://geo.dailymotion.com/player.html?video=x89eyek&mute=true
--- ## прокси ##
-local proxy = ''
--- '' - нет
--- например 'http://proxy-nossl.antizapret.prostovpn.org:29976'
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://geo%.dailymotion%.com/.+')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://www%.dailymotion%.com/.+')
@@ -19,20 +15,19 @@ local proxy = ''
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
 	local logo = 'https://static1.dmcdn.net/neon/prod/img/logo-white.49be20dee5b3f7e3c2a50580c545d6b1.svg'
-	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:98.0) Gecko/20100101 Firefox/98.0'
+	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:131.0) Gecko/20100101 Firefox/131.0'
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = logo, UseLogo = 1, Once = 1})
 	end
 	local function showError(str)
 		m_simpleTV.OSD.ShowMessageT({text = 'dailymotion ошибка: ' .. str, showTime = 8000, color = 0xffff6600, id = 'channelName'})
 	end
-	inAdr = inAdr:gsub('http://', 'https://')
 	local id = inAdr:match('[/?]video[/=](%w+)')
 		if not id then
 			showError('1')
 		 return
 		end
-	local session = m_simpleTV.Http.New(userAgent, proxy, true)
+	local session = m_simpleTV.Http.New(userAgent, nil, true)
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	if not m_simpleTV.User then
@@ -149,7 +144,6 @@ local proxy = ''
 		end
 		title = addTitle .. ' - ' .. title
 	end
-	retAdr = retAdr:gsub('http://', 'https://')
 	if tab.mode == 'live' then
 		retAdr = retAdr .. '&redirect=0'
 	end
@@ -165,10 +159,6 @@ local proxy = ''
 	else
 		extOpt = '$OPT:NO-STIMESHIFT'
 	end
-	if proxy ~= '' then
-		extOpt = '$OPT:http-proxy=' .. proxy
-	end
-	m_simpleTV.Http.Close(session)
 	local i, t0 = 1, {}
 	local name, adr
 		for w in answer:gmatch('EXT%-X%-STREAM%-INF(.-%.m3u8)') do
@@ -185,7 +175,7 @@ local proxy = ''
 				t0[i] = {}
 				t0[i].Id = name
 				t0[i].Name = name .. 'p'
-				t0[i].Address = adr:gsub('https://', 'http://') .. extOpt
+				t0[i].Address = adr .. extOpt
 				i = i + 1
 			end
 		end
