@@ -1,7 +1,8 @@
--- видеоскрипт для плейлиста "TV+" http://www.tvplusonline.ru (30/9/24)
+-- видеоскрипт для плейлиста "TV+" http://www.tvplusonline.ru (1/10/24)
 -- Copyright © 2017-2023 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: tvplusonline_pls.lua
+-- расширение дополнения httptimeshift: limehd-timeshift_ext.lua
 -- ## открывает подобные ссылки ##
 -- http://tvplusonline.ru/1kanal
 		if m_simpleTV.Control.ChangeAdress ~= 'No' then return end
@@ -21,6 +22,17 @@
 		if rc ~= 200 then return end
 	local retAdr = answer:match('"stream":{"common":"([^"]+)')
 		if not retAdr then return end
+	local url_archive = answer:match('"archive":"([^"]+)')
+	if url_archive then
+		url_archive = url_archive:gsub('/$', '')
+	end
+	if not m_simpleTV.User then
+		m_simpleTV.User = {}
+	end
+	if not m_simpleTV.User.limehd then
+		m_simpleTV.User.limehd = {}
+	end
+	m_simpleTV.User.limehd.url_archive = url_archive
 	rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 	m_simpleTV.Http.Close(session)
 		if rc ~= 200 then return end
