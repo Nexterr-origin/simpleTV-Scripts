@@ -1,9 +1,10 @@
--- скрапер TVS для загрузки плейлиста "Большое ТВ" https://bolshoe.tv (9/10/24)
+-- скрапер TVS для загрузки плейлиста "Большое ТВ" https://bolshoe.tv (10/10/24)
 -- Copyright © 2017-2024 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: bolshoetv.lua
 -- ## Переименовать каналы ##
 local filter = {
+{'HD Travel + Adventure', 'Travel+ Adventure'},
 	}
 	local host = 'https://bolshoe.tv'
 	local my_src_name = 'Большое ТВ'
@@ -54,7 +55,7 @@ local filter = {
 					t[#t + 1] = {}
 					t[#t].name = title
 					t[#t].address = host .. '/promo/web/tv/' .. id .. '/'
-					if tab.response[i].EKs[x].archived_hours_number then 
+					if tab.response[i].EKs[x].archived_hours_number then
 						t[#t].RawM3UString = string.format('catchup="append" catchup-days="%s" catchup-source=""', (tab.response[i].EKs[x].archived_hours_number/24 or 0))
 					end
 					t[#t].logo = img or ''
@@ -69,7 +70,7 @@ local filter = {
 			if not TVSources_var.tmp.source[UpdateID] then return end
 		local Source = TVSources_var.tmp.source[UpdateID]
 		local t_pls = LoadFromSite()
-		
+
 		local hash = {}
 		local res = {}
 
@@ -79,9 +80,9 @@ local filter = {
 			   hash[v.address] = true
 		   end
 		end
-		
+
 		t_pls = res
-		
+
 			if not t_pls or #t_pls == 0 then return end
 		t_pls = ProcessFilterTableLocal(t_pls)
 		local m3ustr = tvs_core.ProcessFilterTable(UpdateID, Source, t_pls)
