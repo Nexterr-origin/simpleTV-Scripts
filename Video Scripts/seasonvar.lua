@@ -1,12 +1,8 @@
--- видеоскрипт для сайта http://seasonvar.ru (19/12/23)
--- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта http://seasonvar.ru (11/11/23)
+-- Copyright © 2017-2024 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- логин, пароль установить в 'Password Manager', для id - seasonvar
 -- ## открывает подобные ссылки ##
 -- http://seasonvar.ru/serial-18656-Lyudi-3-season.html
--- ## прокси ##
-local proxy = ''
--- '' - нет
--- 'http://proxy-nossl.antizapret.prostovpn.org:29976' (пример)
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('https?://seasonvar%.')
 			and not m_simpleTV.Control.CurrentAddress:match('^$seasonvar')
@@ -32,7 +28,7 @@ local proxy = ''
 	end
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = ''
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:97.0) Gecko/20100101 Firefox/97.0', proxy, false)
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:133.0) Gecko/20100101 Firefox/133.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 12000)
 	if not m_simpleTV.User then
@@ -424,5 +420,6 @@ local proxy = ''
 	m_simpleTV.Control.SetTitle(title)
 	m_simpleTV.OSD.ShowMessageT({text = title, color = 0xff9999ff, showTime = 1000 * 5, id = 'channelName'})
 	retAdr = retAdr:gsub('^$seasonvar', '')
+	retAdr = retAdr:gsub('^//', 'http://')
 	m_simpleTV.Control.CurrentAddress = retAdr
 -- debug_in_file(retAdr .. '\n')
