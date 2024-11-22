@@ -1,4 +1,4 @@
--- видеоскрипт для сайта http://vk.com (28/7/24)
+-- видеоскрипт для сайта http://vk.com (23/11/24)
 -- Copyright © 2017-2024 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: YT.lua, vimeo.lua ...
@@ -13,9 +13,11 @@
 -- https://vk.com/video/playlist/-121487680_216
 -- https://vk.com/video-40535376_456239512
 -- https://vk.com/video/@public216539463?z=video-216539463_456239289%2Fclub216539463%2Fpl_-216539463_-2
+-- https://vkvideo.ru/video-225625235_456246383
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://vk%.com/.+')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://vkontakte%.ru/.+')
+			and not m_simpleTV.Control.CurrentAddress:match('^https?://vkvideo%.ru/.+')
 		then
 		 return
 		end
