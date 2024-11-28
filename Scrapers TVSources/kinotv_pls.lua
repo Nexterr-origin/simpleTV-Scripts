@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "https://kinotv.co/" https://kinotv.co (27/11/24)
+-- скрапер TVS для загрузки плейлиста "https://kinotv.co/" https://kinotv.co (28/11/24)
 -- Copyright © 2017-2024 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: kinotv.lua
@@ -28,17 +28,17 @@ local filter = {
 	function GetVersion()
 	 return 2, 'UTF-8'
 	end
-	
+
 	local function showMsg(str, color)
 		local t = {text = str, showTime = 1000 * 5, color = color, id = 'channelName'}
 		m_simpleTV.OSD.ShowMessageT(t)
 	end
-	
+
 	local function showMess(str)
 		local t = {text = 'Проверка канала: ' .. str, showTime = 1000 * 5, color = ARGB(255, 131, 255, 124), id = 'channelName'}
 		m_simpleTV.OSD.ShowMessageT(t)
 	end
-	
+
 	local function LoadFromSite()
 		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:86.0) Gecko/20100101 Firefox/86.0')
 			if not session then return end
@@ -60,7 +60,7 @@ local filter = {
 	end
 
 	htmlEntities = require 'htmlEntities'
-	
+
 	local function LoadChannelsFromSite(pls)
 		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:86.0) Gecko/20100101 Firefox/86.0')
 		local sum = {}
@@ -81,18 +81,18 @@ local filter = {
 						m_simpleTV.Http.SetTimeout(session, 8000)
 						local rc, answer = m_simpleTV.Http.Request(session, {url = adr})
 						answer = answer:match('file:"([^"]+)')
-						if answer and answer:match('^https://stream.kinotv.net') then
+						if answer and (answer:match('^https://stream.kinotv.net') or answer:match('^https://vs(%d+).vcdn.biz')) then
 							if adr and title then
 								t[#t + 1] = {}
 								t[#t].name = title
 								t[#t].address = adr
 							end
 						end
-				end	
-		
+				end
+
 			for i=1,#t do
 				sum[#sum+1] = t[i]
-			end	
+			end
 		end
 		return sum
 	end
