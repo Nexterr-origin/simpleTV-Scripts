@@ -1,12 +1,11 @@
--- видеоскрипт для сайта https://rutube.ru https://rutube.sport (11/12/22)
--- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта https://rutube.ru https://rutube.sport (9/1/25)
+-- Copyright © 2017-2025 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: mediavitrina.lua
 -- ## открывает подобные ссылки ##
 -- https://rutube.ru/video/c32bacf2f2ef213d4cf86cedc0f88cf5
 -- https://rutube.ru/live/video/54395b96ad1a7b49966f46a6eee370a4
 -- https://rutube.ru/video/c58f502c7bb34a8fcdd976b221fca292/
--- https://rutube.sport/video/reyndzhers-psv-obzor/
 -- https://rutube.sport/video/aznaur-kalsynov-vs-vyacheslav-borisenok/
 -- https://rutube.ru/video/private/884fb55f07a97ab673c7d654553e0f48/?p=x2QojCumHTS3rsKHWXN8Lg
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
@@ -15,10 +14,8 @@
 		then
 		 return
 		end
-	local logo ='https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/rutube.png'
 	if m_simpleTV.Control.MainMode == 0 then
-		m_simpleTV.OSD.ShowMessageT({text = 'RUTUBE', showTime = 5000, id = 'channelName'})
-		m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = logo, UseLogo = 1, Once = 1})
+		m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = '', UseLogo = 0, Once = 1})
 	end
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.Control.ChangeAddress = 'Yes'
@@ -27,7 +24,7 @@
 		local t = {text = 'RUTUBE - ошибка ' .. str, showTime = 1000 * 8, color = ARGB(255, 255, 102, 0), id = 'channelName'}
 		m_simpleTV.OSD.ShowMessageT(t)
 	end
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0')
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:134.0) Gecko/20100101 Firefox/134.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local id
@@ -97,28 +94,24 @@
 			showMsg('4')
 		 return
 		end
-	local title = tab.title
-	local addTitle = 'RUTUBE'
-	if not title then
-		title = addTitle
-	else
-		if m_simpleTV.Control.MainMode == 0 then
-			title = unescape3(title)
-			title = title:gsub('\\"', '"')
-			title = addTitle .. ' - ' .. title
-			m_simpleTV.Control.ChangeChannelName(title, m_simpleTV.Control.ChannelID, false)
-			local thumbnail_url
-			if tab.thumbnail_url then
-				thumbnail_url = tab.thumbnail_url .. '?size=1'
-			end
-			thumbnail_url = thumbnail_url or logo
-			m_simpleTV.Control.ChangeChannelLogo(thumbnail_url, m_simpleTV.Control.ChannelID)
-		end
-	end
-	m_simpleTV.Control.CurrentTitle_UTF8 = title
-	m_simpleTV.OSD.ShowMessageT({text = title, showTime = 5000, id = 'channelName'})
 	local exOpt = ''
 	if not live then
+		local title = tab.title
+		local addTitle = 'RUTUBE'
+		if not title then
+			title = addTitle
+		else
+			if m_simpleTV.Control.MainMode == 0 then
+				title = unescape3(title)
+				title = title:gsub('\\"', '"')
+				title = addTitle .. ' - ' .. title
+				m_simpleTV.Control.ChangeChannelName(title, m_simpleTV.Control.ChannelID, false)
+				local thumbnail_url = tab.thumbnail_url or 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/rutube.png'
+				m_simpleTV.Control.ChangeChannelLogo(thumbnail_url, m_simpleTV.Control.ChannelID)
+			end
+		end
+		m_simpleTV.Control.CurrentTitle_UTF8 = title
+		m_simpleTV.OSD.ShowMessageT({text = title, showTime = 5000, id = 'channelName'})
 		exOpt = '$OPT:NO-STIMESHIFT'
 	end
 	local t0 = {}
