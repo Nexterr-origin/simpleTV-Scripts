@@ -40,7 +40,7 @@
 [simpleTV API]: http://sergeyvs012.rf.gd/dokuwiki/doku.php?id=mantis:simpletv:api "simpleTV API"
 [Lua]: https://www.lua.org/manual/5.3 "Lua 5.3"
 [License]: ../../blob/master/LICENSE "License GPL 3.0"
-[TVSources]: https://github.com/BMSimple/SimpleTV/releases/tag/TVSources "дополнение TVSources by BM"
+[TVSources]: https://github.com/BMSimple/SimpleTV/releases "дополнение TVSources by BM"
 [simpleTV homepage]: http://sergeyvs012.rf.gd "simpleTV домашняя страница"
 [simpleTV bugtracker]: http://sergeyvs012.rf.gd/bugtracker "simpleTV багтрекер"
 
