@@ -29,7 +29,7 @@
 [simpleTV API]: http://sergeyvs012.rf.gd/dokuwiki/doku.php?id=mantis:simpletv:api "simpleTV API"
 [Lua]: https://www.lua.org/manual/5.3 "Lua 5.3"
 [License]: ../../blob/master/LICENSE "License GPL 3.0"
-[TVSources]: https://github.com/BMSimple/SimpleTV/releases/tag/TVSources "Addon TVSources by BM"
+[TVSources]: https://github.com/BMSimple/SimpleTV/releases "Addon TVSources by BM"
 [PM]: http://sergeyvs012.rf.gd/bugtracker/view.php?id=1485 "Addon Password Manager"
 [simpleTV homepage]: http://sergeyvs012.rf.gd "simpleTV homepage"
 [simpleTV bugtracker]: http://sergeyvs012.rf.gd/bugtracker "simpleTV bugtracker"
