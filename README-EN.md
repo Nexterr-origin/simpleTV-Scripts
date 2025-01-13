@@ -1,5 +1,5 @@
 <p align="right">
- <a title="русский" href="../../"><img src="https://github.githubassets.com/images/icons/emoji/unicode/1f1f7-1f1fa.png" height="24" alt="русский" /> </a>
+ <a title="русский" href="../../"><img src="" height="24" alt="русский" /> </a>
 </p>
 
 [![discussions][badge-discussions]][discussions]
@@ -26,13 +26,13 @@
 [discussions]: https://github.com/Nexterr-origin/Nexterr-origin/discussions "discussions"
 [YT]: ../../../simpleTV-YouTube "YouTube Script"
 [addons]: ../../../simpleTV-Addons "Addons"
-[simpleTV API]: http://iptv.gen12.net/dokuwiki/doku.php?id=mantis:simpletv:api "simpleTV API"
+[simpleTV API]: http://sergeyvs012.rf.gd/dokuwiki/doku.php?id=mantis:simpletv:api "simpleTV API"
 [Lua]: https://www.lua.org/manual/5.3 "Lua 5.3"
 [License]: ../../blob/master/LICENSE "License GPL 3.0"
 [TVSources]: https://github.com/BMSimple/SimpleTV/releases/tag/TVSources "Addon TVSources by BM"
-[PM]: http://iptv.gen12.net/bugtracker/view.php?id=1485 "Addon Password Manager"
-[simpleTV homepage]: http://iptv.gen12.net "simpleTV homepage"
-[simpleTV bugtracker]: http://iptv.gen12.net/bugtracker "simpleTV bugtracker"
+[PM]: http://sergeyvs012.rf.gd/bugtracker/view.php?id=1485 "Addon Password Manager"
+[simpleTV homepage]: http://sergeyvs012.rf.gd "simpleTV homepage"
+[simpleTV bugtracker]: http://sergeyvs012.rf.gd/bugtracker "simpleTV bugtracker"
 
 
 [badge-discussions]: https://img.shields.io/badge/💬-Discussions-%232b2b2b?style=flat-squar&labelColor=%232c68a8 "Discussions"
