@@ -1,5 +1,5 @@
 <p align="right">
- <a title="english" href="./README-EN.md"><img src="https://github.githubassets.com/images/icons/emoji/unicode/1f1ec-1f1e7.png" height="24" alt="english" /> </a>
+ <a title="english" href="./README-EN.md"><img src="" height="24" alt="english" /> </a>
 </p>
 
 [![discussions][badge-discussions]][discussions]
@@ -37,12 +37,12 @@
 [discussions]: https://github.com/Nexterr-origin/Nexterr-origin/discussions "discussions"
 [YT]: ../../../simpleTV-YouTube "скрипт YouTube"
 [addons]: ../../../simpleTV-Addons "Дополнения"
-[simpleTV API]: http://iptv.gen12.net/dokuwiki/doku.php?id=mantis:simpletv:api "simpleTV API"
+[simpleTV API]: http://sergeyvs012.rf.gd/dokuwiki/doku.php?id=mantis:simpletv:api "simpleTV API"
 [Lua]: https://www.lua.org/manual/5.3 "Lua 5.3"
 [License]: ../../blob/master/LICENSE "License GPL 3.0"
 [TVSources]: https://github.com/BMSimple/SimpleTV/releases/tag/TVSources "дополнение TVSources by BM"
-[simpleTV homepage]: http://iptv.gen12.net "simpleTV домашняя страница"
-[simpleTV bugtracker]: http://iptv.gen12.net/bugtracker "simpleTV багтрекер"
+[simpleTV homepage]: http://sergeyvs012.rf.gd "simpleTV домашняя страница"
+[simpleTV bugtracker]: http://sergeyvs012.rf.gd/bugtracker "simpleTV багтрекер"
 
 
 [badge-discussions]: https://img.shields.io/badge/💬-Discussions-%232b2b2b?style=flat-squar&labelColor=%232c68a8 "Discussions"
