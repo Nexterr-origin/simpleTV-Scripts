@@ -1,8 +1,9 @@
--- скрапер TVS для загрузки плейлиста "online-radio" https://online-radio.su, https://onlinetv.su (7/10/24)
--- Copyright © 2017-2024 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- скрапер TVS для загрузки плейлиста "online-radio" https://online-radio.su, https://onlinetv.su (24/1/25)
+-- Copyright © 2017-2025 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: online-radio.lua
-local host = {'https://online-radio.su',
+local host = {
+-- {'https://online-radio.su',
 			  'https://onlinetv.su'
 			}
 -- ## Переименовать каналы ##
