@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "24часаТВ" https://24h.tv (6/11/24)
+-- видеоскрипт для плейлиста "24часаТВ" https://24h.tv (27/1/25)
 -- Copyright © 2017-2024 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: tv24h_pls.lua
@@ -18,16 +18,29 @@
 		m_simpleTV.User.tv24h = {}
 	end
 	url = url:gsub('$OPT:.+', '')
+	m_simpleTV.User.tv24h.address = url
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local num = url:match('(%d+)$')
-		if not num then return end
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0')
-			if not session then return end
+	
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0')
 	m_simpleTV.Http.SetTimeout(session, 8000)
-
-	local function getToken()
-		local headers = 'Content-Type: application/json'
+	local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL0F6YXRob3RoYXMvV29yZGxpc3RzLzM2ZDk1ZjU0MWU5NGJmMmZmNTYyNzIwZjhjZjU0OWQyZjk3MWVjMDMvTWlzYy9Vc2VyLUFnZW50cy91YV9maXJlZm94X3dpbmRvd3NfbGF0ZXN0LnR4dA')})
+		if rc ~= 200 or not answer then return end
+	answer = answer:gsub('[%c]', '')
+	local user_agent = answer
+	
+	local function GetSourceId()
+		local sql_str = 'SELECT ExtFilter FROM Channels WHERE Id = \'' .. m_simpleTV.Control.ChannelID .. '\';'
+		local x = m_simpleTV.Database.GetTable(sql_str,true)
+		local source_id
+		for i,w in pairs(x) do  
+			for r,e in pairs(w) do
+				source_id = e
+			end
+		end
+		return source_id
+	end
+	
 		-----
 		math.randomseed( os.time() )
 		math.random()
@@ -112,39 +125,86 @@
 			return guid
 		end
 		--
-		local login = getUUID()
-		local serial = login
-		local pass = string.sub(encode64(login), 0, 32)
-		local body = '{"username":"' .. login .. '","password":"' ..pass .. '","is_guest":true,"app_version":"v30"}'
-		local rc, answer = m_simpleTV.Http.Request(session, {method = 'post', url = decode64('aHR0cHM6Ly8yNGh0di5wbGF0Zm9ybTI0LnR2L3YyL3VzZXJz'), body = body, headers = headers})
-			if rc ~= 200 then return end
-		local body1 = '{"login":"' .. login .. '","password":"' .. pass .. '","app_version":"v30"}'
-		rc, answer = m_simpleTV.Http.Request(session, {method = 'post', url = decode64('aHR0cHM6Ly8yNGh0di5wbGF0Zm9ybTI0LnR2L3YyL2F1dGgvbG9naW4'), body = body1, headers = headers})
-				if rc ~= 200 then return end
-		local user_token = answer:match('access_token":"([^"]+)')
-				if not user_token then return end
-		local body2 = '{"device_type":"pc","vendor":"PC","model":"Firefox 132","version":"166","os_name":"Windows","os_version":"10","application_type":"web","serial":"' .. serial .. '"}'
-		rc, answer = m_simpleTV.Http.Request(session, {method = 'post', url = decode64('aHR0cHM6Ly8yNGh0di5wbGF0Zm9ybTI0LnR2L3YyL3VzZXJzL3NlbGYvZGV2aWNlcz9hY2Nlc3NfdG9rZW49') .. user_token, body = body2, headers = headers})
-				if rc ~= 200 then return end
-		local device_id = answer:match('id":"([^"]+)')
-				if not device_id then return end
-		local body3 = '{"device_id":"' .. device_id .. '"}'
-		rc, answer = m_simpleTV.Http.Request(session, {method = 'post', url = decode64('aHR0cHM6Ly8yNGh0di5wbGF0Zm9ybTI0LnR2L3YyL2F1dGgvZGV2aWNl'), body = body3, headers = headers})
-				if rc ~= 200 then return end
-	 return answer:match('access_token":"([^"]+)')
-	end
 
-		if not m_simpleTV.User.tv24h.token then
-			local token = getToken()
-				if not token then return end
-			m_simpleTV.User.tv24h.token = token
+	local function GetToken()
+	
+		local login = getUUID()
+		local pass = string.sub(encode64(login), 0, 32)
+		
+		local session = m_simpleTV.Http.New(user_agent)
+			if not session then return end
+			
+		m_simpleTV.Http.SetTimeout(session, 8000)
+		local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly8yNGh0di5wbGF0Zm9ybTI0LnR2L3YyL3VzZXJzL3NlbGYvbmV0d29yaw')})
+			if rc ~= 200 or not answer then return end
+			
+		local headers = 'Content-Type: application/json'
+		local body = '{"username":"' .. login .. '","password":"' .. pass .. '","is_guest":true,"app_version":"v30"}'
+		m_simpleTV.Http.SetTimeout(session, 8000)
+		local rc, answer = m_simpleTV.Http.Request(session, {method = 'post', url = decode64('aHR0cHM6Ly8yNGh0di5wbGF0Zm9ybTI0LnR2L3YyL3VzZXJz'), body = body, headers = headers})
+			if rc ~= 200 or not answer then return end
+		
+		local body1 = '{"login":"' .. login .. '","password":"' .. pass .. '","app_version":"v30"}'
+		m_simpleTV.Http.SetTimeout(session, 8000)
+		local rc, answer = m_simpleTV.Http.Request(session, {method = 'post', url = decode64('aHR0cHM6Ly8yNGh0di5wbGF0Zm9ybTI0LnR2L3YyL2F1dGgvbG9naW4'), body = body1, headers = headers})
+		local user_token = answer:match('access_token":"([^"]+)')
+				if rc ~= 200 or not user_token then return end
+				
+		local serial = getUUID()
+
+		local body2 = '{"device_type":"pc","vendor":"PC","model":"Firefox 132","version":"166","os_name":"Windows","os_version":"10","application_type":"web","serial":"' .. serial .. '"}'
+
+		local rc, answer = m_simpleTV.Http.Request(session, {method = 'post', url = decode64('aHR0cHM6Ly8yNGh0di5wbGF0Zm9ybTI0LnR2L3YyL3VzZXJzL3NlbGYvZGV2aWNlcz9hY2Nlc3NfdG9rZW49') .. user_token, body = body2, headers = headers})
+	
+		local device_id = answer:match('id":"([^"]+)')
+				if rc ~= 200 or not device_id then return end
+		
+		local body3 = '{"device_id":"' .. device_id .. '"}'
+
+		local rc, answer = m_simpleTV.Http.Request(session, {method = 'post', url = decode64('aHR0cHM6Ly8yNGh0di5wbGF0Zm9ybTI0LnR2L3YyL2F1dGgvZGV2aWNl'), body = body3, headers = headers})
+		local device_token = answer:match('access_token":"([^"]+)')
+				if rc ~= 200 or not device_token then return end
+		
+		local sql_string = 'UPDATE ExtFilter SET PlaylistLoadOptions = \'' .. device_token .. '\' WHERE ExtFilter.Id = \'' ..  GetSourceId() .. '\';'
+		m_simpleTV.Database.ExecuteSql(sql_string,true)
+		
+		return device_token
+	end
+	
+	local sql_str = 'SELECT ExtFilter.PlaylistLoadOptions FROM ExtFilter WHERE ExtFilter.Id = \'' .. GetSourceId() .. '\';'
+	local x = m_simpleTV.Database.GetTable(sql_str,true)
+	local access_token
+	if x == nil or #x == 0 then 
+		access_token = GetToken()
+	end
+	for i,w in pairs(x) do  
+		for r,e in pairs(w) do
+			if e == nil or e == '' then
+				access_token = GetToken()
+			else
+				access_token = e
+			end
 		end
-	url = decode64('aHR0cHM6Ly8yNGh0di5wbGF0Zm9ybTI0LnR2L3YyL2NoYW5uZWxzLw') .. num .. '/stream?access_token=' .. m_simpleTV.User.tv24h.token
-	m_simpleTV.User.tv24h.address = url
+	end
+	
+	if not access_token then return end
+	
+	local num = url:match('(%d+)$')
+		if not num then return end
+	url = decode64('aHR0cHM6Ly8yNGh0di5wbGF0Zm9ybTI0LnR2L3YyL2NoYW5uZWxzLw') .. num .. '/stream?access_token=' .. access_token
+
+	local session = m_simpleTV.Http.New(user_agent)
+	m_simpleTV.Http.SetTimeout(session, 8000)
+	local rc, answer = m_simpleTV.Http.Request(session, {url = url})
+		if rc == 401 then access_token = GetToken()
+			local rc, answer = m_simpleTV.Http.Request(session, {url = url})
+				if rc ~= 200 then return end
+		end
 	local rc, answer = m_simpleTV.Http.Request(session, {url = url .. '&format=json'})
-		if rc ~= 200 then m_simpleTV.User.tv24h = nil return end
+
+		if rc ~= 200 then return end
 	local retAdr = answer:match('"stream_info":"([^"]+)')
-		if not retAdr or retAdr == '' then m_simpleTV.User.tv24h = nil return end
+		if not retAdr then return end
 	retAdr = retAdr:gsub('^https://', 'http://'):gsub('data.json', 'index.m3u8')
 	rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 		if rc ~= 200 then return end
