@@ -1,5 +1,5 @@
--- видеоскрипт для плейлиста "Виват ТВ" http://mag.vivat.live (25/12/23)
--- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для плейлиста "Виват ТВ" http://mag.vivat.live (29/1/25)
+-- Copyright © 2017-2025 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: vivattv_pls_pls.lua
 -- ## открывает подобные ссылки ##
@@ -24,7 +24,7 @@
 	end
 	local headers = 'Referer: http://mag.vivat.live/'
 	local function getToken()
-		local url = decode64('aHR0cDovL2FwaS52aXZhdC5saXZlL3N0YWJsZS9zaWduP3JlZnJlc2hUb2tlbj0mcHJvZmlsZUlkPTEmbGFuZ3VhZ2U9ZW4mZGV2aWNlVHlwZT0xJmRldmljZUlkPVhYWCtYWFg')
+		local url = decode64('aHR0cHM6Ly9hcGkudml2YXQubGl2ZS9zdGFibGUvc2lnbj9yZWZyZXNoVG9rZW49JnByb2ZpbGVJZD0xJmxhbmd1YWdlPWVuJmRldmljZVR5cGU9MSZkZXZpY2VJZD1YWFglMjBYWFg')
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
 			if rc ~= 200 then return end
 	 return answer:match('"accessToken":"([^"]+)')
@@ -35,9 +35,9 @@
 		m_simpleTV.User.vivattv.token = token
 	end
 	local headers = headers .. '\nAuthorization: Bearer ' .. m_simpleTV.User.vivattv.token
-	local url = decode64('aHR0cDovL2FwaS52aXZhdC5saXZlL3N0YWJsZS9jb250ZW50L3BsYXkvP3VybElkPQ') .. chID .. '&profileId=1&language=en&deviceType=1&deviceId=XXX+XXX'
+	local url = decode64('aHR0cHM6Ly9hcGkudml2YXQubGl2ZS9zdGFibGUvY29udGVudC9wbGF5Lz91cmxJZD0') .. chID .. '&profileId=1&language=en&deviceType=1&deviceId=XXX%20XXX'
 	local rc, retAdr = m_simpleTV.Http.Request(session, {url = url, headers = headers})
-		if rc ~= 200 then return end
+		if rc ~= 200 then m_simpleTV.User.vivattv.token = nil return end
 	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 		if rc ~= 200 then return end
 	local extOpt = '$OPT:http-user-agent=' .. userAgent
