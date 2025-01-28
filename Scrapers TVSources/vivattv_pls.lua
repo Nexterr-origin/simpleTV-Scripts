@@ -1,5 +1,5 @@
--- скрапер TVS для загрузки плейлиста "Виват ТВ" http://mag.vivat.live (25/12/23)
--- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- скрапер TVS для загрузки плейлиста "Виват ТВ" http://mag.vivat.live (29/1/25)
+-- Copyright © 2017-2025 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видоскрипт: vivattv.lua
 -- ## переименовать каналы ##
@@ -22,10 +22,10 @@ local filter = {
 	 return t
 	end
 	function GetSettings()
-	 return {name = my_src_name, sortname = '', scraper = '', m3u = 'out_' .. my_src_name .. '.m3u', logo = '..\\Channel\\logo\\Icons\\vivattv.png', TypeSource = 1, TypeCoding = 1, DeleteM3U = 1, RefreshButton = 1, AutoBuild = 0, AutoBuildDay = {0, 0, 0, 0, 0, 0, 0}, LastStart = 0, TVS = {add = 1, FilterCH = 1, FilterGR = 1, GetGroup = 1, LogoTVG = 0}, STV = {add = 1, ExtFilter = 1, FilterCH = 1, FilterGR = 1, GetGroup = 1, HDGroup = 0, AutoSearch = 1, AutoNumber = 0, NumberM3U = 0, GetSettings = 1, NotDeleteCH = 0, TypeSkip = 1, TypeFind = 1, TypeMedia = 0, RemoveDupCH = 1}}
+	 return {name = my_src_name, sortname = '', scraper = '', m3u = 'out_' .. (tvs_core and tvs_core.translit_UTF8(my_src_name) or '') ..'.m3u', logo = '..\\Channel\\logo\\Icons\\vivattv.png', TypeSource = 1, TypeCoding = 1, DeleteM3U = 1, RefreshButton = 1, AutoBuild = 0, AutoBuildDay = {0, 0, 0, 0, 0, 0, 0}, LastStart = 0, TVS = {add = 1, FilterCH = 1, FilterGR = 1, GetGroup = 1, LogoTVG = 0}, STV = {add = 1, ExtFilter = 1, FilterCH = 1, FilterGR = 1, GetGroup = 1, HDGroup = 0, AutoSearch = 1, AutoNumber = 0, NumberM3U = 0, GetSettings = 1, NotDeleteCH = 0, TypeSkip = 1, TypeFind = 1, TypeMedia = 0, RemoveDupCH = 1}}
 	end
 	function GetVersion()
-	 return 2, 'UTF-8'
+	 return 1, 'UTF-8', 'test'
 	end
 	function LoadFromSite()
 		local session = m_simpleTV.Http.New('Mozilla/5.0 (QtEmbedded; U; Linux; C) AppleWebKit/533.3 (KHTML, like Gecko) MAG200 stbapp ver: 2 rev: 234 Safari/533.3')
@@ -33,7 +33,7 @@ local filter = {
 		m_simpleTV.Http.SetTimeout(session, 8000)
 		local headers = 'Referer: http://mag.vivat.live/'
 			local function getToken()
-				local url = decode64('aHR0cDovL2FwaS52aXZhdC5saXZlL3N0YWJsZS9zaWduP3JlZnJlc2hUb2tlbj0mcHJvZmlsZUlkPTEmbGFuZ3VhZ2U9ZW4mZGV2aWNlVHlwZT0xJmRldmljZUlkPVhYWCtYWFg')
+				local url = decode64('aHR0cHM6Ly9hcGkudml2YXQubGl2ZS9zdGFibGUvc2lnbj9yZWZyZXNoVG9rZW49JnByb2ZpbGVJZD0xJmxhbmd1YWdlPWVuJmRldmljZVR5cGU9MSZkZXZpY2VJZD1YWFglMjBYWFg')
 				local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
 					if rc ~= 200 then return end
 			 return answer:match('"accessToken":"([^"]+)')
@@ -41,7 +41,7 @@ local filter = {
 		local token = getToken()
 			if not token then return end
 		headers = '\nAuthorization: Bearer ' .. token
-		url = decode64('aHR0cDovL2FwaS52aXZhdC5saXZlL3N0YWJsZS9jb250ZW50P2xpbWl0PTEwMDAmY29udGVudFR5cGVzPTEmZGV2aWNlVHlwZT0xJmZhdm9yaXRlPTAmZ2VucmVJZHM9MCZzZWFyY2hGbGFnPWFuZCZvbmx5QXZhaWxhYmxlPTEmcHJvZmlsZUlkPTEmbGFuZ3VhZ2U9ZW4mZGV2aWNlSWQ9WFhYK1hYWA')
+		url = decode64('aHR0cHM6Ly9hcGkudml2YXQubGl2ZS9zdGFibGUvY29udGVudD9saW1pdD0xMDAwJmNvbnRlbnRUeXBlcz0xJmRldmljZVR5cGU9MSZmYXZvcml0ZT0wJmdlbnJlSWRzPTAmc2VhcmNoRmxhZz1hbmQmb25seUF2YWlsYWJsZT0xJnByb2ZpbGVJZD0xJmxhbmd1YWdlPWVuJmRldmljZUlkPVhYWCUyMFhYWA')
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
 			if rc ~= 200 then return end
 		answer = answer:gsub('%[%]', '""')
@@ -52,7 +52,7 @@ local filter = {
 			for i = 1, #tab do
 				t[#t + 1] = {}
 				t[#t].name = tab[i].title
-				t[#t].logo = 'http://api.hmara.tv/images/saved/' .. tab[i].images
+				t[#t].logo = 'https://api.hmara.tv/images/saved/' .. tab[i].images
 				t[#t].address = 'https://vivattv/' .. tab[i].urls
 			end
 	 return t
