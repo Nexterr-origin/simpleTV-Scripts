@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "Виват ТВ" http://mag.vivat.live (29/1/25)
+-- видеоскрипт для плейлиста "Виват ТВ" http://mag.vivat.live (31/1/25)
 -- Copyright © 2017-2025 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: vivattv_pls_pls.lua
@@ -15,7 +15,7 @@
 	local userAgent = 'Mozilla/5.0 (QtEmbedded; U; Linux; C) AppleWebKit/533.3 (KHTML, like Gecko) MAG200 stbapp ver: 2 rev: 234 Safari/533.3'
 	local session = m_simpleTV.Http.New(userAgent)
 		if not session then return end
-	m_simpleTV.Http.SetTimeout(session, 8000)
+	m_simpleTV.Http.SetTimeout(session, 14000)
 	if not m_simpleTV.User then
 		m_simpleTV.User = {}
 	end
@@ -37,7 +37,17 @@
 	local headers = headers .. '\nAuthorization: Bearer ' .. m_simpleTV.User.vivattv.token
 	local url = decode64('aHR0cHM6Ly9hcGkudml2YXQubGl2ZS9zdGFibGUvY29udGVudC9wbGF5Lz91cmxJZD0') .. chID .. '&profileId=1&language=en&deviceType=1&deviceId=XXX%20XXX'
 	local rc, retAdr = m_simpleTV.Http.Request(session, {url = url, headers = headers})
-		if rc ~= 200 then m_simpleTV.User.vivattv.token = nil return end
+		if rc ~= 200 and m_simpleTV.User.vivattv.restart == true then
+			m_simpleTV.User.vivattv.token = nil
+		 return
+		end
+		if rc ~= 200 then
+			m_simpleTV.User.vivattv.token = nil
+			m_simpleTV.User.vivattv.restart = true
+			m_simpleTV.Control.Restart(true)
+		 return
+		end
+	m_simpleTV.User.vivattv.restart = false
 	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 		if rc ~= 200 then return end
 	local extOpt = '$OPT:http-user-agent=' .. userAgent
