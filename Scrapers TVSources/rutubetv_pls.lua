@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "Rutube TV" https://rutube.ru (9/1/25)
+-- скрапер TVS для загрузки плейлиста "Rutube TV" https://rutube.ru (4/2/25)
 -- Copyright © 2017-2025 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: rutube.lua
