@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "Виват ТВ" http://mag.vivat.live (31/1/25)
+-- видеоскрипт для плейлиста "Виват ТВ" https://vivat.live (14/2/25)
 -- Copyright © 2017-2025 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: vivattv_pls_pls.lua
@@ -12,19 +12,19 @@
 	local chID = m_simpleTV.Control.CurrentAddress:match('%d+')
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local userAgent = 'Mozilla/5.0 (QtEmbedded; U; Linux; C) AppleWebKit/533.3 (KHTML, like Gecko) MAG200 stbapp ver: 2 rev: 234 Safari/533.3'
+	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0'
 	local session = m_simpleTV.Http.New(userAgent)
 		if not session then return end
-	m_simpleTV.Http.SetTimeout(session, 14000)
+	m_simpleTV.Http.SetTimeout(session, 16000)
 	if not m_simpleTV.User then
 		m_simpleTV.User = {}
 	end
 	if not m_simpleTV.User.vivattv then
 		m_simpleTV.User.vivattv = {}
 	end
-	local headers = 'Referer: http://mag.vivat.live/'
+	local headers = 'Referer: https://vivat.live'
 	local function getToken()
-		local url = decode64('aHR0cHM6Ly9hcGkudml2YXQubGl2ZS9zdGFibGUvc2lnbj9yZWZyZXNoVG9rZW49JnByb2ZpbGVJZD0xJmxhbmd1YWdlPWVuJmRldmljZVR5cGU9MSZkZXZpY2VJZD1YWFglMjBYWFg')
+		local url = decode64('aHR0cHM6Ly9hcGkudml2YXQubGl2ZS9zdGFibGUvc2lnbj9yZWZyZXNoVG9rZW49JnByb2ZpbGVJZD0xJmxhbmd1YWdlPXJ1JmRldmljZVR5cGU9MiZkZXZpY2VJZD1YWFglMjBYWFg')
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url, headers = headers})
 			if rc ~= 200 then return end
 	 return answer:match('"accessToken":"([^"]+)')
@@ -35,7 +35,7 @@
 		m_simpleTV.User.vivattv.token = token
 	end
 	local headers = headers .. '\nAuthorization: Bearer ' .. m_simpleTV.User.vivattv.token
-	local url = decode64('aHR0cHM6Ly9hcGkudml2YXQubGl2ZS9zdGFibGUvY29udGVudC9wbGF5Lz91cmxJZD0') .. chID .. '&profileId=1&language=en&deviceType=1&deviceId=XXX%20XXX'
+	local url = 'https://api.vivat.live/stable/content2/play?urlId=' .. chID .. '&deviceType=2&language=ru&profileId=1&deviceType=1&deviceId=XXX%20XXX'
 	local rc, retAdr = m_simpleTV.Http.Request(session, {url = url, headers = headers})
 		if rc ~= 200 and m_simpleTV.User.vivattv.restart == true then
 			m_simpleTV.User.vivattv.token = nil
