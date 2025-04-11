@@ -1,28 +1,19 @@
--- видеоскрипт для сайта http://rutor.info (9/3/22)
--- Copyright © 2017-2022 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта http://rutor.info (11/4/25)
+-- Copyright © 2017-2025 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- Acestream
 -- ## открывает подобные ссылки ##
--- http://rutor.info/torrent/734402/shestero-vne-zakona_6-underground-2019-web-dlrip-ot-megapeer-pifagor
--- http://6tor.net/torrent/742142/1917_1917-2019-screener-hdrezka-studio
--- ## прокси ##
-local proxy = ''
--- '' - нет
--- 'https://proxy-nossl.antizapret.prostovpn.org:29976' (пример)
+-- http://rutor.is/torrent/754784/bandy-londona_gangs-of-london-s01-03-2020-2025-bdrip-web-dlrip-lostfilm
+-- http://d.rutor.info/download/1033039
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
-		if not m_simpleTV.Control.CurrentAddress:match('^https?://rutor%.is/.+')
+		if not m_simpleTV.Control.CurrentAddress:match('^https?://%a?%.?rutor%.is/.+')
 			and not m_simpleTV.Control.CurrentAddress:match(
-			'^https?://rutor%.info/.+')
-			and not m_simpleTV.Control.CurrentAddress:match(   '^https?://6tor%.net/.+')
-			and not m_simpleTV.Control.CurrentAddress:match('^https?://zerkalo%-tor%.org/.+')
+			'^https?://%a?%.?rutor%.info/.+')
 			and not m_simpleTV.Control.CurrentAddress:match('torrent_rutor_')
 		then
 		 return
 		end
 	local inAdr = m_simpleTV.Control.CurrentAddress
-	if inAdr:match('^https?://6tor%.net/') then
-		proxy = ''
-	end
 	if not m_simpleTV.User then
 		m_simpleTV.User = {}
 	end
@@ -64,7 +55,7 @@ local proxy = ''
 	local host = inAdr:match('^(https?://.-)/')
 	inAdr = host .. '/download/' .. id
 	local url = host .. '/torrent/' .. id
-	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:81.0) Gecko/20100101 Firefox/81.0', proxy, false)
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:138.0) Gecko/20100101 Firefox/138.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 16000)
 	local function GetImdbPoster(d)
@@ -109,7 +100,7 @@ local proxy = ''
 			adr = 'https://st.kp.yandex.net/images/film_iphone/iphone360_' .. adr .. '.jpg'
 		end
 	end
-	adr = adr or 'https://raw.githubusercontent.com/Nexterr-origin/simpleTV-Images/main/rutor.png'
+	adr = adr or ''
 	m_simpleTV.User.rutor.posterUrl = adr
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = adr, TypeBackColor = 0, UseLogo = 3, Once = 1})
