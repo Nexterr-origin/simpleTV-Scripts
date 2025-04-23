@@ -1,5 +1,5 @@
--- видеоскрипт для видеобалансера "kodik" http://kodik.cc (7/9/24)
--- Copyright © 2017-2024 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для видеобалансера "kodik" http://kodik.cc (23/4/25)
+-- Copyright © 2017-2025 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- https://hdrise.com/video/31756/445f20d7950d3df08f7574311e82521e/720p
 -- http://kodik.info/video/27565/0f93e7a7ce4c247c3b66b47b1b8910b2/720p
@@ -90,21 +90,39 @@
 		end
 	 return index
 	end
+	-- local function decode_kodik(data)
+		-- local t = {}
+			-- for i = 1, #data do
+				-- local s = data:sub(i, i)
+				-- s = string.byte(s)
+				-- if s >= 65 and s <= 77 then
+					-- s = s + 13
+				-- elseif s >= 78 and s <= 90 then
+					-- s = s - 13
+				-- elseif s >= 97 and s <= 109 then
+					-- s = s + 13
+				-- elseif s >= 110 and s <= 122 then
+					-- s = s - 13
+				-- end
+				-- t[i] = string.char(s)
+			-- end
+		-- data = table.concat(t)
+		-- data = decode64(data)
+	 -- return data
+	-- end
 	local function decode_kodik(data)
+		local a = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+		local b = 'STUVWXYZABCDEFGHIJKLMNOPQRstuvwxyzabcdefghijklmnopqr0123456789'
 		local t = {}
 			for i = 1, #data do
 				local s = data:sub(i, i)
-				s = string.byte(s)
-				if s >= 65 and s <= 77 then
-					s = s + 13
-				elseif s >= 78 and s <= 90 then
-					s = s - 13
-				elseif s >= 97 and s <= 109 then
-					s = s + 13
-				elseif s >= 110 and s <= 122 then
-					s = s - 13
-				end
-				t[i] = string.char(s)
+					for j = 1, #a do
+						local a = a:sub(j, j)
+						if s == a then
+							local b = b:sub(j, j)
+							t[i] = b
+						end
+					end
 			end
 		data = table.concat(t)
 		data = decode64(data)
