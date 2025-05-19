@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://rutube.ru https://rutube.sport (9/1/25)
+-- видеоскрипт для сайта https://rutube.ru https://rutube.sport (19/5/25)
 -- Copyright © 2017-2025 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: mediavitrina.lua
@@ -8,6 +8,7 @@
 -- https://rutube.ru/video/c58f502c7bb34a8fcdd976b221fca292/
 -- https://rutube.sport/video/aznaur-kalsynov-vs-vyacheslav-borisenok/
 -- https://rutube.ru/video/private/884fb55f07a97ab673c7d654553e0f48/?p=x2QojCumHTS3rsKHWXN8Lg
+-- https://rutube.ru/shorts/69f465c1279f02766a5eb341e127a546/
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://rutube%.ru/.+')
 			and not m_simpleTV.Control.CurrentAddress:match('^https?://rutube%.sport/.+')
@@ -35,7 +36,7 @@
 		end
 		id = answer:match('/play/embed/([^&"]+)')
 	else
-		id = inAdr:match('/video/private/([^&"]+)' or inAdr:match('/audio/([^&"]+)') ) or inAdr:match('/play/embed/([^&"]+)') or inAdr:match('/video/([^&"]+)')
+		id = inAdr:match('/video/private/([^&"]+)' or inAdr:match('/audio/([^&"]+)') ) or inAdr:match('/play/embed/([^&"]+)') or inAdr:match('/video/([^&"]+)') or inAdr:match('/shorts/([^&"]+)')
 	end
 		if not id or inAdr:match('/tags/') then
 			showMsg('неверная ссылке')
@@ -47,7 +48,7 @@
 	function rutubeLiveSaveQuality(obj, id)
 		m_simpleTV.Config.SetValue('rutube_live_qlty', tostring(id))
 	end
-	local url = decode64('aHR0cHM6Ly9ydXR1YmUucnUvYXBpL3BsYXkvb3B0aW9ucy8') .. id
+	local url = decode64('aHR0cHM6Ly9ydXR1YmUucnUvYXBpL3BsYXkvb3B0aW9ucy8') .. id ..  '/?no_404=true&referer=https%253A%252F%252Ftnt-online.ru%252F&pver=v2&client=wdp'
 	local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 		if rc ~= 200 then
 			m_simpleTV.Http.Close(session)
