@@ -1,5 +1,5 @@
--- видеоскрипт для плейлиста "Wink TV" https://wink.ru (14/12/23)
--- Copyright © 2017-2023 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для плейлиста "Wink TV" https://wink.ru (30/5/25)
+-- Copyright © 2017-2025 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: wink-tv_pls.lua
 -- расширение дополнения httptimeshift: wink-timesift_ext.lua
@@ -41,6 +41,7 @@
 				end)
 	local extOpt = inAdr:match('$OPT:.[^&]*') or ''
 	extOpt = extOpt .. '$OPT:no-spu$OPT:INT-SCRIPT-PARAMS=winktv$OPT:http-user-agent=' .. ua
+	inAdr = inAdr:gsub('s91412', 's25617')
 	local function play(adr, offset)
 		if offset then
 			m_simpleTV.Control.SetNewAddressT({address = adr, timeshiftOffset = offset * 1000})
