@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "24часаТВ" https://24h.tv (27/1/25)
+-- видеоскрипт для плейлиста "24часаТВ" https://24h.tv (6/6/25)
 -- Copyright © 2017-2024 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: tv24h_pls.lua
@@ -191,18 +191,23 @@
 	
 	local num = url:match('(%d+)$')
 		if not num then return end
-	url = decode64('aHR0cHM6Ly8yNGh0di5wbGF0Zm9ybTI0LnR2L3YyL2NoYW5uZWxzLw') .. num .. '/stream?access_token=' .. access_token
-
-	local session = m_simpleTV.Http.New(user_agent)
-	m_simpleTV.Http.SetTimeout(session, 8000)
-	local rc, answer = m_simpleTV.Http.Request(session, {url = url})
+		
+	local function GetStream(num, access_token)
+		local url = decode64('aHR0cHM6Ly8yNGh0di5wbGF0Zm9ybTI0LnR2L3YyL2NoYW5uZWxzLw') .. num .. '/stream?access_token='
+		local session = m_simpleTV.Http.New(user_agent)
+		m_simpleTV.Http.SetTimeout(session, 8000)
+		local rc, answer
+		rc, answer = m_simpleTV.Http.Request(session, {url = url .. access_token})
 		if rc == 401 then access_token = GetToken()
-			local rc, answer = m_simpleTV.Http.Request(session, {url = url})
+			rc, answer = m_simpleTV.Http.Request(session, {url = url .. access_token})
 				if rc ~= 200 then return end
 		end
-	local rc, answer = m_simpleTV.Http.Request(session, {url = url .. '&format=json'})
-
-		if rc ~= 200 then return end
+		return answer
+	end
+		
+	local answer = GetStream(num, access_token)
+		if not answer then return end
+		
 	local retAdr = answer:match('"stream_info":"([^"]+)')
 		if not retAdr then return end
 	retAdr = retAdr:gsub('^https://', 'http://'):gsub('data.json', 'index.m3u8')
