@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "24часаТВ" https://24h.tv (27/1/25)
+-- скрапер TVS для загрузки плейлиста "24часаТВ" https://24h.tv (6/6/25)
 -- Copyright © 2017-2024 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: tv24h.lua
@@ -184,16 +184,22 @@ local filter = {
 		end
 		
 		if not access_token then return end
-
-		local url = decode64('aHR0cHM6Ly8yNGh0di5wbGF0Zm9ybTI0LnR2L3YyL2NoYW5uZWxzL2NoYW5uZWxfbGlzdD9hY2Nlc3NfdG9rZW49') .. access_token
 		
-		local session = m_simpleTV.Http.New(user_agent)
-		m_simpleTV.Http.SetTimeout(session, 8000)
-		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
-		if rc == 401 then access_token = GetToken(source_name)
-			local rc, answer = m_simpleTV.Http.Request(session, {url = url})
-				if rc ~= 200 then return end
+		local function GetChannels(access_token)
+			local url = decode64('aHR0cHM6Ly8yNGh0di5wbGF0Zm9ybTI0LnR2L3YyL2NoYW5uZWxzL2NoYW5uZWxfbGlzdD9hY2Nlc3NfdG9rZW49')
+			local session = m_simpleTV.Http.New(user_agent)
+			m_simpleTV.Http.SetTimeout(session, 8000)
+			local rc, answer
+			rc, answer = m_simpleTV.Http.Request(session, {url = url .. access_token})
+			if rc == 401 then access_token = GetToken(source_name)
+				rc, answer = m_simpleTV.Http.Request(session, {url = url .. access_token})
+					if rc ~= 200 then return end
+			end
+			return answer
 		end
+		
+		local answer = GetChannels(access_token)
+			if not answer then return end
 		
 		answer = answer:gsub('\\', '\\\\')
 		answer = answer:gsub('\\"', '\\\\"')
@@ -202,6 +208,7 @@ local filter = {
 		require 'json'
 		local err, tab = pcall(json.decode, answer)
 			if not tab then return end
+		
 		local t = {}
 			for i = 1, #tab do
 				if tab[i].is_free then
