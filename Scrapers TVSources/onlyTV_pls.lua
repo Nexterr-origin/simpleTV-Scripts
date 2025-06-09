@@ -1,16 +1,14 @@
--- скрапер TVS для загрузки плейлиста "onlyTV" http://only-tv.org (20/7/24)
--- Copyright © 2017-2024 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- скрапер TVS для загрузки плейлиста "onlyTV" http://online-tv.live, http://sweet-tv.net/ (9/6/25)
+-- Copyright © 2017-2025 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: onlytv.lua
--- ## прокси ##
-local prx = ''
-local host = 'https://online-tv.live'
--- '' - нет
--- 'http://proxy-nossl.antizapret.prostovpn.org:29976'	(пример)
+local host = {'https://online-tv.live',
+			  'http://sweet-tv.net'
+			}
 -- ## Переименовать каналы ##
 local filter = {
-	{'Setanta Sports Plus', 'Setanta Sports+'},
-	{'Евроспорт 2', 'Eurosport 2'},
+	--{'Setanta Sports Plus', 'Setanta Sports+'},
+	--{'Евроспорт 2', 'Eurosport 2'},
 	}
 -- ##
 	local my_src_name = 'onlyTV'
@@ -37,25 +35,32 @@ local filter = {
 		local t = {text = str, showTime = 1000 * 5, color = color, id = 'channelName'}
 		m_simpleTV.OSD.ShowMessageT(t)
 	end
-	local function LoadFromSite()
-		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:86.0) Gecko/20100101 Firefox/86.0', prx, false)
+	
+	local function LoadFromSite(host)
+		local url
+		if host:match('https://online%-tv%.live') then
+			url = host .. '/kategorii.html'
+		end
+		if host:match('http://sweet%-tv%.net') then
+			url = host
+		end
+		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0')
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 20000)
-		local url = 'https://online-tv.live/kategorii.html'
 		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 		m_simpleTV.Http.Close(session)
 			if rc ~= 200 then return end
-		answer = answer:gsub('<!%-.-%->', '')
-		--answer = answer:match('<table style="width: 100%%; margin-top: 25px;" border="0">.-</table>')
+		answer = answer:gsub('[%c]', '')
+		if host:match('http://sweet%-tv%.net') then
+			answer = answer:match('<div class="layout%-cell sidebar1">(.-)</div>')
+		end
 			if not answer then return end
 		local t = {}
 			for w in answer:gmatch('<td.-</td>') do
-				local adr = w:match('href="(.-)"')
-				local title = w:match('title="(.-)"')
-				if adr and title then
+				local adr = w:match('href="([^"]+)')
+				if adr then
 					t[#t + 1] = {}
-					t[#t].name = title:gsub(' смотреть онлайн', '')
-					t[#t].address = adr
+					t[#t].address = host .. adr
 				end
 			end
 			if #t == 0 then return end
@@ -65,25 +70,41 @@ local filter = {
 	local function LoadChannelsFromSite(pls)
 		local sum = {}
 		for _,val in pairs(pls) do
-			local url = host .. val.address
-			local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; rv:86.0) Gecko/20100101 Firefox/86.0', prx, false)
+			local url = val.address
+			local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0')
 			if not session then return end
 			m_simpleTV.Http.SetTimeout(session, 20000)
 			local rc, answer = m_simpleTV.Http.Request(session, {url = url})
-			--debug_in_file(rc .. "\n\n", "D:\xxx.txt")
+			local host = url:match('https?://.-/')
+			host = host:sub(1, -2)
 			m_simpleTV.Http.Close(session)
 				if rc ~= 200 then return end
-			answer = answer:gsub('<!%-.-%->', '')
-			answer = answer:match('<table style="width: 100%%;">.-</table>')
+			answer = answer:gsub('[%c]', '')
+			if host:match('https://online%-tv%.live') then
+				answer = answer:match('<table style="width: 100%%;">.-</table>')
+			end
+			if host:match('http://sweet%-tv%.net') then
+				answer = answer:match('<table style="margin: 0px auto; width: 100%%;" border="0">.-</table>')
+			end
 				if not answer then return end
 				local d = {}
 				for w in answer:gmatch('<td.-</td>') do
-					local adr = w:match('href="(.-)"')
-					local title = w:match('title="(.-)"')
-					if adr and title then
+					local adr = w:match('href="([^"]+)')
+					local title = w:match('title="([^"]+)')
+					if host:match('https://online%-tv%.live') and title then
+						title = title:gsub(' смотреть онлайн', '')
+					end
+					if host:match('http://sweet%-tv%.net') and title then
+						title = title:gsub('Смотреть ', '')
+						title = title:gsub(' онлайн', '')
+					end
+					local img = w:match('src="([^"]+)')
+					if adr and title and img then
 						d[#d + 1] = {}
-						d[#d].name = title:gsub(' смотреть онлайн', '')
+						d[#d].name = title
 						d[#d].address = host .. adr
+						d[#d].title = title
+						d[#d].logo = host .. img or ''
 					end
 				end
 				if #d == 0 then return end
@@ -101,12 +122,31 @@ local filter = {
 			if not m3u_file then return end
 			if not TVSources_var.tmp.source[UpdateID] then return end
 		local Source = TVSources_var.tmp.source[UpdateID]
-		local t_pls = LoadFromSite()
-		t_pls = LoadChannelsFromSite(t_pls)
-			if not t_pls then
-				showMsg(Source.name .. ' ошибка загрузки плейлиста', ARGB(255, 255, 102, 0))
-			 return
-			end
+	
+		local s_pls = {}
+		for i = 1, #host do
+			local res = LoadFromSite(host[i])
+				for m = 1, #res do
+					s_pls[#s_pls+1] = res[m]
+				end	
+		end
+		
+		local x_pls = LoadChannelsFromSite(s_pls)
+		
+		local hash = {}
+		local t_pls = {}
+
+		for _,v in ipairs(x_pls) do
+		   if (not hash[v.title]) then
+			   t_pls[#t_pls+1] = v
+			   hash[v.title] = true
+		   end
+		end
+		
+		if not t_pls then
+			showMsg(Source.name .. ' ошибка загрузки плейлиста', ARGB(255, 255, 102, 0))
+		 return
+		end
 		showMsg(Source.name .. ' (' .. #t_pls .. ')', ARGB(255, 153, 255, 153))
 		t_pls = ProcessFilterTableLocal(t_pls)
 		local m3ustr = tvs_core.ProcessFilterTable(UpdateID, Source, t_pls)
