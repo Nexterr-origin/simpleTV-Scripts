@@ -1,4 +1,4 @@
--- видеоскрипт для сайта https://rutube.ru https://rutube.sport (19/5/25)
+-- видеоскрипт для сайта https://rutube.ru https://rutube.sport (8/8/25)
 -- Copyright © 2017-2025 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: mediavitrina.lua
@@ -48,7 +48,7 @@
 	function rutubeLiveSaveQuality(obj, id)
 		m_simpleTV.Config.SetValue('rutube_live_qlty', tostring(id))
 	end
-	local url = decode64('aHR0cHM6Ly9ydXR1YmUucnUvYXBpL3BsYXkvb3B0aW9ucy8') .. id ..  '/?no_404=true&referer=https%253A%252F%252Ftnt-online.ru%252F&pver=v2&client=wdp'
+	local url = 'https://rutube.ru/api/play/options/' .. id ..  '?no_404=true&referer=https%3A%2F%2Frutube.ru&pver=v2&client=wdp&2k=1&av1=1'
 	local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 		if rc ~= 200 then
 			m_simpleTV.Http.Close(session)
@@ -89,6 +89,7 @@
 		showMsg('3, стрим не найден')
 	 return
 	end
+	retAdr = retAdr:gsub('\\u0026', '&')
 	local rc, answer = m_simpleTV.Http.Request(session, {url = retAdr})
 	m_simpleTV.Http.Close(session)
 		if rc ~= 200 then
