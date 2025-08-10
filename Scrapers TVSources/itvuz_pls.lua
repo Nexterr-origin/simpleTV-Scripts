@@ -1,7 +1,8 @@
--- скрапер TVS для загрузки плейлиста "ITV UZ" https://itv.uz (5/5/25)
+-- скрапер TVS для загрузки плейлиста "ITV UZ" https://itv.uz (10/8/25)
 -- Copyright © 2017-2025 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: itvuz.lua
+-- расширение дополнения httptimeshift: itvuz-timeshift_ext.lua
 -- ## Переименовать каналы ##
 local filter = {
 	{'Setanta Sports Plus', 'Setanta Sports+'},
@@ -52,6 +53,7 @@ local filter = {
 					t[#t].name = unescape3(title)
 					t[#t].address = host .. 'ru/channels/player/' .. id
 					t[#t].logo = img or ''
+					t[#t].RawM3UString = 'catchup="append" catchup-days="7" '
 				end	
 			end
 	 return t
