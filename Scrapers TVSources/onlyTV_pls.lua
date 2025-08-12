@@ -1,14 +1,18 @@
--- скрапер TVS для загрузки плейлиста "onlyTV" http://online-tv.live, http://sweet-tv.net/ (9/6/25)
+-- скрапер TVS для загрузки плейлиста "onlyTV" https://smotru.tv, http://sweet-tv.net/ (12/8/25)
 -- Copyright © 2017-2025 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: onlytv.lua
-local host = {'https://online-tv.live',
+local host = {'https://smotru.tv',
 			  'http://sweet-tv.net'
 			}
 -- ## Переименовать каналы ##
 local filter = {
-	--{'Setanta Sports Plus', 'Setanta Sports+'},
-	--{'Евроспорт 2', 'Eurosport 2'},
+	{'1FILMAX', 'viju+ Megahit'},
+	{'2FILMAX', 'viju+ Premiere'},
+	{'3FILMAX', 'viju+ Comedy'},
+	{'4FILMAX', 'viju TV1000'},
+	{'5FILMAX', 'viju TV1000 action'},
+	{'6FILMAX', 'viju TV1000 русское'},
 	}
 -- ##
 	local my_src_name = 'onlyTV'
@@ -36,85 +40,61 @@ local filter = {
 		m_simpleTV.OSD.ShowMessageT(t)
 	end
 	
-	local function LoadFromSite(host)
-		local url
-		if host:match('https://online%-tv%.live') then
-			url = host .. '/kategorii.html'
-		end
-		if host:match('http://sweet%-tv%.net') then
-			url = host
-		end
-		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0')
-			if not session then return end
-		m_simpleTV.Http.SetTimeout(session, 20000)
-		local rc, answer = m_simpleTV.Http.Request(session, {url = url})
-		m_simpleTV.Http.Close(session)
-			if rc ~= 200 then return end
-		answer = answer:gsub('[%c]', '')
-		if host:match('http://sweet%-tv%.net') then
-			answer = answer:match('<div class="layout%-cell sidebar1">(.-)</div>')
-		end
-			if not answer then return end
-		local t = {}
-			for w in answer:gmatch('<td.-</td>') do
-				local adr = w:match('href="([^"]+)')
-				if adr then
-					t[#t + 1] = {}
-					t[#t].address = host .. adr
-				end
-			end
-			if #t == 0 then return end
-	 return t
-	end
-	
-	local function LoadChannelsFromSite(pls)
-		local sum = {}
-		for _,val in pairs(pls) do
-			local url = val.address
-			local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0')
-			if not session then return end
+	local function LoadChannelsFromSite(host)
+			local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0')
+				if not session then return end
 			m_simpleTV.Http.SetTimeout(session, 20000)
-			local rc, answer = m_simpleTV.Http.Request(session, {url = url})
-			local host = url:match('https?://.-/')
-			host = host:sub(1, -2)
-			m_simpleTV.Http.Close(session)
+			local rc, answer = m_simpleTV.Http.Request(session, {url = host .. '/sitemap.html'})
 				if rc ~= 200 then return end
 			answer = answer:gsub('[%c]', '')
-			if host:match('https://online%-tv%.live') then
-				answer = answer:match('<table style="width: 100%%;">.-</table>')
+			if host:match('https://smotru%.tv') then
+				answer = answer:match('<ul class="level_0">(.-)</ul>')
 			end
 			if host:match('http://sweet%-tv%.net') then
-				answer = answer:match('<table style="margin: 0px auto; width: 100%%;" border="0">.-</table>')
+				answer = answer:match('</ul><ul class="level_0">(.-)</ul>')
 			end
 				if not answer then return end
 				local d = {}
-				for w in answer:gmatch('<td.-</td>') do
+				for w in answer:gmatch('<li>(.-)</li>') do
 					local adr = w:match('href="([^"]+)')
 					local title = w:match('title="([^"]+)')
-					if host:match('https://online%-tv%.live') and title then
-						title = title:gsub(' смотреть онлайн', '')
+						title = title:gsub('^Смотреть телеканал ', '')
+						title = title:gsub(' онлайн$', '')
+						title = title:gsub('^Канал ', '')
+						title = title:gsub(' в прямом эфире$', '')
+					local rc, answer = m_simpleTV.Http.Request(session, {url = host .. adr})
+					if answer:match('<iframe.-</iframe>') then
+						answer = answer:match('<iframe.-</iframe>')
 					end
-					if host:match('http://sweet%-tv%.net') and title then
-						title = title:gsub('Смотреть ', '')
-						title = title:gsub(' онлайн', '')
+					if answer:match('src="([^"]+)') then
+						answer = answer:match('src="([^"]+)')
+					else
+						showMsg('Проверка канала: ' .. title .. ' - ошибка', ARGB(255,255, 0, 0))
 					end
-					local img = w:match('src="([^"]+)')
-					if adr and title and img then
-						d[#d + 1] = {}
-						d[#d].name = title
-						d[#d].address = host .. adr
-						d[#d].title = title
-						d[#d].logo = host .. img or ''
+					if answer:match('cdniptvpotok.com') or answer:match('cdntvpotok.com') then
+						local cdnlink = answer
+						local header = 'Referer: ' .. host
+						m_simpleTV.Http.SetTimeout(session, 2000)
+						local rc, answer = m_simpleTV.Http.Request(session, {url = answer, headers = header})
+							if not answer then return end
+						if answer:match('tv.tvcdnpotok.com') then
+							showMsg('Проверка канала: ' .. title, ARGB(255, 131, 255, 124))
+							if adr and title then
+								d[#d + 1] = {}
+								d[#d].name = title
+								d[#d].address = host .. adr
+								d[#d].title = title
+							end
+													
+						else
+							showMsg('Проверка канала: ' .. title .. ' - ошибка 1', ARGB(255,255, 0, 0))
+						end
+					else
+						showMsg('Проверка канала: ' .. title .. ' - ошибка 2', ARGB(255, 255, 0, 0))
 					end
 				end
 				if #d == 0 then return end
-				
-				for i=1,#d do
-					sum[#sum+1] = d[i]
-				end
-				
-		end
-		return sum
+		return d
 	end
 
 	function GetList(UpdateID, m3u_file)
@@ -125,18 +105,16 @@ local filter = {
 	
 		local s_pls = {}
 		for i = 1, #host do
-			local res = LoadFromSite(host[i])
+			local res = LoadChannelsFromSite(host[i])
 				for m = 1, #res do
 					s_pls[#s_pls+1] = res[m]
 				end	
 		end
 		
-		local x_pls = LoadChannelsFromSite(s_pls)
-		
 		local hash = {}
 		local t_pls = {}
 
-		for _,v in ipairs(x_pls) do
+		for _,v in ipairs(s_pls) do
 		   if (not hash[v.title]) then
 			   t_pls[#t_pls+1] = v
 			   hash[v.title] = true
