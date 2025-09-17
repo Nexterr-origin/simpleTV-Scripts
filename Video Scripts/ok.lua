@@ -1,12 +1,11 @@
--- видеоскрипт для сайта https://ok.ru (9/5/24)
--- Copyright © 2017-2024 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- видеоскрипт для сайта https://ok.ru (17/9/25)
+-- Copyright © 2017-2025 Nexterr | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## открывает подобные ссылки ##
 -- http://ok.ru/videoembed/2636779838
 -- https://ok.ru/video/361515387611
 -- http://ok.ru/video/23276948199
 -- https://ok.ru/live/search/1115050286838
 -- https://ok.ru/video/1951798069873
--- https://m.ok.ru/dk?st.cmd=movieLayer&st.discId=220851668368&st.retLoc=default&st.discType=MOVIE&st.mvId=220851668368&st.stpos=rec_5&_prevCmd=movieLayer&tkn=3933
 -- https://m.ok.ru/dk?st.cmd=moviePlaybackRedirect&st.sig=923171edb53da243925fbfe90c1a285ea99c3fe9&st.mq=3&st.mvid=1565588916953&st.ip=178.57.98.107&st.exp=1575887947669&st.hls=off&_prevCmd=main&tkn=9594
 -- https://ok.ru/video/4138886498843
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
@@ -26,7 +25,7 @@
 			m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = '', UseLogo = 0, Once = 1})
 		end
 	end
-	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:124.0) Gecko/20100101 Firefox/124.0'
+	local userAgent = 'Mozilla/5.0 (Windows NT 10.0; rv:143.0) Gecko/20100101 Firefox/143.0'
 	if not m_simpleTV.User then
 		m_simpleTV.User = {}
 	end
@@ -139,10 +138,7 @@
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
 	local rc, answer = m_simpleTV.Http.Request(session, {url = 'https://ok.ru/video/' .. id})
-		if rc ~= 200 or (rc == 200 and answer:find('приостановлена')) then
-			m_simpleTV.Http.Close(session)
-		 return
-		end
+		if rc ~= 200 then return end
 	local retAdr = answer:match('hlsMa.-;:\\&quot;(.-)\\&quot') or answer:match('ondemandHls.-;:\\&quot;(.-)\\&quot')
 		if not retAdr then
 			retAdr = answer:match('originalUrl\\&quot;:\\&quot;(.-)\\&quot')
