@@ -1,10 +1,10 @@
--- скрапер TVS для загрузки плейлиста "Большое ТВ" https://bolshoe.tv (10/10/24)
--- Copyright © 2017-2024 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
+-- скрапер TVS для загрузки плейлиста "Большое ТВ" https://bolshoe.tv (19/9/25)
+-- Copyright © 2017-2025 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: bolshoetv.lua
 -- ## Переименовать каналы ##
 local filter = {
-{'HD Travel + Adventure', 'Travel+ Adventure'},
+	{'HD Travel + Adventure', 'Travel+ Adventure'},
 	}
 	local host = 'https://bolshoe.tv'
 	local my_src_name = 'Большое ТВ'
@@ -27,14 +27,29 @@ local filter = {
 	function GetVersion()
 	 return 2, 'UTF-8'
 	end
+	
+	local function GetAuth()
+			local sum = 0;
+			local characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+			for i = 1, 16 do
+				local rand = math.floor(math.random() * #characters)
+				local character = characters:sub(rand,rand)
+				sum = sum .. character
+			end
+			sum = 'web_' .. sum
+		 return sum
+	end	 
+	
 	local function LoadFromSite()
-		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0')
+		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:142.0) Gecko/20100101 Firefox/142.0')
 			if not session then return end
 		m_simpleTV.Http.SetTimeout(session, 8000)
-		local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9hcGkuYm9sc2hvZS50di93ZWIvMS9hdXRoL3dlYg')})
+		local auth = GetAuth()
+		local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9hcGkuYm9sc2hvZS50di93ZWIvMS9hdXRoL3dlYi8') .. auth})
 			if rc ~= 200 then return end
 		local token = answer:match('"access_token":"([^"]+)')
 			if not token then return end
+		
 		local header = 'X-APP-ACCESS-TOKEN: ' .. token
 		local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9hcGkuYm9sc2hvZS50di93ZWIvMS9jb2xsZWN0aW9ucz90YWJfaWQ9dHZfY2hhbm5lbHNfdGFiJlJCX3F1ZXVlX2NvdW50PTEwMCZSQl90ZWFzZXJfY291bnQ9MTAw'), headers = header})
 			if rc ~= 200 then return end
@@ -55,7 +70,7 @@ local filter = {
 					t[#t + 1] = {}
 					t[#t].name = title
 					t[#t].address = host .. '/promo/web/tv/' .. id .. '/'
-					if tab.response[i].EKs[x].archived_hours_number then
+					if tab.response[i].EKs[x].archived_hours_number then 
 						t[#t].RawM3UString = string.format('catchup="append" catchup-days="%s" catchup-source=""', (tab.response[i].EKs[x].archived_hours_number/24 or 0))
 					end
 					t[#t].logo = img or ''
@@ -70,7 +85,7 @@ local filter = {
 			if not TVSources_var.tmp.source[UpdateID] then return end
 		local Source = TVSources_var.tmp.source[UpdateID]
 		local t_pls = LoadFromSite()
-
+		
 		local hash = {}
 		local res = {}
 
@@ -80,9 +95,9 @@ local filter = {
 			   hash[v.address] = true
 		   end
 		end
-
+		
 		t_pls = res
-
+		
 			if not t_pls or #t_pls == 0 then return end
 		t_pls = ProcessFilterTableLocal(t_pls)
 		local m3ustr = tvs_core.ProcessFilterTable(UpdateID, Source, t_pls)
