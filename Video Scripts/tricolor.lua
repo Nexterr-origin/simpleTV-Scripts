@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "Триколор ТВ" https://tricolor.ru (5/10/25)
+-- видеоскрипт для плейлиста "Триколор ТВ" https://tricolor.ru (6/10/25)
 -- Copyright © 2017-2025 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: tricolor_pls.lua
@@ -8,77 +8,82 @@
 -- http://nea-live-stream.ott.tricolor.tv/streamingGateway/GetLivePlayList?source=domashny.m3u8
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('tricolor%.tv/streamingGateway/GetLivePlayList') then return end
+	
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, TypeBackColor = 0, PictFileName = '', UseLogo = 0, Once = 1})
 	end
 	local inAdr = m_simpleTV.Control.CurrentAddress
-	inAdr = inAdr:gsub('^http://', 'https://')
+	
 	if not m_simpleTV.User then
 		m_simpleTV.User = {}
 	end
 	if not m_simpleTV.User.tricolor then
 		m_simpleTV.User.tricolor = {}
 	end
-
+	
 	local function showMsg(str, color)
 		local t = {text = str, showTime = 1000 * 5, color = color, id = 'channelName'}
 		m_simpleTV.OSD.ShowMessageT(t)
 	end
-
+	
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
 	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:143.0) Gecko/20100101 Firefox/143.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 12000)
-
+	
 	local function CheckToken(token)
 		local stat
 		local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9jczEub3R0LnRyaWNvbG9yLnR2L2FwaS92MS9jcnlwdG8vY2VrX2tleS84MGRhMTY1MS0yM2IxLTQ4MmMtODdkYy1jZmYxYzc2M2ViOGM/ZHJtcmVxPQ') .. token})
-		if rc ~= 200 then
+		if rc == 200 then
+			stat = true
+		elseif rc == 400 then
 			stat = false
 			m_simpleTV.Config.Remove('tricolor_token')
-		else
-			stat = true
 		end
 	 return stat
 	end
-
+	
 	local function GetToken()
 		local saveToken = m_simpleTV.Config.GetValue('tricolor_token')
-		local token
+		local tok
 		if saveToken and CheckToken(saveToken) then
-			token = saveToken
+			tok = saveToken
 		else
 			local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9naXRodWIuY29tL0lQVFZTSEFSRUQvaXB0di9yYXcvcmVmcy9oZWFkcy9tYWluL0lQVFZfU0hBUkVELm0zdQ')})
 			if rc ~= 200 then return end
 				answer = answer:gsub('[%c]', '')
 				answer = answer:match('%.m3u8%?drmreq=([^#]+)')
 				if CheckToken(answer) then
-					token = answer
-					m_simpleTV.Config.SetValue('tricolor_token', token)
+					tok = answer
+					m_simpleTV.Config.SetValue('tricolor_token', tok)
 				else
-					token = 'Токен просрочен'
+					tok = 'Токен просрочен'
 				end
 		end
-	 return token
+	 return tok
 	end
-
-	token = GetToken()
-
+	
+	local token = GetToken()
+		if not token then return end
 	if token == 'Токен просрочен' then
 		showMsg(token, ARGB(255,255, 0, 0))
 	return end
-
+	
 	local amp
 	if inAdr:match('%?') then
 		amp = '&'
-	else
+	else 
 		amp = '?'
 	end
-
-	inAdr = inAdr .. amp .. 'drmreq=' .. token
+	
+	inAdr = inAdr:gsub('$OPT:.+', '')
+	if not inAdr:match('drmreq=') then
+		inAdr = inAdr .. amp .. 'drmreq=' .. token
+	end
+	inAdr = inAdr:gsub('^http://', 'https://')
 	m_simpleTV.User.tricolor.url_archive = inAdr:gsub('GetLivePlayList', 'GetNPVRPlayList')
-
+	
 	local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
 		if rc ~= 200 then return end
 
@@ -132,8 +137,8 @@
 			m_simpleTV.OSD.ShowSelect_UTF8('⚙ Качество', index - 1, t, 5000, 32 + 64 + 128 + 8)
 		end
 	end
-
-	m_simpleTV.Control.CurrentAddress = t[index].Address
+	
+	m_simpleTV.Control.CurrentAddress = t[index].Address 
 
 	function tricolorSaveQuality(obj, id)
 		m_simpleTV.Config.SetValue('tricolor_qlty', id)
