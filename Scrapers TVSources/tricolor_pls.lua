@@ -13,7 +13,7 @@ local filter = {
 	{'Телеканал Е HD', 'Е HD'},
 	{'Неизвестная Россия! HD', 'Неизвестная Россия HD'},
 	}
-	
+
 	local my_src_name = 'Триколор ТВ'
 	module('tricolor_pls', package.seeall)
 	local function ProcessFilterTableLocal(t)
@@ -57,9 +57,9 @@ local filter = {
 				name = name:gsub('\\"', '"')
 				local codename = tab.data[i].attributes.code_name
 				if codename:match('Kinozal') then
-					name = 'Киноазал ' .. codename:match('%d+$')
+					name = 'Кинозал ' .. codename:match('%d+$')
 				end
-				if tab.data[i].attributes.visible 
+				if tab.data[i].attributes.visible
 				and not tab.data[i].attributes.is_radio_channel
 				and tab.data[i].attributes.description ~= '18+'
 				and tab.data[i].attributes.stream_url then
