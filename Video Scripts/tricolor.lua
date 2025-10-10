@@ -34,7 +34,7 @@
 	
 	local function CheckToken(token)
 		local stat
-		local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9jczEub3R0LnRyaWNvbG9yLnR2L2FwaS92MS9jcnlwdG8vY2VrX2tleS84MGRhMTY1MS0yM2IxLTQ4MmMtODdkYy1jZmYxYzc2M2ViOGM/ZHJtcmVxPQ') .. token})
+		local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9jczEub3R0LnRyaWNvbG9yLnR2L2FwaS92MS9jcnlwdG8vY2VrX2tleS85MjU1ZWMwYS1hZTgzLTQ0MDQtOWYxNy0xNDE4YjUxMzUzNWI/ZHJtcmVxPQ') .. token})
 		if rc == 200 then
 			stat = true
 		elseif rc == 400 then
@@ -66,9 +66,9 @@
 	
 	local token = GetToken()
 		if not token then return end
-	if token == 'Токен просрочен' then
-		showMsg(token, ARGB(255,255, 0, 0))
-	return end
+	 if token == 'Токен просрочен' then
+		 showMsg(token, ARGB(255,255, 0, 0))
+	 return end
 	
 	local amp
 	if inAdr:match('%?') then
