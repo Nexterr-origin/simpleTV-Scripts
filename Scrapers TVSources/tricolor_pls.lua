@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "Триколор ТВ" https://tricolor.ru (5/10/25)
+-- скрапер TVS для загрузки плейлиста "Триколор ТВ" https://tricolor.ru (12/10/25)
 -- Copyright © 2017-2025 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: tricolor.lua
@@ -13,7 +13,7 @@ local filter = {
 	{'Телеканал Е HD', 'Е HD'},
 	{'Неизвестная Россия! HD', 'Неизвестная Россия HD'},
 	}
-
+	
 	local my_src_name = 'Триколор ТВ'
 	module('tricolor_pls', package.seeall)
 	local function ProcessFilterTableLocal(t)
@@ -59,11 +59,32 @@ local filter = {
 				if codename:match('Kinozal') then
 					name = 'Кинозал ' .. codename:match('%d+$')
 				end
-				if tab.data[i].attributes.visible
+				if tab.data[i].attributes.visible 
 				and not tab.data[i].attributes.is_radio_channel
 				and tab.data[i].attributes.description ~= '18+'
 				and tab.data[i].attributes.stream_url then
-					if not name:match('Триколор Спорт') then
+					if not name:match('Триколор Спорт')
+					and not name:match('Уникум')
+					and not name:match('Капитан Фантастика HD')
+					and not name:match('Рыжий')
+					and not name:match('СТС Kids')
+					and not name:match('МУЛЬТ')
+					and not name:match('Мультиландия')
+					and not name:match('Мультимузыка')
+					and not name:match('Мульт HD')
+					and not name:match('Мульт')
+					and not name:match('КиноМульт')
+					and not name:match('ТипТоп HD')
+					and not name:match('Чижик HD')
+					and not name:match('Детский Мир')
+					and not name:match('TiJi')
+					and not name:match('Gulli Girl')
+					and not name:match('В гостях у сказки')
+					and not name:match('FamilyJam')
+					and not name:match('Ani')
+					and not name:match('TRASH')
+					and not name:match('Amediateka / DAZN')
+					then
 						local url = tab.data[i].attributes.stream_url
 						if url and name then
 							t[#t + 1] = {}
