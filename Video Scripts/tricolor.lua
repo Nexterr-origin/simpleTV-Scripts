@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "Триколор ТВ" https://tricolor.ru (17/10/25)
+-- видеоскрипт для плейлиста "Триколор ТВ" https://tricolor.ru (21/10/25)
 -- Copyright © 2017-2025 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: tricolor_pls.lua
@@ -58,11 +58,10 @@
 		if saveToken and CheckToken(saveToken) == 200 then
 			tok = saveToken
 		else
-			local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9naXRodWIuY29tL0lQVFZTSEFSRUQvVklORUdSRVQvcmF3L3JlZnMvaGVhZHMvbWFpbi9WSU5FR1JFVC5tM3U')})
+			local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cDovL285Njg4OW5vLmJlZ2V0LnRlY2gvdHh0LnR4dA')})
 			if rc ~= 200 then return end
-				answer = answer:gsub('[%c]', '')
-				answer = answer:match('%.m3u8%?drmreq=([^#]+)')
 				if answer then
+					answer = decode64(answer)
 					if CheckToken(answer) == 200 then
 						tok = answer
 						m_simpleTV.Config.SetValue('tricolor_token', tok)
