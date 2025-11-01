@@ -13,7 +13,7 @@
 	local inAdr = m_simpleTV.Control.CurrentAddress
 	m_simpleTV.Control.ChangeAddress = 'Yes'
 	m_simpleTV.Control.CurrentAddress = 'error'
-	local id = inAdr:match('([^/]%d+)$')
+	local id = inAdr:match('([^/]%d*)$')
 	local retAdr = decode64('aHR0cDovL3R2aXAuYnRrLnRlbGVvcy5ydTo4MDgxL2NoaWQ') .. id .. '/index.m3u8'
 	m_simpleTV.Control.CurrentAddress = retAdr
 -- debug_in_file(retAdr .. '\n')
