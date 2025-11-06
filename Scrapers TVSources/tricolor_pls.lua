@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "Триколор ТВ" https://tricolor.ru (25/10/25)
+-- скрапер TVS для загрузки плейлиста "Триколор ТВ" https://tricolor.ru (6/11/25)
 -- Copyright © 2017-2025 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: tricolor.lua
@@ -84,10 +84,10 @@ local filter = {
 					and not name:match('Ani')
 					and not name:match('TRASH')
 					and not name:match('Epic')
-					and not name:match('Amedia')
-					and not name:match('A1')
-					and not name:match('A2')
-					and not name:match('START')
+					--and not name:match('Amedia')
+					--and not name:match('A1')
+					--and not name:match('A2')
+					--and not name:match('START')
 					and not name:match('Amediateka / DAZN')
 					then
 						local url = tab.data[i].attributes.stream_url
@@ -96,7 +96,7 @@ local filter = {
 							t[#t].name = unescape3(name)
 							t[#t].address = url
 							if tab.data[i].attributes.catchup_url ~= url then
-								t[#t].RawM3UString = 'catchup="append" catchup-days="7"'
+								t[#t].RawM3UString = 'catchup="default" catchup-days="7"'
 							end
 						end
 					end
