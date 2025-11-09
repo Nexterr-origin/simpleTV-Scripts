@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "Смотрёшка" https://smotreshka.tv (7/11/25)
+-- видеоскрипт для плейлиста "Смотрёшка" https://smotreshka.tv (9/11/25)
 -- Copyright © 2017-2025 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: smotreshka_pls.lua
@@ -27,7 +27,6 @@
 	local function CheckToken(token)
 		local stat
 		local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9mZS5zbW90cmVzaGthLnR2L3BsYXliYWNrLWluZm8tbWVkaWEv') .. id .. '?session=' .. token})
-			if rc ~= 200 then return end
 		if rc == 200 then
 			stat = 200
 		else	
@@ -42,7 +41,7 @@
 		if saveToken and CheckToken(saveToken) == 200 then
 			tok = saveToken
 		else
-			local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cDovL285Njg4OW5vLmJlZ2V0LnRlY2gvc210cmsudHh0')})
+			local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9rb3Zyb3YtMzMucnUvc210cmsudHh0')})
 			if rc ~= 200 then return end
 				if answer then
 					answer = decode64(answer)
@@ -58,8 +57,11 @@
 		end
 	 return tok
 	end
+	
+	local token = GetToken()
+		if not token then return end
 
-	local url = decode64('aHR0cHM6Ly9mZS5zbW90cmVzaGthLnR2L3BsYXliYWNrLWluZm8tbWVkaWEv') .. id .. '?session=' .. GetToken()
+	local url = decode64('aHR0cHM6Ly9mZS5zbW90cmVzaGthLnR2L3BsYXliYWNrLWluZm8tbWVkaWEv') .. id .. '?session=' .. token
 	local rc, answer = m_simpleTV.Http.Request(session, {url = url})
 	local adr
 	if rc ~= 200 then
