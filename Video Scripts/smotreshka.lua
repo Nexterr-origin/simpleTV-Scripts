@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "Смотрёшка" https://smotreshka.tv (9/11/25)
+-- видеоскрипт для плейлиста "Смотрёшка" https://smotreshka.tv (10/11/25)
 -- Copyright © 2017-2025 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- скрапер TVS: smotreshka_pls.lua
@@ -29,7 +29,7 @@
 		local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9mZS5zbW90cmVzaGthLnR2L3BsYXliYWNrLWluZm8tbWVkaWEv') .. id .. '?session=' .. token})
 		if rc == 200 then
 			stat = 200
-		else	
+		elseif rc ~= -1 and rc ~= 200 and answer:match('"msg":"([^"]+)') then
 			stat = answer:match('"msg":"([^"]+)')
 		end
 	 return stat
