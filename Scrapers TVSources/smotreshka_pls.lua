@@ -7,7 +7,6 @@ local filter = {
 		{'РБК ТВ HD', 'РБК HD'},
 	}
 	local host = 'https://fe.smotreshka.tv/'
-	local token = 'ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SjFjMlZ5WDNSNWNHVWlPak1zSW5CMWNtTm9ZWE5sWkY5amFHRnVibVZzWDNCaFkydGhaMlZ6SWpwYlhTd2ljbVZuYVc5dUlqb2ljblV1WTJWdWRISmhiQzV0YjNOamIzY2lMQ0prWlhacFkyVmZkSGx3WlNJNkluQmpJaXdpYm1WMGQyOXlhMTloWm1acGJHbGhkR2x2Ymw5emRHRjBkWE1pT2pNc0lteHZZMkZzWlNJNkluSjFJaXdpY0hKdlptbHNaVjkwZVhCbElqb3lMQ0p3Y205bWFXeGxYM0psYzNSeWFXTjBhVzl1WDNaaGJIVmxJam93ZlEuVnpRQUNXTDVKN3RMRVlfb08ydTkzVjZReS1UOENhTjYxUnpGRXExVF9OUQ'
 	local my_src_name = 'Смотрёшка'
 	module('smotreshka_pls', package.seeall)
 	local function ProcessFilterTableLocal(t)
@@ -28,14 +27,74 @@ local filter = {
 	function GetVersion()
 	 return 2, 'UTF-8'
 	end
+	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0')
+		if not session then return end
+	m_simpleTV.Http.SetTimeout(session, 8000)
+	
+	local function showMsg(str, color)
+		local t = {text = str, showTime = 1000 * 3, color = color, id = 'channelName'}
+		m_simpleTV.OSD.ShowMessageT(t)
+	end
+	
+	local function CheckToken(token)
+		local stat
+		local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9mZS5zbW90cmVzaGthLnR2L3YyL2FjY291bnQ/c2Vzc2lvbj0') .. token})
+		if rc == 200 and answer:match('"login":"([^"]+)') ~= 'anonymous' then
+			stat = 200
+		elseif rc ~= 200 then
+			stat = 'Нет рабочего токена'
+		end
+	 return stat
+	end	
+	
+	local function GetToken()
+		local saveToken = m_simpleTV.Config.GetValue('smtrk_token')
+		local tok
+		if saveToken and CheckToken(saveToken) == 200 then
+			tok = saveToken
+		else
+			local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9rb3Zyb3YtMzMucnUvc210cmsudHh0')})
+			if rc ~= 200 then return end
+				if answer then
+					answer = decode64(answer)
+					if CheckToken(answer) == 200 then
+						tok = answer
+						m_simpleTV.Config.SetValue('smtrk_token', tok)
+					else
+						showMsg(CheckToken(answer), ARGB(255,255, 0, 0))
+					end
+				else
+					showMsg('Нет рабочего токена', ARGB(255,255, 0, 0))
+				end
+		end
+	 return tok
+	end
+	
+	local function GetTvAssetToken()
+		local token = GetToken()
+			if not token then return end
+		local tvAssetToken
+		local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9mZS5zbW90cmVzaGthLnR2L3VzZXIvdjEvYXNzZXQtdG9rZW5zP3Nlc3Npb249') .. token})
+			if rc ~= 200 then return end
+		if rc == 200 then
+			tvAssetToken = answer:match('"tvAssetToken":"([^"]+)')
+		end
+			if not tvAssetToken then return end
+		local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9mZS5zbW90cmVzaGthLnR2L3R2L3YyL21lZGlhcz90di1hc3NldC10b2tlbj0') .. tvAssetToken})
+			if rc ~= 200 then return end
+		if rc == 200 then
+			return tvAssetToken
+		else 
+			showMsg('Нет рабочего токена', ARGB(255,255, 0, 0))
+		end
+	end
+	
+	local token = GetTvAssetToken()
+		if not token then return end
 	
 	local function GetJson(url)
 		local url = decode64(url)
-		local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0')
-			if not session then return end
-		m_simpleTV.Http.SetTimeout(session, 8000)
-		local rc, answer = m_simpleTV.Http.Request(session, {url = host .. url .. '?tv-asset-token=' .. decode64(token)})
-		m_simpleTV.Http.Close(session)
+		local rc, answer = m_simpleTV.Http.Request(session, {url = host .. url .. '?tv-asset-token=' .. token})
 			if rc ~= 200 then return end
 		answer = answer:gsub('\\', '\\\\')
 		answer = answer:gsub('\\"', '\\\\"')
