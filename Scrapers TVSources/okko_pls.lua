@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "ОККО" https://okko.tv (20/11/25)
+-- скрапер TVS для загрузки плейлиста "ОККО" https://okko.tv (24/11/25)
 -- Copyright © 2017-2025 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- Обновляемый токен предоставлен @FC_Sparta4
 -- ## необходим ##
@@ -111,9 +111,9 @@ local filter = {
 			for i = 1, #tab.element.collectionItems.items do
 				local id = tab.element.collectionItems.items[i].element.id
 				local name = tab.element.collectionItems.items[i].element.name
-					if not name:match('Okko') 
-					and not name:match('OKKO') 
-					and not name:match('Amedia') 
+					--if not name:match('Okko') 
+					--and not name:match('OKKO') 
+					if not name:match('Amedia') 
 					and not name:match('viju%+ premiere') 
 					and not name:match('viju%+ megahit') 
 					and not name:match('viju%+ comedy') 
