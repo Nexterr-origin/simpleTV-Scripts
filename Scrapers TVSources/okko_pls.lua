@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "ОККО" https://okko.tv (24/11/25)
+-- скрапер TVS для загрузки плейлиста "ОККО" https://okko.tv (25/11/25)
 -- Copyright © 2017-2025 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- Обновляемый токен предоставлен @FC_Sparta4
 -- ## необходим ##
@@ -71,48 +71,53 @@ local filter = {
 		local stat
 		local tab = GetJson(token)
 		if tab.authorized and tab.element.collectionItems.items then
-			stat = 200
+			return tab
 		else 
 			stat = 'Нет рабочего токена'
+			return stat
 		end
-	 return stat
 	end
 	
 	local function GetToken()
 		local saveToken = m_simpleTV.Config.GetValue('okko_token')
 		local tok
-		if saveToken and CheckToken(saveToken) == 200 then
-			tok = saveToken
-		else
+		if saveToken then
+			tok = CheckToken(saveToken)
+			if tok and tok ~= 'Нет рабочего токена' then
+				return tok
+			end
+		end
+		if not saveToken or tok == 'Нет рабочего токена' then
 			local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9rb3Zyb3YtMzMucnUvb2trby50eHQ')})
 			if rc ~= 200 then return end
 				if answer then
 					answer = decode64(answer)
-					if CheckToken(answer) == 200 then
-						tok = answer
-						m_simpleTV.Config.SetValue('okko_token', tok)
+					local tok = CheckToken(answer)
+					if tok ~= 'Нет рабочего токена' then
+						m_simpleTV.Config.SetValue('okko_token', answer)
+						return tok
 					else
-						showMsg(CheckToken(answer), ARGB(255,255, 0, 0))
+						showMsg('Нет рабочего токена', ARGB(255,255, 0, 0))
 					end
 				else
 					showMsg('Нет рабочего токена', ARGB(255,255, 0, 0))
 				end
 		end
-	 return tok
 	end
-
-	local token = GetToken()
-		if not token then return end
 	
 	local function LoadFromSite()
-		local tab = GetJson(token)
+		local tab = GetToken()
 			if not tab or not tab.element.collectionItems.items then return end
 		local t = {}
 			for i = 1, #tab.element.collectionItems.items do
+				local logo
 				local id = tab.element.collectionItems.items[i].element.id
 				local name = tab.element.collectionItems.items[i].element.name
-					--if not name:match('Okko') 
-					--and not name:match('OKKO') 
+					for x = 1, #tab.element.collectionItems.items[i].element.basicCovers.items do
+						if tab.element.collectionItems.items[i].element.basicCovers.items[x].imageType == 'TITLE' then
+							logo = tab.element.collectionItems.items[i].element.basicCovers.items[x].url
+						end
+					end
 					if not name:match('Amedia') 
 					and not name:match('viju%+ premiere') 
 					and not name:match('viju%+ megahit') 
@@ -128,6 +133,7 @@ local filter = {
 							t[#t + 1] = {}
 							t[#t].name = unescape3(name)
 							t[#t].address = host .. id
+							t[#t].logo = logo or ''
 						end
 					end
 				end
