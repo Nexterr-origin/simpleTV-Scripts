@@ -1,4 +1,4 @@
--- видеоскрипт для плейлиста "ОККО" https://okko.tv (24/11/25)
+-- видеоскрипт для плейлиста "ОККО" https://okko.tv (25/11/25)
 -- Copyright © 2017-2025 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- Обновляемый токен предоставлен @FC_Sparta4
 -- ## необходим ##
@@ -114,7 +114,15 @@
 	local adr
 	for i = 1, #tab.elements.items[1].assets.items do
 		if GetKey(tab.elements.items[1].id) then
-			adr = tab.elements.items[1].assets.items[i].url
+			if tab.elements.items[1].id == '222e6ac7-0349-4dc5-9e80-97c62f624ab5' or
+			   tab.elements.items[1].id == '25fa7830-881c-4bd8-a8f2-9d9aa095cede' or
+			   tab.elements.items[1].id == 'ba41a258-97e6-4e47-8a93-45860325501d' then
+				if tab.elements.items[1].assets.items[i].media.fps == 50 then
+					adr = tab.elements.items[1].assets.items[i].url
+				end
+			else
+				adr = tab.elements.items[1].assets.items[i].url
+			end
 			adr = string.format('%s$OPT:adaptive-use-avdemux$OPT:avdemux-options={decryption_key=%s}', adr, decode64(GetKey(tab.elements.items[1].id)))
 		else
 			if tab.elements.items[1].assets.items[i].media.drmType == 'NO_DRM'
