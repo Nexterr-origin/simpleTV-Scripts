@@ -1,14 +1,14 @@
--- видеоскрипт для плейлиста "ОККО" https://okko.tv (25/11/25)
+-- видеоскрипт для плейлиста "ОККО" https://okko.tv (27/11/25)
 -- Copyright © 2017-2025 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- Обновляемый токен предоставлен @FC_Sparta4
 -- ## необходим ##
--- скрапер TVS: 'okko_pls.lua
+-- скрапер TVS: okko_pls.lua
 -- ## открывает подобные ссылки ##
 -- https://okko.tv/ce77474b-6ea1-46d3-977d-3fa2f6c86968
 
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://okko%.tv')
-		then return end
+		then return end	
 
 	if m_simpleTV.Control.MainMode == 0 then
 		m_simpleTV.Interface.SetBackground({BackColor = 0, PictFileName = '', TypeBackColor = 0, UseLogo = 0, Once = 1})
@@ -112,18 +112,35 @@
 	local tab = GetJson(token)
 		if not tab or not tab.elements.items[1].assets.items then return end
 	local adr
+	
+	local t = {}
+	for i = 1, #tab.elements.items[1].assets.items do
+		if tab.elements.items[1].assets.items[i].media.fps == 50 then
+			t[#t + 1] = {}
+			t[#t].Name = 'Частота кадров ' .. tab.elements.items[1].assets.items[i].media.fps .. ' fps'
+			t[#t].Id = tab.elements.items[1].assets.items[i].media.fps
+			t[#t].Address = tab.elements.items[1].assets.items[i].url
+		end
+	end
+			
+	local hash = {}
+	local x = {}
+	for _,v in ipairs(t) do
+	   if (not hash[v.Id]) then
+		   x[#x+1] = v
+		   hash[v.Id] = true
+	   end
+	end
+	
+	if #x > 0 and GetKey(tab.elements.items[1].id) then
+		for i = 1, #x do
+			x[i].Address = string.format('%s$OPT:adaptive-use-avdemux$OPT:avdemux-options={decryption_key=%s}', x[i].Address, decode64(GetKey(tab.elements.items[1].id)))
+		end
+	end
+	
 	for i = 1, #tab.elements.items[1].assets.items do
 		if GetKey(tab.elements.items[1].id) then
-			if tab.elements.items[1].id == '222e6ac7-0349-4dc5-9e80-97c62f624ab5' or
-			   tab.elements.items[1].id == '25fa7830-881c-4bd8-a8f2-9d9aa095cede' or
-			   tab.elements.items[1].id == 'ba41a258-97e6-4e47-8a93-45860325501d' then
-				if tab.elements.items[1].assets.items[i].media.fps == 50 then
-					adr = tab.elements.items[1].assets.items[i].url
-				end
-			else
-				adr = tab.elements.items[1].assets.items[i].url
-			end
-			adr = string.format('%s$OPT:adaptive-use-avdemux$OPT:avdemux-options={decryption_key=%s}', adr, decode64(GetKey(tab.elements.items[1].id)))
+			adr = string.format('%s$OPT:adaptive-use-avdemux$OPT:avdemux-options={decryption_key=%s}', tab.elements.items[1].assets.items[i].url, decode64(GetKey(tab.elements.items[1].id)))
 		else
 			if tab.elements.items[1].assets.items[i].media.drmType == 'NO_DRM'
 			and tab.elements.items[1].assets.items[i].url:match('m3u8$')
@@ -134,15 +151,26 @@
 	end
 	if not adr then return end
 	
-	if adr:match('m3u8$') then
-		local rc, answer = m_simpleTV.Http.Request(session, {url = adr})
+	local gm, rs, bn
+	if adr:match('.m3u8') then
+		gm = 'EXT%-X%-STREAM%-INF.-\n'
+		rs = 'resolution=%d+x(%d+)'
+		bn = ':bandwidth=(%d+)'
+	else
+		gm = '<Representation id="video(.-)>'
+		rs = 'height="([^"]+)'
+		bn = 'bandwidth="([^"]%d+)'
+	end
+	
+		local rc, answer = m_simpleTV.Http.Request(session, {url = adr:gsub('$OPT.+', '')})
 			if rc ~= 200 then return end
 		m_simpleTV.Http.Close(session)
 	
 		local t = {}
-		for w in answer:gmatch('EXT%-X%-STREAM%-INF.-\n') do
-			local bw = w:match('BANDWIDTH=(%d+)')
-			local res = w:match('RESOLUTION=%d+x(%d+)')
+		for w in answer:gmatch(gm) do
+			w = w:lower()
+			local bw = w:match(bn)
+			local res = w:match(rs)
 			if bw then
 				bw = tonumber(bw)
 				bw = math.ceil(bw / 100000) * 100
@@ -151,12 +179,19 @@
 					t[#t].Name = res .. 'p (' .. bw .. ' кбит/с)'
 					t[#t].Id = tonumber(res)
 					t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-maxheight=%s', adr, res)
+					
 				else
 					t[#t].Name = bw .. ' кбит/с'
 					t[#t].Id = bw
 					t[#t].Address = string.format('%s$OPT:adaptive-logic=highest$OPT:adaptive-max-bw=%s', adr, bw)
+					
 				end
 			end
+		end
+
+		if #t == 0 then
+			m_simpleTV.Control.CurrentAddress = adr
+		 return
 		end
 
 		table.sort(t, function(a, b) return a.Id < b.Id end)
@@ -170,17 +205,33 @@
 			t[#t + 1] = {}
 			t[#t].Id = 50000
 			t[#t].Name = '▫ адаптивное'
-			t[#t].Address = retAdr
+			t[#t].Address = adr
 			index = #t
-				for i = 1, #t do
-					if t[i].Id >= lastQuality then
-						index = i
-					 break
-					end
+			for i = 1, #t do
+				if t[i].Id >= lastQuality then
+					index = i
+				 break
 				end
+			end
 			if index > 1 then
 				if t[index].Id > lastQuality then
 					index = index - 1
+				end
+			end
+			if #x > 0 then
+				for i = 1, #x do
+					t[#t + 1] = {}
+					t[#t].Id = x[i].Id
+					t[#t].Name = x[i].Name
+					t[#t].Address = x[i].Address
+				end
+			end
+			if lastQuality == 50 then
+				for i = 1, #t do
+					if t[i].Id == 50 then
+						index = i
+					 break
+					end
 				end
 			end
 			if m_simpleTV.Control.MainMode == 0 then
@@ -189,14 +240,11 @@
 				m_simpleTV.OSD.ShowSelect_UTF8('⚙ Качество', index - 1, t, 5000, 32 + 64 + 128 + 8)
 			end
 		end
-
-		m_simpleTV.Control.CurrentAddress = t[index].Address
-	else
-		m_simpleTV.Control.CurrentAddress = adr
-	end
+			
+			m_simpleTV.Control.CurrentAddress = t[index].Address
 
 	function okkoSaveQuality(obj, id)
-		m_simpleTV.Config.SetValue('okko_qlty', id)
+			m_simpleTV.Config.SetValue('okko_qlty', id)
 	end
 
  --debug_in_file(m_simpleTV.Control.CurrentAddress .. '\n'\)
