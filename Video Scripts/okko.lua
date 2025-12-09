@@ -1,11 +1,9 @@
--- видеоскрипт для плейлиста "ОККО" https://okko.tv (27/11/25)
+-- видеоскрипт для плейлиста "ОККО" https://okko.tv (9/12/25)
 -- Copyright © 2017-2025 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
--- Обновляемый токен предоставлен @FC_Sparta4
 -- ## необходим ##
--- скрапер TVS: okko_pls.lua
+-- скрапер TVS: 'okko_pls.lua
 -- ## открывает подобные ссылки ##
 -- https://okko.tv/ce77474b-6ea1-46d3-977d-3fa2f6c86968
-
 		if m_simpleTV.Control.ChangeAddress ~= 'No' then return end
 		if not m_simpleTV.Control.CurrentAddress:match('^https?://okko%.tv')
 		then return end	
@@ -73,7 +71,8 @@
 		if saveToken and CheckToken(saveToken) == 200 then
 			tok = saveToken
 		else
-			local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9rb3Zyb3YtMzMucnUvb2trby50eHQ')})
+			local headers = m_simpleTV.Common.CryptographicHash(m_simpleTV.Common.GetCModuleExtension(), Md5) .. ': ' .. m_simpleTV.Common.CryptographicHash(os.date("!%Y|%m|%d", os.time()), Md5)
+			local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cDovL285Njg4OW5vLmJlZ2V0LnRlY2gvdGtuLnBocD90dj1va2tv'), headers = headers})
 			if rc ~= 200 then return end
 				if answer then
 					answer = decode64(answer)
