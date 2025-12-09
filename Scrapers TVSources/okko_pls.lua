@@ -1,6 +1,5 @@
--- скрапер TVS для загрузки плейлиста "ОККО" https://okko.tv (25/11/25)
+-- скрапер TVS для загрузки плейлиста "ОККО" https://okko.tv (9/12/25)
 -- Copyright © 2017-2025 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
--- Обновляемый токен предоставлен @FC_Sparta4
 -- ## необходим ##
 -- видеоскрипт: okko.lua
 -- ## Переименовать каналы ##
@@ -88,7 +87,8 @@ local filter = {
 			end
 		end
 		if not saveToken or tok == 'Нет рабочего токена' then
-			local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9rb3Zyb3YtMzMucnUvb2trby50eHQ')})
+			local headers = m_simpleTV.Common.CryptographicHash(m_simpleTV.Common.GetCModuleExtension(), Md5) .. ': ' .. m_simpleTV.Common.CryptographicHash(os.date("!%Y|%m|%d", os.time()), Md5)
+			local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cDovL285Njg4OW5vLmJlZ2V0LnRlY2gvdGtuLnBocD90dj1va2tv'), headers = headers})
 			if rc ~= 200 then return end
 				if answer then
 					answer = decode64(answer)
