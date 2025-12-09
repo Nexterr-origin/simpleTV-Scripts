@@ -1,4 +1,4 @@
--- скрапер TVS для загрузки плейлиста "Смотрёшка" https://smotreshka.tv (7/11/25)
+-- скрапер TVS для загрузки плейлиста "Смотрёшка" https://smotreshka.tv (9/12/25)
 -- Copyright © 2017-2025 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
 -- ## необходим ##
 -- видеоскрипт: smotreshka.lua
@@ -53,7 +53,8 @@ local filter = {
 		if saveToken and CheckToken(saveToken) == 200 then
 			tok = saveToken
 		else
-			local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9rb3Zyb3YtMzMucnUvc210cmsudHh0')})
+			local headers = m_simpleTV.Common.CryptographicHash(m_simpleTV.Common.GetCModuleExtension(), Md5) .. ': ' .. m_simpleTV.Common.CryptographicHash(os.date("!%Y|%m|%d", os.time()), Md5)
+			local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cDovL285Njg4OW5vLmJlZ2V0LnRlY2gvdGtuLnBocD90dj1zbXRyaw'), headers = headers})
 			if rc ~= 200 then return end
 				if answer then
 					answer = decode64(answer)
