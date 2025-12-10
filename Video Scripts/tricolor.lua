@@ -1,6 +1,5 @@
--- видеоскрипт для плейлиста "Триколор ТВ" https://tricolor.ru (25/10/25)
+-- видеоскрипт для плейлиста "Триколор ТВ" https://tricolor.ru (10/12/25)
 -- Copyright © 2017-2025 Nexterr, NEKTO666 | https://github.com/Nexterr-origin/simpleTV-Scripts
--- Обновляемый токен предоставлен @FC_Sparta4
 -- ## необходим ##
 -- скрапер TVS: tricolor_pls.lua
 -- расширение дополнения httptimeshift: tricolor-timesift_ext.lua
@@ -63,7 +62,8 @@
 		if saveToken and CheckToken(saveToken) == 200 then
 			tok = saveToken
 		else
-			local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cHM6Ly9rb3Zyb3YtMzMucnUvc2ltcGxlLXRyLXR2LnR4dA')})
+			local headers = m_simpleTV.Common.CryptographicHash(m_simpleTV.Common.GetCModuleExtension(), Md5) .. ': ' .. m_simpleTV.Common.CryptographicHash(os.date("!%Y|%m|%d", os.time()), Md5)
+			local rc, answer = m_simpleTV.Http.Request(session, {url = decode64('aHR0cDovL285Njg4OW5vLmJlZ2V0LnRlY2gvdGtuLnBocD90dj10cmtscg'), headers = headers})
 			if rc ~= 200 then return end
 				if answer then
 					answer = decode64(answer)
@@ -82,7 +82,6 @@
 	
 	local token = GetToken()
 		if not token then return end
-	
 	local amp
 	if inAdr:match('%?') then
 		amp = '&'
