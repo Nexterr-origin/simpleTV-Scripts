@@ -70,7 +70,7 @@
 			m_simpleTV.Http.Close(session)
 			retAdr = tab.iframe_url:gsub('^//', 'https://')
 			m_simpleTV.Control.ChangeAddress = 'No'
-			m_simpleTV.Control.CurrentAddress = retAdr
+			m_simpleTV.Control.CurrentAddress = retAdr .. '$OPT:INT-SCRIPT-PARAMS=rutube.ru'
 			dofile(m_simpleTV.MainScriptDir .. 'user/video/video.lua')
 		 return
 		end
