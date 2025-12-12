@@ -176,7 +176,7 @@
 		end
 		if embedUrl:match('mediavitrina') then
 			m_simpleTV.Control.ChangeAddress = 'No'
-			m_simpleTV.Control.CurrentAddress = embedUrl
+			m_simpleTV.Control.CurrentAddress = embedUrl .. '$OPT:INT-SCRIPT-PARAMS=smotrim.ru'
 			dofile(m_simpleTV.MainScriptDir .. 'user/video/video.lua')
 		 return
 		end
@@ -292,5 +292,6 @@
 	if duration and tonumber(duration) < 300 then
 		retAdr = retAdr .. '$OPT:POSITIONTOCONTINUE=0'
 	end
+	
 	m_simpleTV.Control.CurrentAddress = retAdr
 -- debug_in_file(retAdr .. '\n')
