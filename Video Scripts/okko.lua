@@ -207,13 +207,13 @@
 			t[#t].Address = adr
 			index = #t
 			for i = 1, #t do
-				if t[i].Id >= lastQuality then
+				if t[i].Id >= lastQuality and lastQuality ~= 50 then
 					index = i
 				 break
 				end
 			end
 			if index > 1 then
-				if t[index].Id > lastQuality then
+				if t[index].Id > lastQuality and lastQuality == 50 then
 					index = index - 1
 				end
 			end
