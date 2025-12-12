@@ -17,19 +17,25 @@
 	local session = m_simpleTV.Http.New('Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:145.0) Gecko/20100101 Firefox/145.0')
 		if not session then return end
 	m_simpleTV.Http.SetTimeout(session, 8000)
+	local slug, adr, egress, referer
 	
-	local slug, adr, egress
+	if inAdr:match('PARAMS=') then
+		referer = inAdr:match('([^=]+)$')
+	else
+		referer = 'www.vitrina.tv'
+	end
+
 	if inAdr:match('^https://player%.') then
-		local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr})
+		local rc, answer = m_simpleTV.Http.Request(session, {url = inAdr:gsub('$OPT:.+', '')})
 			if rc ~= 200 then return end
 		answer = answer:gsub('[%c]', ''):gsub('%s+', '')
 		answer = answer:match("sources:%{url:%'([^%']+)")
 		adr = answer:match('^([^?]+)')
 		egress = answer:match('([^=]%d+)&$')
-		adr = string.format('%s?player_referer_hostname=www.vitrina.tv&egress_version_id=%s', adr, egress)
+		adr = string.format('%s?player_referer_hostname=%s&egress_version_id=%s', adr, referer, egress)
 	elseif inAdr:match('^https://media%.') then
 		slug = inAdr:match('v1/(.-)/streams.json')
-		adr = string.format('https://media.mediavitrina.ru/balancer/v3/%s/streams.json?player_referer_hostname=www.vitrina.tv&egress_version_id=7168963', slug)
+		adr = string.format('https://media.mediavitrina.ru/balancer/v3/%s/streams.json?player_referer_hostname=%s&egress_version_id=7168963', slug, referer)
 	end
 	
 	local header = 'Referer: https://player.mediavitrina.ru/'
